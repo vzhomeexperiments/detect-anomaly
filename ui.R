@@ -24,7 +24,7 @@ stepsChoices <- c("Step 1 SubStep 1",
                   "Step 2 SubStep 6",
                   "Step 2 SubStep 7")
 
-shinyUI(fluidPage(
+shinyUI(fluidPage(theme = "bootstrap.css",
   
   # Page Row 1 == Information Pane ==
   # Adding Logo [optional]
