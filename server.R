@@ -36,7 +36,7 @@ DF_TEMP <- DF_Data %>%
   select(StartDateTime, Name, EventCode, TimeTotal, EventText)
 # ================================= 
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
 
 # =================================  
   # save variables to use in other reactive functions and render functions
@@ -89,17 +89,15 @@ shinyServer(function(input, output) {
       
   })
   
-  # # # Updating inputs ...
-  # observe({
-  #   
-  #   x <- unique(DF_TEMP$EventText)
-  #   
-  #   # Can also set the label and select items
-  #   updateSelectInput(session, "selInput",
-  #                     choices = x,
-  #                     selected = tail(x, 1)
-  #   )
-  # })
+  # # Updating inputs ...
+  observe({
+    x <- unique(DF_TEMP$EventText)
+    #Can also set the label and select items
+    updateSelectInput(session, "selInput",
+                      choices = x,
+                      selected = x[1]
+    )
+  })
   
   
 # =================================  
