@@ -89,15 +89,15 @@ shinyServer(function(input, output) {
       
   })
   
-  # # Updating inputs ...
+  # # # Updating inputs ...
   # observe({
-  #   x <- input$selInput
+  #   
+  #   x <- unique(DF_TEMP$EventText)
   #   
   #   # Can also set the label and select items
-  #   updateSelectInput(session, "selInput1",
-  #                     label = "Choose One Step",
+  #   updateSelectInput(session, "selInput",
   #                     choices = x,
-  #                     selected = head(x, 1)
+  #                     selected = tail(x, 1)
   #   )
   # })
   
