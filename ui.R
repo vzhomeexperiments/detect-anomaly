@@ -11,6 +11,7 @@
 library(shiny)
 library(DT)
 
+# ============================ THIS CODE WILL BE RUN ONCE ============================
 # Define steps choices for selectInput function (it is containing steps the user can filter)
 stepsChoices <- c("Step 1 SubStep 1",
                   "Step 1 SubStep 2",
@@ -24,32 +25,34 @@ stepsChoices <- c("Step 1 SubStep 1",
                   "Step 2 SubStep 6",
                   "Step 2 SubStep 7")
 
+# ============================ THIS CODE BELOW WILL BUILD HTML PAGE ==================
+
 shinyUI(fluidPage(theme = "bootstrap.css",
   
   # Page Row 1 == Information Pane ==
-  # Adding Logo [optional]
+           # Adding Logo [optional]
   fluidRow(column(2, img(height = 50, width  = 106, src    = "logo.JPG")),
-           column(9, 
-                  # Application title
-                  titlePanel("Preparation Steps Duration Overview"))),
+           # Application title
+           column(9, titlePanel("Change Over Steps Duration Overview"))),
   
-  # Adding a horizontal line
-  hr(),
+  hr(), # Adding a horizontal line
   
   # Page Row 2 == User Inputs ==
-  
+           # Date inputs  
   fluidRow(column(2, dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01")),
            column(2, dateInput(inputId = "DateEnd",   label = "Insert End Date")),
+           # Check box input
            column(1, checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL)),
-           column(3, helpText("Note: while the data view will show only",
-                              "the specified number of observations, the",
-                              "summary will be based on the full dataset."))),
+           # Help text
+           column(3, helpText("Note: This App was created especially for the Udemy Course",
+                              "Identifying Problems with Artificial Intelligence",
+                              "provided method to detect anomalies using",
+                              "Unsupervised Machine Learning"))),
   fluidRow(column(8, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
                                  selected = stepsChoices[1], multiple = TRUE, 
                                  selectize = TRUE, width = '100%', size = NULL))),
   
-  # Adding a horizontal line
-  hr(),
+  hr(), # Adding a horizontal line
   
   # Page Row 3 == Plot or other Outputs ==
   fluidRow(column(12,  
