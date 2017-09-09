@@ -2,7 +2,6 @@
 # Description: Shiny app for Udemy course "Identify Problem with Artificial Intelligence"
 # Author: Vladimir Zhbanko
 # Date: 2017-08-27
-# Version: 00.01
 # Date: 
 # Version: 
 # Changed: 
