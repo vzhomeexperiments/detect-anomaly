@@ -9,7 +9,6 @@
 # ----------------------------
 
 library(shiny)
-library(DT)
 
 # ============================ THIS CODE WILL BE RUN ONCE ============================
 # Define steps choices for selectInput function (it is containing steps the user can filter)
