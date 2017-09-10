@@ -110,7 +110,7 @@ shinyServer(function(input, output, session) {
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
       geom_smooth(alpha = 0.5, se = StatErr()) +
       facet_wrap(~Name) + ylab("Duration of Step, seconds") +
-      ggtitle(paste("Overview of CIP/SIP Steps ", "from: ",
+      ggtitle(paste("Overview of Steps ", "from: ",
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
@@ -124,7 +124,7 @@ shinyServer(function(input, output, session) {
       geom_smooth(alpha = 0.5, se = StatErr()) +
       facet_wrap(~Name) + 
       ylab("Duration of Step, seconds") +
-      ggtitle(paste("Overview of CIP/SIP Steps ", "from: ",
+      ggtitle(paste("Overview of Steps ", "from: ",
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
@@ -136,7 +136,7 @@ shinyServer(function(input, output, session) {
     DF_SUM() %>% 
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
       facet_wrap(Name ~ EventText) +
-      ggtitle(paste("Overview of CIP/SIP Steps ", "from: ",
+      ggtitle(paste("Overview of Steps ", "from: ",
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
@@ -153,21 +153,6 @@ shinyServer(function(input, output, session) {
                     StartDate(), " to: ", EndDate(), ". Different colour indicates potential anomaly", sep = "")) 
   })
   
-  
-  # ### Render function to create a data table:
-  
-  # output$table <- DT::renderDataTable({
-  #   #visualize statistics
-  #   DF_SUM() %>%
-  #     group_by(Name) %>%
-  #     filter(AnalogVal != 0) %>%
-  #     summarise(AverageFlowSLM = round(mean(AnalogVal),digits = 1),
-  #               TargetSLM = 6.5,
-  #               From = min(StartDate),
-  #               To = max(StartDate),
-  #               DurationDays = round((To - From)/86400), # 86400 = seconds in 1 day
-  #               WaterSaveOpportunityMcub = round(1.2*DurationDays* (AverageFlowSLM - 6.5))) #assumed 20 hours work x day
-  # })    
   
   
   
