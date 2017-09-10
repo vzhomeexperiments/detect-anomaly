@@ -88,17 +88,6 @@ shinyServer(function(input, output, session) {
       
   })
   
-  # # Updating inputs ...
-  observe({
-    x <- unique(DF_TEMP$EventText)
-    #Can also set the label and select items
-    updateSelectInput(session, "selInput",
-                      choices = x,
-                      selected = x[1]
-    )
-  })
-  
-  
 # =================================  
 # OUTPUTS
 # =================================  
