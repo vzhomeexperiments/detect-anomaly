@@ -11,6 +11,7 @@
 library(shiny)
 
 # ============================ THIS CODE WILL BE RUN ONCE ============================
+# Use this part as "No brainer" start - define elements you will use in your App...
 # Define steps choices for selectInput function (it is containing steps the user can filter)
 stepsChoices <- c("Step 1 SubStep 1",
                   "Step 1 SubStep 2",
