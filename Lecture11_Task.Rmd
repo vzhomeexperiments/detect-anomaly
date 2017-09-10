@@ -1,0 +1,167 @@
+---
+title: "Lecture 11 - Homework"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+
+### Lecture 11 - More ideas for ShinyApp user Interface
+
+* Add 12 new images to the screen, below the output. Use the very same sample logo you have in your `*www*` folder of the repository ![][id-t1]
+
+[id-t1]: task/t1.png "Adding Images"
+
+
+```{r, eval=FALSE, include=FALSE}
+fluidRow(column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")),
+           column(1, img(height = 50, width  = 106, src    = "logo.JPG")))
+```
+
+* now add simple text right below the App title saying `"Artificial Intelligence is helping Human to identify Problem"` ![][id-t2]
+
+[id-t2]: task/t2.png "Adding subtitle"
+
+
+```{r, eval=FALSE, include=FALSE}
+# Before
+fluidRow(column(2, img(height = 50, width  = 106, src    = "logo.JPG")),
+           # Application title
+           column(9, titlePanel("Change Over Steps Duration Overview")))
+# After
+fluidRow(column(2, img(height = 50, width  = 106, src    = "logo.JPG")),
+           # Application title
+           column(9, titlePanel("Change Over Steps Duration Overview"),
+                  "Artificial Intelligence is helping Human to identify Problem"))
+```
+
+* Add one variable in the beginning of the script called *daysBack30* and use this variable to be a default value for the data in the inputDate inputId = `"DateStart"`
+
+```{r, eval=FALSE, include=FALSE}
+# define variable containing a date 30 days ago
+daysBack30 <- Sys.Date() - 30
+
+# Before
+dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01")
+# After
+dateInput(inputId = "DateStart", label = "Insert Start Date", value = daysBack30)
+```
+
+* Add one checkbox right after existing one named `"add stat error"`, give `inputID` as `"happy"` and label as `"I am happy!"`. Set the default value to be `TRUE`
+
+```{r, eval=FALSE, include=FALSE}
+# Before
+fluidRow(column(2, dateInput(inputId = "DateStart", label = "Insert Start Date", value = daysBack30)),
+           column(2, dateInput(inputId = "DateEnd",   label = "Insert End Date")),
+           # Check box input
+           column(1, checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL)),
+           # Help text
+           column(3, helpText("Note: This App was created especially for the Udemy Course",
+                              "Identifying Problems with Artificial Intelligence",
+                              "provided method to detect anomalies using",
+                              "Unsupervised Machine Learning")))
+# After
+fluidRow(column(2, dateInput(inputId = "DateStart", label = "Insert Start Date", value = daysBack30)),
+           column(2, dateInput(inputId = "DateEnd",   label = "Insert End Date")),
+           # Check box input
+           column(1, checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL)),
+           # Another check box
+           column(1, checkboxInput(inputId = "happy", label = "I am Happy", value = TRUE, width = NULL)),
+           # Help text
+           column(3, helpText("Note: This App was created especially for the Udemy Course",
+                              "Identifying Problems with Artificial Intelligence",
+                              "provided method to detect anomalies using",
+                              "Unsupervised Machine Learning")))
+```
+
+* Add one more checkbox. This time your checkbox must be right below the checkbox `"I am Happy!"`. Name this checkbox inputId as `"inspired"` and specify label as `"I am Inspired!"`. Make this element unchecked as default... ![][id-t3]
+
+[id-t3]: task/t3.png "Adding checkboxes"
+
+
+```{r, eval=FALSE, include=FALSE}
+# Another check box
+           column(1, checkboxInput(inputId = "happy", label = "I am Happy", value = TRUE, width = NULL),
+                     checkboxInput(inputId = "inspired", label = "I am Inspired", value = FALSE, width = NULL))
+```
+
+* ShinyApp is nice due to it's variety of gadgets you can play with. Can you place one yourself? Looking to the App design right now It would be probably cool to have one slider right below the field for text entry. Identify where to add this element... set inputId of this element as `"mySlider"` and set the label as "This is my slider input element for the ShinyApp". Notice that there are some compulsory elements for this function like `value`, `min`, `max`... Also make this element to occupy exact same width as the element above... When you run the app notice that you can move this element by arrows on your keyboard...try it... ![][id-t4]
+
+[id-t4]: task/t4.png "Adding slider"
+
+
+```{r, eval=FALSE, include=FALSE}
+fluidRow(column(8, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
+                                 selected = stepsChoices[1], multiple = TRUE, 
+                                 selectize = TRUE, width = '100%', size = NULL),
+                   sliderInput(inputId = "mySlider", label = "This is my slider input element for the ShinyApp", 
+                                 value = 0, min = 0, max = 100, width = '100%')))
+```
+
+* Now make another simple effort. Try to find out if you can change the incremental step of the input to be 5 ![][id-t5]
+
+[id-t5]: task/t5.png "Adding slider with step 5"
+
+```{r, eval=FALSE, include=FALSE}
+fluidRow(column(8, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
+                                 selected = stepsChoices[1], multiple = TRUE, 
+                                 selectize = TRUE, width = '100%', size = NULL),
+                   sliderInput(inputId = "mySlider", label = "This is my slider input element for the ShinyApp", 
+                                 value = 0, min = 0, max = 100, width = '100%', step = 5)))
+```
+
+* Another important element of ShinyApp is of course buttons. The function that creates them called either `actionButton` or `submitButton`. Now please add the `actionButton` that will be bearing label `"Go!"`. Set inputId element of this button as `"goButton"` and place it just right after your slider. By the way one additional challenge. Can you set up the icon to be a ... car? ![][id-t6]
+
+[id-t6]: task/t6.png "Adding a car in the button"
+
+A little helper. To make sure you can put the button to the right of the slider you must include both sliderInput and actionButton inside `column()` function. Set the first argument of the column function to be 10 and 2 respectively. If in doubts you can look for the function help with `?column`. Before you run the app make sure keep brackets balanced! `R-Studio` editor will help you with that... simply place the cursor after the bracket and corresponding bracket will be highlighted with a shadow...
+
+```{r, eval=FALSE, include=FALSE}
+fluidRow(column(8, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
+                                 selected = stepsChoices[1], multiple = TRUE, 
+                                 selectize = TRUE, width = '100%', size = NULL),
+                     column(10,sliderInput(inputId = "mySlider", label = "This is my slider input element for the ShinyApp", 
+                                 value = 0, min = 0, max = 100, width = '100%', step = 5)),
+                     column(2, actionButton(inputId = "goButton", label = "Go!",icon = icon("car")))))
+```
+
+
+So far it was all the exercises about either elements of the html page (images) or user inputs... what about to manage some elements of the outputs??? 
+
+* Delete the tab "Plot - Smoothed" from the app... simply comment the existing plot out. Well, only one task for now... ![][id-t7]
+
+[id-t7]: task/t7.png "Removing an element from the output"
+
+```{r, eval=FALSE, include=FALSE}
+# Before
+  # Page Row 3 == Plot or other Outputs ==
+  fluidRow(column(12,  
+                  # Show a plot 
+                  mainPanel(
+                    tabsetPanel(
+                      #tabPanel("Plot - Smoothed", plotOutput("Plot")),
+                      tabPanel("Plot - Points", plotOutput("Plot1")),
+                      tabPanel("Plot - Box Plot", plotOutput("Plot2")),
+                      tabPanel("Deviation Auto Detection", "Select machine step and choose the dates of interest",
+                               hr(), 
+                               selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
+                                           selected = stepsChoices[1], multiple = FALSE, 
+                                           selectize = TRUE, size = NULL), hr(),
+                               plotOutput("Plot3"))
+                    )
+
+                  )
+  ))
+
+```
+
+Struggle to make it happen - no problem! The best learning is by doing. Go to solution file `"Lecture11_Solution"`. Once you are implementing your own project - try to re-use either this file or your personal records...
