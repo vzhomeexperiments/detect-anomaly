@@ -49,6 +49,18 @@ shinyServer(function(input, output, session) {
   
 # =================================  
 
+  ## ****** ---------------*******
+  # Uploading data using the app
+  observeEvent(input$myTable, {
+    inFile <- input$myTable
+    if (is.null(inFile))
+      return()
+    saveRDS(inFile,file = "in.File")
+    file.copy(inFile$datapath, file.path("temp_data", paste(Sys.time(), ".csv")))
+  })
+  ## ******---------------********
+  
+  
 # =================================
     # save as data frame data used for statistics in other render functions
   DF_SUM <- reactive({
