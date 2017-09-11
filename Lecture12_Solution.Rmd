@@ -1,0 +1,205 @@
+---
+title: "Lecture 12 - Homework"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+
+### Lecture 12 - More ideas for ShinyApp server.R Data Import
+
+This time there is now real stress for you! Simply read provided text below. If possible try to understand what this code does...
+
+#### Import data from SQL Database
+
+In this example implementation is given using RODBC package. Implementation is consisting of two parts:
+
+1. Creating a dedicated function that will
+  a. establish the connection providing credentials
+  b. construct query request
+  c. send the query to the connection and retrieve the result
+  d. close the connection
+  e. return the result of the function 
+2. Using this function in the script to actually call the data
+
+As you can see there should be everything prepared on the SQL side. For example we have to have already a working table with data populated.
+
+```r
+library(RODBC)
+
+# function that connects to SQL and return DF object
+getDataFromSQL <- function(wrkTableName, connection = "NameConnectionODBC", userID = "SQLUserID", passID = "Password"){
+
+  ch2<-odbcConnect(connection,uid = userID,pwd=passID)
+  if(ch2 == -1){
+    print("Error: connection was not established")
+
+  }else{
+    # Contruct SQL request
+    sql.request2 <- paste("SELECT * FROM", wrkTableName)
+    # Contruct SQL request and get data
+    res2 <- as.data.frame(sqlQuery(ch2, sql.request2))
+    odbcClose(ch2)
+    return(res2)
+  }
+}
+
+# --------
+# importing data (code will be run once)
+##
+# data frame containing flow information
+DF_Data <- getDataFromSQL("DB_Name.dbo.WRK_DF_Data")
+# data frame containing equipment information
+DF_Equipm <- getDataFromSQL("DB_Name.dbo.WRK_DF_EquipmData")
+# data frame containing Event Names
+DF_EvCode <- getDataFromSQL("DB_Name.dbo.WRK_EvCodeData")
+--------
+
+```
+
+#### Import data from the User...
+
+To enable user entry data from file it's necessary to use `fileInput` function and `observeEvent` function on the server side
+
+```r
+# in ui.R
+fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept = 'table/csv')
+
+# in server.R NB: create folder "temp_data" in the file system of the project...
+  ## ****** ---------------*******
+  # Uploading data using the app
+  observeEvent(input$myTable, {
+    inFile <- input$myTable
+    if (is.null(inFile))
+      return()
+    file.copy(inFile$datapath, file.path("temp_data", paste(Sys.time(), ".csv")))
+  })
+  ## ******---------------********
+```
+
+### Lecture 12 - More to Practice for ShinyApp server.R Data Import
+
+This exercise will allow you to understand better how the file upload from the user work. Try to execute steps mentioned below on your home computer to understand the result...
+
+#### Running ShinyApp in the Viewer Pane
+
+Go to the Branch named Lecture12-Server_CallData and select script `ui.R`. Now select to run the app in the Viewer window ![][id-t0] 
+Run the app now and you will see how the ShinyApp can be run in the Viewer pane.
+
+#### Fixing data import warnings
+
+Now that our App runs in the Viewer Pane let's pay attention to the warnings we are having while importing the files. They are obviously not a big deal however for the sake of exercise let's try to fix that..
+
+* Clean the console window by clicking inside the Console and pressing **CTRL + L**
+* Run the App again and see that few warnings would appear...
+* Pay attention that you will need to press **stop** button to actually stop execution of ShinyApp, otherwise you can't execute any code
+
+```{r, echo=TRUE}
+DF <- read_csv("DF_Data.csv")
+```
+
+Can you try to fix this??? 
+
+**Hint:** read the function description by pressing `?read_csv` in the console
+
+```{r, eval=FALSE, include=TRUE}
+# help will reveal that we need to specify column types...
+?read_csv
+# specify column types to avoid warnings
+read_csv("DF_Data.csv", col_types = "i?iii") %>% head()
+
+```
+
+
+#### Understanding of fileInput() object structure
+
+As you see in the code chunk just above we save the content of the file to the variable inFile: `inFile <- input$myTable`. Let us try to understand the structure of this element...
+
+To do so I will modify the structure of the code as you will see below adding `saveRDS(inFile,file = "in.File")`:
+
+```r
+# in ui.R
+fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept = 'table/csv')
+
+# in server.R NB: create folder "temp_data" in the file system of the project...
+  ## ****** ---------------*******
+  # Uploading data using the app
+  observeEvent(input$myTable, {
+    inFile <- input$myTable
+    if (is.null(inFile))
+      return()
+    #save R object to file for further understanding
+    saveRDS(inFile,file = "in.File")
+    file.copy(inFile$datapath, file.path("temp_data", paste(Sys.time(), ".csv")))
+  })
+  ## ******---------------********
+```
+
+Once you will run your app now and try to load file you will get the object 'inFile' actually saved to the file directory of the project under the name of 'in.File' (you can specify any other name). The next step you may do is to simply run the following command in the console: `readRDS("in.File")`. This will give you the possibility to read the file and see the content in the console...
+
+```{r}
+str(readRDS("in.File"))
+```
+
+This information will permit you to know exact name of the file, it's path, size and the type...
+
+#### Visualize the content of the file
+
+Let's try to go a bit further to see how do we see the content of the file. The concept will be covered in the further lectures but now just look to the code (adapted from: <http://shiny.rstudio.com/gallery/file-upload.html>)...
+
+* Adding one more element to the Tabs in `ui.R` :
+
+```r
+# Page Row 3 == Plot or other Outputs ==
+  fluidRow(column(12,  
+                  # Show a plot 
+                  mainPanel(
+                    tabsetPanel(
+                      tabPanel("Plot - Smoothed", plotOutput("Plot")),
+                      tabPanel("Plot - Points", plotOutput("Plot1")),
+                      tabPanel("Plot - Box Plot", plotOutput("Plot2")),
+                      tabPanel("Deviation Auto Detection", "Select machine step and choose the dates of interest",
+                               hr(), 
+                               selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
+                                           selected = stepsChoices[1], multiple = FALSE, 
+                                           selectize = TRUE, size = NULL), hr(),
+                               plotOutput("Plot3")),
+                      tabPanel("Table from File Upload", tableOutput("inFilecontents"))
+                    )
+
+                  )
+  ))
+```
+Simply now run the app to see the new tab created ![][id-t1] 
+
+
+
+* Adding one more element to the Tabs in `ui.R` :
+
+```r
+# ================================= 
+  # visualize the table that user loads
+  output$inFilecontents <- renderTable({
+    
+    # input$file1 will be NULL initially. After the user selects
+    # and uploads a file, all rows will be shown.
+    
+    req(input$myTable)
+    
+    df <- read_csv(input$myTable$datapath)
+    
+      # show maximum 10 lines
+      return(head(df, 10))
+    
+  })
+```
+
+Result is very simple data table as you may also see in this screen shot below:
+
+![][id-t2] 
+
+
+[id-t0]: task/t0.png "Tabs"
+[id-t1]: task/t1.png "Tabs"
+[id-t2]: task/t2.png "Table"
+
+
