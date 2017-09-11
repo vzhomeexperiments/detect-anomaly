@@ -238,11 +238,178 @@ cols(
 <!-- rnb-frame-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>Run the code from the App directly</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBEYXRhIG1hbmlwdWxhdGlvbiBhbmQgc2F2aW5nIHRvIHRoZSBERl9URU1QXG5ERl9URU1QIDwtIHJlYWRfY3N2KFwiREZfRGF0YS5jc3ZcIikgJT4lIFxuICAjIGFycmFuZ2UgYnkgZGF0ZSBcbiAgYXJyYW5nZShTdGFydERhdGVUaW1lKSAlPiUgXG4gICMgam9pbiB0byBkZWNvZGUgZXF1aXBtZW50IHNlcmlhbCBudW1iZXJcbiAgaW5uZXJfam9pbihERl9FcXVpcG0sIGJ5ID0gXCJJREVxdWlwbWVudFwiKSAlPiUgXG4gICMgc2VsZWN0IG9ubHkgY29sdW1uIG5lZWRlZFxuICBzZWxlY3QoU3RhcnREYXRlVGltZSwgTmFtZSwgRXZlbnRDb2RlLCBUaW1lVG90YWwpICU+JSBcbiAgIyBqb2luIHRvIGRlY29kZSBFdmVudCBDb2RlIG1lYW5pbmdcbiAgaW5uZXJfam9pbihERl9FdkNvZGUsIGJ5ID0gXCJFdmVudENvZGVcIikgJT4lIFxuICAjIHNlbGVjdCBvbmx5IGNvbHVtbiBuZWVkZWRcbiAgc2VsZWN0KFN0YXJ0RGF0ZVRpbWUsIE5hbWUsIEV2ZW50Q29kZSwgVGltZVRvdGFsLCBFdmVudFRleHQpXG5gYGAifQ== -->
+<pre class="r"><code># Data manipulation and saving to the DF_TEMP
+DF_TEMP &lt;- read_csv(&quot;DF_Data.csv&quot;) %&gt;% 
+  # arrange by date 
+  arrange(StartDateTime) %&gt;% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = &quot;IDEquipment&quot;) %&gt;% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %&gt;% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = &quot;EventCode&quot;) %&gt;% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal, EventText)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFyc2VkIHdpdGggY29sdW1uIHNwZWNpZmljYXRpb246XG5jb2xzKFxuICBSb3dOdW1iZXIgPSBjb2xfaW50ZWdlcigpLFxuICBTdGFydERhdGVUaW1lID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICBFdmVudENvZGUgPSBjb2xfaW50ZWdlcigpLFxuICBJREVxdWlwbWVudCA9IGNvbF9pbnRlZ2VyKCksXG4gIFRpbWVUb3RhbCA9IGNvbF9pbnRlZ2VyKClcbilcbiJ9 -->
+<pre><code>Parsed with column specification:
+cols(
+  RowNumber = col_integer(),
+  StartDateTime = col_datetime(format = &quot;&quot;),
+  EventCode = col_integer(),
+  IDEquipment = col_integer(),
+  TimeTotal = col_integer()
+)</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyA9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0gXG4jIFxuaGVhZChERl9URU1QKVxuYGBgIn0= -->
+<pre class="r"><code># ================================= 
+# 
+head(DF_TEMP)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6NSwibnJvdyI6Nn0sInJkZiI6Ikg0c0lBQUFBQUFBQUE3VlN5MDRDTVJRdDh5SXpCalM2TnlTc21RVDBBeVRnUWhNZmNjYUVsVWtacWt3Y1d6SVVKVWFqTzMvQW4zREhKeGo5QVZkOGpBdndkdG9TbUoySlR0STVwNmUzdmIybjk2emRhWGdkRHlGa0lOT0N2d25VTXVCWFFCWnlCWTRSTXJlQTJJQmxRS2M1TlQrMmdUU25heXlRK0dEdlNaeElmTng4ei9EcDlSbmxEN1NqQkErSFFEYXlyRklzbnA0RUI1MklxNm1UVFhsK0o3OW5sS2lkV2pUUHd4YkFUTW1Pa3IwakhQVmpTaXJWK2o4cUNKVkVUcWY2MlZmamNHbGM2SFhwSGhMK3ZzSE5YeEJ5djJBNnlkMTVJK0JrVUtsWGdsRTNZenUvMU90L3BEZWs3OFk4WjdYWHd4ejdseW0rSWZtWG9hRHBON1dWV0FvNFRua2JjeExHc0VPSzFqRmVjSGYvbGxEZVlyMkZJQUpEeG5HeUVoR1NjYjRWM0pUZCtUcXA4TmdRalRhZno3OWxMNndFRjltQXg0eENxS0VhZWFXc1Fwb1Qxa2RVSE4yclJmMFJ2YTd0aXRLelpmbVZGSGVXdUMxVFd0b3k3WUZENkJYMGlyWXB3VjJpYXl0RENWa0YvaUNOcWU1OEQ5U2h6NWM4OENLV2FFWDIrZXdIVTBsRjVyWURBQUE9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["StartDateTime"],"name":[1],"type":["S3: POSIXct"],"align":["right"]},{"label":["Name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["EventCode"],"name":[3],"type":["int"],"align":["right"]},{"label":["TimeTotal"],"name":[4],"type":["int"],"align":["right"]},{"label":["EventText"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"2016-10-25 07:23:36","2":"Machine #1","3":"103007080","4":"5","5":"Step 1 SubStep 3"},{"1":"2016-11-17 14:23:08","2":"Machine #1","3":"103007080","4":"4","5":"Step 1 SubStep 3"},{"1":"2016-11-17 17:59:49","2":"Machine #1","3":"103007050","4":"681","5":"Step 1 SubStep 1"},{"1":"2016-11-17 18:11:13","2":"Machine #1","3":"103007050","4":"391","5":"Step 1 SubStep 1"},{"1":"2016-11-17 18:17:47","2":"Machine #1","3":"103007050","4":"2512","5":"Step 1 SubStep 1"},{"1":"2016-11-17 19:00:34","2":"Machine #1","3":"103007070","4":"1200","5":"Step 1 SubStep 2"}],"options":{"columns":{"min":{},"max":[10],"total":[5]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>As you see we have now Start Time, Name, time total and event text</p>
+<p>Let’s review how did we get this step by step…</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyByZWFkIGRhdGEgYW5kIGFycmFuZ2UgYnkgc3RhcnQgZGF0ZSB0aW1lIGFuZCBvdXB1dCBvbmx5IDYgcm93cy4uLlxucmVhZF9jc3YoXCJERl9EYXRhLmNzdlwiKSAlPiUgXG4gICMgYXJyYW5nZSBieSBkYXRlIFxuICBhcnJhbmdlKFN0YXJ0RGF0ZVRpbWUpICU+JSBoZWFkKClcbmBgYCJ9 -->
+<pre class="r"><code># read data and arrange by start date time and ouput only 6 rows...
+read_csv(&quot;DF_Data.csv&quot;) %&gt;% 
+  # arrange by date 
+  arrange(StartDateTime) %&gt;% head()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFyc2VkIHdpdGggY29sdW1uIHNwZWNpZmljYXRpb246XG5jb2xzKFxuICBSb3dOdW1iZXIgPSBjb2xfaW50ZWdlcigpLFxuICBTdGFydERhdGVUaW1lID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICBFdmVudENvZGUgPSBjb2xfaW50ZWdlcigpLFxuICBJREVxdWlwbWVudCA9IGNvbF9pbnRlZ2VyKCksXG4gIFRpbWVUb3RhbCA9IGNvbF9pbnRlZ2VyKClcbilcbiJ9 -->
+<pre><code>Parsed with column specification:
+cols(
+  RowNumber = col_integer(),
+  StartDateTime = col_datetime(format = &quot;&quot;),
+  EventCode = col_integer(),
+  IDEquipment = col_integer(),
+  TimeTotal = col_integer()
+)</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6NSwibnJvdyI6Nn0sInJkZiI6Ikg0c0lBQUFBQUFBQUEzVlN1MDdETUJSMTg2b2ExSUxFemdCek15Q3hzS0cyUXhkQWJaRzZJVGMxTkNLMWkrdFF4SVQ2TlF3TXJMd0YvQU1ET3ovQWlGRERkV3lqRWtHazQzTjlmTzNyYytOV3ZidnVkMzJFa0lWc0IwWWJRc2VDb1lBY1ZKSjhpcEM5RElFTEtBTTh3QTNnRm5BSHVBYzhBQjRocnlMWHQxN3RpeThJZ0M4dHhWY2ZpcTlYRlQrOW5XZjh2SUpRdnFBYnhuZzhobUFwdTVVU2k3czc3V1kzRkhycVpWT1IzeW5PR0NWNnB4SHR2VTROYUdadTc2Mjk4RDh3bUhObi93T3p2Z25ZaHdydndGUGdpdXFPdkl1VjVzcjdmU3h3Y01EeGtPUnZTMEV6UGwwdGxscHNzcDBNZTRScm9kd1dtSXM2RnFRVHdSRTZxM0ZDcUtpeHZoRVdtdlhHY1JLTmhpQ2JISm5mWVFMSHVib2x6aWFCcVMwdFdmQXZVSnFtbjZwTnY1S0xiQ1FpUmlIVk1tOWczbDJCNTRURmhNcWorOVZ3a05DajZvYnNRTGFzdnJLT3ZibFlkODR4blRPdDhBZzlqS2h4Nk1hNFIySTlxWUNGekVFdzR0R1BZeC9VY1NBeXkxb0pXV3dVOVFSbTMwNFdpUW54QWdBQSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["RowNumber"],"name":[1],"type":["int"],"align":["right"]},{"label":["StartDateTime"],"name":[2],"type":["S3: POSIXct"],"align":["right"]},{"label":["EventCode"],"name":[3],"type":["int"],"align":["right"]},{"label":["IDEquipment"],"name":[4],"type":["int"],"align":["right"]},{"label":["TimeTotal"],"name":[5],"type":["int"],"align":["right"]}],"data":[{"1":"186","2":"2016-10-25 00:14:40","3":"103007090","4":"3","5":"58"},{"1":"187","2":"2016-10-25 01:06:16","3":"103007090","4":"3","5":"95"},{"1":"188","2":"2016-10-25 02:30:32","3":"103007090","4":"3","5":"485"},{"1":"189","2":"2016-10-25 04:50:16","3":"103007090","4":"3","5":"130"},{"1":"190","2":"2016-10-25 07:19:06","3":"103007090","4":"3","5":"270"},{"1":"191","2":"2016-10-25 07:23:36","3":"103007080","4":"3","5":"5"}],"options":{"columns":{"min":{},"max":[10],"total":[5]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now we ‘join’ the IDEquipment table …</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVhZF9jc3YoXCJERl9EYXRhLmNzdlwiKSAlPiUgXG4gICMgYXJyYW5nZSBieSBkYXRlIFxuICBhcnJhbmdlKFN0YXJ0RGF0ZVRpbWUpICU+JSBcbiAgIyBqb2luIHRvIGRlY29kZSBlcXVpcG1lbnQgc2VyaWFsIG51bWJlclxuICBpbm5lcl9qb2luKERGX0VxdWlwbSwgYnkgPSBcIklERXF1aXBtZW50XCIpICU+JSBoZWFkKClcbmBgYCJ9 -->
+<pre class="r"><code>read_csv(&quot;DF_Data.csv&quot;) %&gt;% 
+  # arrange by date 
+  arrange(StartDateTime) %&gt;% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = &quot;IDEquipment&quot;) %&gt;% head()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFyc2VkIHdpdGggY29sdW1uIHNwZWNpZmljYXRpb246XG5jb2xzKFxuICBSb3dOdW1iZXIgPSBjb2xfaW50ZWdlcigpLFxuICBTdGFydERhdGVUaW1lID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICBFdmVudENvZGUgPSBjb2xfaW50ZWdlcigpLFxuICBJREVxdWlwbWVudCA9IGNvbF9pbnRlZ2VyKCksXG4gIFRpbWVUb3RhbCA9IGNvbF9pbnRlZ2VyKClcbilcbiJ9 -->
+<pre><code>Parsed with column specification:
+cols(
+  RowNumber = col_integer(),
+  StartDateTime = col_datetime(format = &quot;&quot;),
+  EventCode = col_integer(),
+  IDEquipment = col_integer(),
+  TimeTotal = col_integer()
+)</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6NiwibnJvdyI6Nn0sInJkZiI6Ikg0c0lBQUFBQUFBQUE3VlNQVS9ETUJBMVNacXFRUzFJM1JHaWN5UEJ3TUNHMmc0ZEtLZ3RVamZrcG9aR3BIWkpISXFZRUwrR2dZR1Zid0gvZ1lHZFA4Q0lVTU01c2FzMndFaWs1M2QrdnVUdVhkeXNkdGFzam9VUTBwQnV3S3BEYUdpd3pDRUQ1UVNmSUtRWElUQUJlY2szZ0Z2QUhlQWU4QUI0aEx5Q09OOTgxUysrSUFDKzFCSysra2o0ZWlYaHA3ZXptSitYRUVvWHpEZ2VEZ0lJRnVPdUVqRzdzOTJxZHh3dXQyYTg1ZWszK1NtalJMNnBSSDIzWFFFYXErN04wb3YvQy9wVDd2US9vTTQzQUh0UTRSMzRIRmk0enNpeXBpeHJiV0duNzFLeVhGcjlSeVgycjBVcHkxWVBjMnp2KzNoQTBoT2lvQVdwVm5OTk5tcUVneTd4cFpCdmNlenpLdWFrN2NJblpGYnRtRkJlWVQwbHpOZXJ0YVBRSFE1QVZqa2l2ODA0OXFSZ05INzJrUFBaeUZaOWlKRnFjQmRRRkVXZnlXK2FTYzZ5SVhjWmhWU3RPRFhseWVYMFU4SkNTTVduZTJXbkg5TEQ4cnFZUm55Y1BIa1ptN094S0dtb0tXYlVIU1AwQU1hc0p1ZmhMbEcyQ21BaGRtQVBmWGZpM2dJMXNQbVVmY3RobmxLU0t6aitCaFlaYUdOeEF3QUEifQ== -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["RowNumber"],"name":[1],"type":["int"],"align":["right"]},{"label":["StartDateTime"],"name":[2],"type":["S3: POSIXct"],"align":["right"]},{"label":["EventCode"],"name":[3],"type":["int"],"align":["right"]},{"label":["IDEquipment"],"name":[4],"type":["int"],"align":["right"]},{"label":["TimeTotal"],"name":[5],"type":["int"],"align":["right"]},{"label":["Name"],"name":[6],"type":["chr"],"align":["left"]}],"data":[{"1":"186","2":"2016-10-25 00:14:40","3":"103007090","4":"3","5":"58","6":"Machine #1"},{"1":"187","2":"2016-10-25 01:06:16","3":"103007090","4":"3","5":"95","6":"Machine #1"},{"1":"188","2":"2016-10-25 02:30:32","3":"103007090","4":"3","5":"485","6":"Machine #1"},{"1":"189","2":"2016-10-25 04:50:16","3":"103007090","4":"3","5":"130","6":"Machine #1"},{"1":"190","2":"2016-10-25 07:19:06","3":"103007090","4":"3","5":"270","6":"Machine #1"},{"1":"191","2":"2016-10-25 07:23:36","3":"103007080","4":"3","5":"5","6":"Machine #1"}],"options":{"columns":{"min":{},"max":[10],"total":[6]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Now we have additional column Name of equipment… we will repeat exact same for Event Code</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVhZF9jc3YoXCJERl9EYXRhLmNzdlwiKSAlPiUgXG4gICMgYXJyYW5nZSBieSBkYXRlIFxuICBhcnJhbmdlKFN0YXJ0RGF0ZVRpbWUpICU+JSBcbiAgIyBqb2luIHRvIGRlY29kZSBlcXVpcG1lbnQgc2VyaWFsIG51bWJlclxuICBpbm5lcl9qb2luKERGX0VxdWlwbSwgYnkgPSBcIklERXF1aXBtZW50XCIpICU+JSBcbiAgIyBzZWxlY3Qgb25seSBjb2x1bW4gbmVlZGVkXG4gIHNlbGVjdChTdGFydERhdGVUaW1lLCBOYW1lLCBFdmVudENvZGUsIFRpbWVUb3RhbCkgJT4lIFxuICAjIGpvaW4gdG8gZGVjb2RlIEV2ZW50IENvZGUgbWVhbmluZ1xuICBpbm5lcl9qb2luKERGX0V2Q29kZSwgYnkgPSBcIkV2ZW50Q29kZVwiKSAlPiUgaGVhZCgpXG5gYGAifQ== -->
+<pre class="r"><code>read_csv(&quot;DF_Data.csv&quot;) %&gt;% 
+  # arrange by date 
+  arrange(StartDateTime) %&gt;% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = &quot;IDEquipment&quot;) %&gt;% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %&gt;% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = &quot;EventCode&quot;) %&gt;% head()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFyc2VkIHdpdGggY29sdW1uIHNwZWNpZmljYXRpb246XG5jb2xzKFxuICBSb3dOdW1iZXIgPSBjb2xfaW50ZWdlcigpLFxuICBTdGFydERhdGVUaW1lID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICBFdmVudENvZGUgPSBjb2xfaW50ZWdlcigpLFxuICBJREVxdWlwbWVudCA9IGNvbF9pbnRlZ2VyKCksXG4gIFRpbWVUb3RhbCA9IGNvbF9pbnRlZ2VyKClcbilcbiJ9 -->
+<pre><code>Parsed with column specification:
+cols(
+  RowNumber = col_integer(),
+  StartDateTime = col_datetime(format = &quot;&quot;),
+  EventCode = col_integer(),
+  IDEquipment = col_integer(),
+  TimeTotal = col_integer()
+)</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6NSwibnJvdyI6Nn0sInJkZiI6Ikg0c0lBQUFBQUFBQUE3VlN5MDRDTVJRdDh5SXpCalM2TnlTc21RUmN1SldBQzAxOHhCa1RWaVpscURKeGJNbFFsQmlON3Z3QmY4SWRuMkQwQjF6eE1TN0EyMmxMWUhZbU9rbm5uSjdlOXZhZTNyTjJwK0YxUElTUWdVd0wvaVpReTRCZkFWbklGVGhHeU53Q1lnT1dBWjNtMVB6WUJ0S2NyckZBNG9POUozRWk4WEh6UGNPbjEyZVVQOUNPRWp3Y0F0bklza3F4ZUhvU0hIUWlycVpPTnVYNW5meWVVYUoyYXRFOEQxc0FNeVU3U3ZhT2NOU1BLYWxVNi8rb0lGUVNPWjNxWjErTnc2VnhvZGVsZTBqNCt3WTNmMEhJL1lMcEpIZm5qWUNUUWFWZUNVYmRqTzM4VXEvL2tkNlF2aHZ6bk5WZUQzUHNYNmI0aHVSZmhvS20zOVJXWWluZ09PVnR6RWtZd3c0cFdzZDR3ZDM5VzBKNWkvVVdnZ2dNR2NmSlNrUkl4dmxXY0ZOMjUrdWt3bU5ETk5wOFB2K1d2YkFTWEdRREhqTUtvWVpxNUpXeUNtbE9XQjlSY1hTdkZ2Vkg5THEySzByUGx1VlhVdHhaNHJaTWFXbkx0QWNPb1ZmUUs5cW1CSGVKcnEwTUpXUVYrSU0wcHJyelBWQ0hQbC95d0l0WW9oWFo1N01mTlMrblE3WURBQUE9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["StartDateTime"],"name":[1],"type":["S3: POSIXct"],"align":["right"]},{"label":["Name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["EventCode"],"name":[3],"type":["int"],"align":["right"]},{"label":["TimeTotal"],"name":[4],"type":["int"],"align":["right"]},{"label":["EventText"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"2016-10-25 07:23:36","2":"Machine #1","3":"103007080","4":"5","5":"Step 1 SubStep 3"},{"1":"2016-11-17 14:23:08","2":"Machine #1","3":"103007080","4":"4","5":"Step 1 SubStep 3"},{"1":"2016-11-17 17:59:49","2":"Machine #1","3":"103007050","4":"681","5":"Step 1 SubStep 1"},{"1":"2016-11-17 18:11:13","2":"Machine #1","3":"103007050","4":"391","5":"Step 1 SubStep 1"},{"1":"2016-11-17 18:17:47","2":"Machine #1","3":"103007050","4":"2512","5":"Step 1 SubStep 1"},{"1":"2016-11-17 19:00:34","2":"Machine #1","3":"103007070","4":"1200","5":"Step 1 SubStep 2"}],"options":{"columns":{"min":{},"max":[10],"total":[5]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>now we will select only columns we will need…</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmVhZF9jc3YoXCJERl9EYXRhLmNzdlwiKSAlPiUgXG4gICMgYXJyYW5nZSBieSBkYXRlIFxuICBhcnJhbmdlKFN0YXJ0RGF0ZVRpbWUpICU+JSBcbiAgIyBqb2luIHRvIGRlY29kZSBlcXVpcG1lbnQgc2VyaWFsIG51bWJlclxuICBpbm5lcl9qb2luKERGX0VxdWlwbSwgYnkgPSBcIklERXF1aXBtZW50XCIpICU+JSBcbiAgIyBzZWxlY3Qgb25seSBjb2x1bW4gbmVlZGVkXG4gIHNlbGVjdChTdGFydERhdGVUaW1lLCBOYW1lLCBFdmVudENvZGUsIFRpbWVUb3RhbCkgJT4lIFxuICAjIGpvaW4gdG8gZGVjb2RlIEV2ZW50IENvZGUgbWVhbmluZ1xuICBpbm5lcl9qb2luKERGX0V2Q29kZSwgYnkgPSBcIkV2ZW50Q29kZVwiKSAlPiUgXG4gICMgc2VsZWN0IG9ubHkgY29sdW1uIG5lZWRlZFxuICBzZWxlY3QoU3RhcnREYXRlVGltZSwgTmFtZSwgRXZlbnRDb2RlLCBUaW1lVG90YWwsIEV2ZW50VGV4dCkgJT4lIGhlYWQoKVxuYGBgIn0= -->
+<pre class="r"><code>read_csv(&quot;DF_Data.csv&quot;) %&gt;% 
+  # arrange by date 
+  arrange(StartDateTime) %&gt;% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = &quot;IDEquipment&quot;) %&gt;% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %&gt;% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = &quot;EventCode&quot;) %&gt;% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal, EventText) %&gt;% head()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUGFyc2VkIHdpdGggY29sdW1uIHNwZWNpZmljYXRpb246XG5jb2xzKFxuICBSb3dOdW1iZXIgPSBjb2xfaW50ZWdlcigpLFxuICBTdGFydERhdGVUaW1lID0gY29sX2RhdGV0aW1lKGZvcm1hdCA9IFwiXCIpLFxuICBFdmVudENvZGUgPSBjb2xfaW50ZWdlcigpLFxuICBJREVxdWlwbWVudCA9IGNvbF9pbnRlZ2VyKCksXG4gIFRpbWVUb3RhbCA9IGNvbF9pbnRlZ2VyKClcbilcbiJ9 -->
+<pre><code>Parsed with column specification:
+cols(
+  RowNumber = col_integer(),
+  StartDateTime = col_datetime(format = &quot;&quot;),
+  EventCode = col_integer(),
+  IDEquipment = col_integer(),
+  TimeTotal = col_integer()
+)</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbInRibF9kZiIsInRibCIsImRhdGEuZnJhbWUiXSwibmNvbCI6NSwibnJvdyI6Nn0sInJkZiI6Ikg0c0lBQUFBQUFBQUE3VlN5MDRDTVJRdDh5SXpCalM2TnlTc21RVGN1SlNBQzAxOHhCa1RWaVpscURKeGJNbFFsQmlON3Z3QmY4SWRuMkQwQjF6eE1TN0EyMmxMWUhZbU9rbm5uSjdlOXZhZTNyTjJwK0YxUElTUWdVd0wvaVpReTRCZkFWbklGVGhHeU53Q1lnT1dBWjNtMVB6WUJ0S2NyckZBNG9POUozRWk4WEh6UGNPbjEyZVVQOUNPRWp3Y0F0bklza3F4ZUhvU0hIUWlycVpPTnVYNW5meWVVYUoyYXRFOEQxc0FNeVU3U3ZhT2NOU1BLYWxVNi8rb0lGUVNPWjNxWjErTnc2VnhvZGVsZTBqNCt3WTNmMEhJL1lMcEpIZm5qWUNUUWFWZUNVYmRqTzM4VXEvL2tkNlF2aHZ6bk5WZUQzUHNYNmI0aHVSZmhvS20zOVJXWWluZ09PVnR6RWtZd3c0cFdzZDR3ZDM5VzBKNWkvVVdnZ2dNR2NmSlNrUkl4dmxXY0ZOMjUrdWt3bU5ETk5wOFB2K1d2YkFTWEdRREhqTUtvWVpxNUpXeUNtbE9XQjlSY1hTdkZ2Vkg5THEySzByUGx1VlhVdHhaNHJaTWFXbkx0QWNPb1ZmUUs5cW1CSGVKcnEwTUpXUVYrSU0wcHJyelBWQ0hQbC95d0l0WW9oWFo1N01mQ05wZkhMWURBQUE9In0= -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":["StartDateTime"],"name":[1],"type":["S3: POSIXct"],"align":["right"]},{"label":["Name"],"name":[2],"type":["chr"],"align":["left"]},{"label":["EventCode"],"name":[3],"type":["int"],"align":["right"]},{"label":["TimeTotal"],"name":[4],"type":["int"],"align":["right"]},{"label":["EventText"],"name":[5],"type":["chr"],"align":["left"]}],"data":[{"1":"2016-10-25 07:23:36","2":"Machine #1","3":"103007080","4":"5","5":"Step 1 SubStep 3"},{"1":"2016-11-17 14:23:08","2":"Machine #1","3":"103007080","4":"4","5":"Step 1 SubStep 3"},{"1":"2016-11-17 17:59:49","2":"Machine #1","3":"103007050","4":"681","5":"Step 1 SubStep 1"},{"1":"2016-11-17 18:11:13","2":"Machine #1","3":"103007050","4":"391","5":"Step 1 SubStep 1"},{"1":"2016-11-17 18:17:47","2":"Machine #1","3":"103007050","4":"2512","5":"Step 1 SubStep 1"},{"1":"2016-11-17 19:00:34","2":"Machine #1","3":"103007070","4":"1200","5":"Step 1 SubStep 2"}],"options":{"columns":{"min":{},"max":[10],"total":[5]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiTGVjdHVyZSAxMyAtIFRoZW9yeSBhbmQgSG9tZXdvcmsiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KClRoaXMgaXMgYW4gW1IgTWFya2Rvd25dKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIE5vdGVib29rCgojIyMgTGVjdHVyZSAxMyAtIFdoYXQgRGF0YSBhbmQgTWFuaXB1bGF0aW9uIERhdGEKCiMjIyMgV2UgY2FuIHJldmlldyB0aGUgZGF0YSBmaXJzdC4uLgoKYGBge3IsIGVjaG89VFJVRX0KIyBkYXRhIGZyYW1lIGNvbnRhaW5pbmcgaW5mb3JtYXRpb24gZnJvbSBtdWx0aXBsZSBzZW5zb3JzCnJlYWRfY3N2KCJERl9EYXRhLmNzdiIpICU+JSBoZWFkKDMpCiMgZGF0YSBmcmFtZSBjb250YWluaW5nIGVxdWlwbWVudCBpbmZvcm1hdGlvbgpyZWFkX2NzdigiREZfRXF1aXBtRGF0YS5jc3YiKSAlPiUgaGVhZCgzKQojIGRhdGEgZnJhbWUgY29udGFpbmluZyBFdmVudCBOYW1lcwpyZWFkX2NzdigiREZfRXZDb2RlRGF0YS5jc3YiKSAlPiUgaGVhZCgzKQpgYGAKCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiTGVjdHVyZSAxMyAtIFRoZW9yeSBhbmQgSG9tZXdvcmsiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KClRoaXMgaXMgYW4gW1IgTWFya2Rvd25dKGh0dHA6Ly9ybWFya2Rvd24ucnN0dWRpby5jb20pIE5vdGVib29rCgojIyMgTGVjdHVyZSAxMyAtIFdoYXQgRGF0YSBhbmQgTWFuaXB1bGF0aW9uIERhdGEKCiMjIyMgV2UgY2FuIHJldmlldyB0aGUgZGF0YSBmaXJzdC4uLgoKYGBge3IsIGVjaG89VFJVRX0KIyBkYXRhIGZyYW1lIGNvbnRhaW5pbmcgaW5mb3JtYXRpb24gZnJvbSBtdWx0aXBsZSBzZW5zb3JzCnJlYWRfY3N2KCJERl9EYXRhLmNzdiIpICU+JSBoZWFkKDMpCiMgZGF0YSBmcmFtZSBjb250YWluaW5nIGVxdWlwbWVudCBpbmZvcm1hdGlvbgpyZWFkX2NzdigiREZfRXF1aXBtRGF0YS5jc3YiKSAlPiUgaGVhZCgzKQojIGRhdGEgZnJhbWUgY29udGFpbmluZyBFdmVudCBOYW1lcwpyZWFkX2NzdigiREZfRXZDb2RlRGF0YS5jc3YiKSAlPiUgaGVhZCgzKQpgYGAKClJ1biB0aGUgY29kZSBmcm9tIHRoZSBBcHAgZGlyZWN0bHkKCmBgYHtyfQojIERhdGEgbWFuaXB1bGF0aW9uIGFuZCBzYXZpbmcgdG8gdGhlIERGX1RFTVAKREZfVEVNUCA8LSByZWFkX2NzdigiREZfRGF0YS5jc3YiKSAlPiUgCiAgIyBhcnJhbmdlIGJ5IGRhdGUgCiAgYXJyYW5nZShTdGFydERhdGVUaW1lKSAlPiUgCiAgIyBqb2luIHRvIGRlY29kZSBlcXVpcG1lbnQgc2VyaWFsIG51bWJlcgogIGlubmVyX2pvaW4oREZfRXF1aXBtLCBieSA9ICJJREVxdWlwbWVudCIpICU+JSAKICAjIHNlbGVjdCBvbmx5IGNvbHVtbiBuZWVkZWQKICBzZWxlY3QoU3RhcnREYXRlVGltZSwgTmFtZSwgRXZlbnRDb2RlLCBUaW1lVG90YWwpICU+JSAKICAjIGpvaW4gdG8gZGVjb2RlIEV2ZW50IENvZGUgbWVhbmluZwogIGlubmVyX2pvaW4oREZfRXZDb2RlLCBieSA9ICJFdmVudENvZGUiKSAlPiUgCiAgIyBzZWxlY3Qgb25seSBjb2x1bW4gbmVlZGVkCiAgc2VsZWN0KFN0YXJ0RGF0ZVRpbWUsIE5hbWUsIEV2ZW50Q29kZSwgVGltZVRvdGFsLCBFdmVudFRleHQpCiMgPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09IAojIApoZWFkKERGX1RFTVApCmBgYAoKQXMgeW91IHNlZSB3ZSBoYXZlIG5vdyBTdGFydCBUaW1lLCBOYW1lLCB0aW1lIHRvdGFsIGFuZCBldmVudCB0ZXh0CgpMZXQncyByZXZpZXcgaG93IGRpZCB3ZSBnZXQgdGhpcyBzdGVwIGJ5IHN0ZXAuLi4KCmBgYHtyfQojIHJlYWQgZGF0YSBhbmQgYXJyYW5nZSBieSBzdGFydCBkYXRlIHRpbWUgYW5kIG91cHV0IG9ubHkgNiByb3dzLi4uCnJlYWRfY3N2KCJERl9EYXRhLmNzdiIpICU+JSAKICAjIGFycmFuZ2UgYnkgZGF0ZSAKICBhcnJhbmdlKFN0YXJ0RGF0ZVRpbWUpICU+JSBoZWFkKCkKYGBgCgpOb3cgd2UgJ2pvaW4nIHRoZSBJREVxdWlwbWVudCB0YWJsZSAuLi4KCmBgYHtyfQpyZWFkX2NzdigiREZfRGF0YS5jc3YiKSAlPiUgCiAgIyBhcnJhbmdlIGJ5IGRhdGUgCiAgYXJyYW5nZShTdGFydERhdGVUaW1lKSAlPiUgCiAgIyBqb2luIHRvIGRlY29kZSBlcXVpcG1lbnQgc2VyaWFsIG51bWJlcgogIGlubmVyX2pvaW4oREZfRXF1aXBtLCBieSA9ICJJREVxdWlwbWVudCIpICU+JSBoZWFkKCkKYGBgCgpOb3cgd2UgaGF2ZSBhZGRpdGlvbmFsIGNvbHVtbiBOYW1lIG9mIGVxdWlwbWVudC4uLiB3ZSB3aWxsIHJlcGVhdCBleGFjdCBzYW1lIGZvciBFdmVudCBDb2RlCgpgYGB7cn0KcmVhZF9jc3YoIkRGX0RhdGEuY3N2IikgJT4lIAogICMgYXJyYW5nZSBieSBkYXRlIAogIGFycmFuZ2UoU3RhcnREYXRlVGltZSkgJT4lIAogICMgam9pbiB0byBkZWNvZGUgZXF1aXBtZW50IHNlcmlhbCBudW1iZXIKICBpbm5lcl9qb2luKERGX0VxdWlwbSwgYnkgPSAiSURFcXVpcG1lbnQiKSAlPiUgCiAgIyBzZWxlY3Qgb25seSBjb2x1bW4gbmVlZGVkCiAgc2VsZWN0KFN0YXJ0RGF0ZVRpbWUsIE5hbWUsIEV2ZW50Q29kZSwgVGltZVRvdGFsKSAlPiUgCiAgIyBqb2luIHRvIGRlY29kZSBFdmVudCBDb2RlIG1lYW5pbmcKICBpbm5lcl9qb2luKERGX0V2Q29kZSwgYnkgPSAiRXZlbnRDb2RlIikgJT4lIGhlYWQoKQpgYGAKCm5vdyB3ZSB3aWxsIHNlbGVjdCBvbmx5IGNvbHVtbnMgd2Ugd2lsbCBuZWVkLi4uCgpgYGB7cn0KcmVhZF9jc3YoIkRGX0RhdGEuY3N2IikgJT4lIAogICMgYXJyYW5nZSBieSBkYXRlIAogIGFycmFuZ2UoU3RhcnREYXRlVGltZSkgJT4lIAogICMgam9pbiB0byBkZWNvZGUgZXF1aXBtZW50IHNlcmlhbCBudW1iZXIKICBpbm5lcl9qb2luKERGX0VxdWlwbSwgYnkgPSAiSURFcXVpcG1lbnQiKSAlPiUgCiAgIyBzZWxlY3Qgb25seSBjb2x1bW4gbmVlZGVkCiAgc2VsZWN0KFN0YXJ0RGF0ZVRpbWUsIE5hbWUsIEV2ZW50Q29kZSwgVGltZVRvdGFsKSAlPiUgCiAgIyBqb2luIHRvIGRlY29kZSBFdmVudCBDb2RlIG1lYW5pbmcKICBpbm5lcl9qb2luKERGX0V2Q29kZSwgYnkgPSAiRXZlbnRDb2RlIikgJT4lIAogICMgc2VsZWN0IG9ubHkgY29sdW1uIG5lZWRlZAogIHNlbGVjdChTdGFydERhdGVUaW1lLCBOYW1lLCBFdmVudENvZGUsIFRpbWVUb3RhbCwgRXZlbnRUZXh0KSAlPiUgaGVhZCgpCmBgYAoK</div>
 
 
 
