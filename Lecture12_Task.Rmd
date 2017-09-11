@@ -78,7 +78,9 @@ fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept
 
 This exercise will allow you to understand better how the file upload from the user work. Try to execute steps mentioned below on your home computer to understand the result...
 
-* As you see in the code chunk just above we save the content of the file to the variable inFile: `inFile <- input$myTable`. Let us try to understand the structure of this element...
+#### Understanding of fileInput() object structure
+
+As you see in the code chunk just above we save the content of the file to the variable inFile: `inFile <- input$myTable`. Let us try to understand the structure of this element...
 
 To do so I will modify the structure of the code as you will see below:
 
@@ -102,8 +104,41 @@ fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept
 
 Once you will run your app now and try to load file you will get the object 'inFile' actually saved to the file directory of the project under the name of 'in.File' (you can specify any other name). The next step you may do is to simply run the following command in the console: `readRDS("in.File")`. This will give you the possibility to read the file and see the content in the console...
 
+```{r}
+str(readRDS("in.File"))
+```
 
+This information will permit you to know exact name of the file, it's path, size and the type...
 
+#### Visualize the content of the file
+
+Let's try to go a bit further to see how do we see the content of the file. The concept will be covered in the further lectures but now just look to the code (adapted from: <http://shiny.rstudio.com/gallery/file-upload.html>)...
+
+* Adding one more element to the Tabs:
+
+```r
+# Page Row 3 == Plot or other Outputs ==
+  fluidRow(column(12,  
+                  # Show a plot 
+                  mainPanel(
+                    tabsetPanel(
+                      tabPanel("Plot - Smoothed", plotOutput("Plot")),
+                      tabPanel("Plot - Points", plotOutput("Plot1")),
+                      tabPanel("Plot - Box Plot", plotOutput("Plot2")),
+                      tabPanel("Deviation Auto Detection", "Select machine step and choose the dates of interest",
+                               hr(), 
+                               selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
+                                           selected = stepsChoices[1], multiple = FALSE, 
+                                           selectize = TRUE, size = NULL), hr(),
+                               plotOutput("Plot3")),
+                      tabPanel("Table from File Upload", tableOutput("inFilecontents"))
+                    )
+
+                  )
+  ))
+```
+Simply now run the app to see the new tab created ![alt text][id] 
+[id]: task/figures/t1.png "Title"
 
 
 

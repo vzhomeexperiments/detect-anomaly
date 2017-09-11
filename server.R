@@ -156,6 +156,20 @@ shinyServer(function(input, output, session) {
   })
   
   
+  # visualize the table that user loads
+  output$inFilecontents <- renderTable({
+    
+    # input$file1 will be NULL initially. After the user selects
+    # and uploads a file, head of that data file by default,
+    # or all rows if selected, will be shown.
+    
+    req(input$myTable)
+    
+    df <- read_csv(input$myTable$datapath)
+    
+      return(df)
+    
+  })
   
   
 })

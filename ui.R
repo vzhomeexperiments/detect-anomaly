@@ -65,7 +65,8 @@ shinyUI(fluidPage(theme = "bootstrap.css",
                                selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
                                            selected = stepsChoices[1], multiple = FALSE, 
                                            selectize = TRUE, size = NULL), hr(),
-                               plotOutput("Plot3"))
+                               plotOutput("Plot3")),
+                      tabPanel("Table from File Upload", tableOutput("inFilecontents"))
                     )
 
                   )
