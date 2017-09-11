@@ -80,6 +80,33 @@ fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept
 
 This exercise will allow you to understand better how the file upload from the user work. Try to execute steps mentioned below on your home computer to understand the result...
 
+#### Running ShinyApp in the Viewer Pane
+
+Go to the Branch named Lecture12-Server_CallData and select script `ui.R`. Now select to run the app in the Viewer window ![][id-t0] 
+Run the app now and you will see how the ShinyApp can be run in the Viewer pane.
+
+#### Fixing data import warnings
+
+Now that our App runs in the Viewer Pane let's pay attention to the warnings we are having while importing the files. They are obviously not a big deal however for the sake of exercise let's try to fix that..
+
+* Clean the console window by clicking inside the Console and pressing **CTRL + L**
+* Run the App again and see that few warnings would appear...
+* Pay attention that you will need to press **stop** button to actually stop execution of ShinyApp, otherwise you can't execute any code
+
+```{r, echo=TRUE}
+DF <- read_csv("DF_Data.csv")
+```
+
+Can you try to fix this??? 
+
+**Hint:** read the function description by pressing `?read_csv` in the console
+
+```{r, eval=FALSE, include=FALSE}
+?read_csv
+DF <- read_csv("DF_Data.csv", col_types = "i?iii")
+```
+
+
 #### Understanding of fileInput() object structure
 
 As you see in the code chunk just above we save the content of the file to the variable inFile: `inFile <- input$myTable`. Let us try to understand the structure of this element...
@@ -168,6 +195,7 @@ Result is very simple data table as you may also see in this screen shot below:
 ![][id-t2] 
 
 
+[id-t0]: task/t0.png "Tabs"
 [id-t1]: task/t1.png "Tabs"
 [id-t2]: task/t2.png "Table"
 
