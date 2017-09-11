@@ -133,7 +133,7 @@ fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept
 
 Once you will run your app now and try to load file you will get the object 'inFile' actually saved to the file directory of the project under the name of 'in.File' (you can specify any other name). The next step you may do is to simply run the following command in the console: `readRDS("in.File")`. This will give you the possibility to read the file and see the content in the console...
 
-```{r}
+```{r, echo=TRUE}
 str(readRDS("in.File"))
 ```
 
