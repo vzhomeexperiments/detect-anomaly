@@ -1,0 +1,21 @@
+---
+title: "Lecture 13 - Theory and Homework"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+
+### Lecture 13 - What Data and Manipulation Data
+
+#### We can review the data first...
+
+```{r, echo=TRUE}
+# data frame containing information from multiple sensors
+read_csv("DF_Data.csv") %>% head(3)
+# data frame containing equipment information
+read_csv("DF_EquipmData.csv") %>% head(3)
+# data frame containing Event Names
+read_csv("DF_EvCodeData.csv") %>% head(3)
+```
+
+
