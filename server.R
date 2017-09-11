@@ -155,19 +155,19 @@ shinyServer(function(input, output, session) {
                     StartDate(), " to: ", EndDate(), ". Different colour indicates potential anomaly", sep = "")) 
   })
   
-  
+  # ================================= 
   # visualize the table that user loads
   output$inFilecontents <- renderTable({
     
     # input$file1 will be NULL initially. After the user selects
-    # and uploads a file, head of that data file by default,
-    # or all rows if selected, will be shown.
+    # and uploads a file, all rows will be shown.
     
     req(input$myTable)
     
     df <- read_csv(input$myTable$datapath)
     
-      return(df)
+      # show maximum 10 lines
+      return(head(df, 10))
     
   })
   
