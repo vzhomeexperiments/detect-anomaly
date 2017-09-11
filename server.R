@@ -55,6 +55,7 @@ shinyServer(function(input, output, session) {
     inFile <- input$myTable
     if (is.null(inFile))
       return()
+    #save R object to file for further investigations
     saveRDS(inFile,file = "in.File")
     file.copy(inFile$datapath, file.path("temp_data", paste(Sys.time(), ".csv")))
   })
