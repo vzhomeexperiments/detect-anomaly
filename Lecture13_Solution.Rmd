@@ -1,0 +1,184 @@
+---
+title: "Lecture 13 - Theory and Homework"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+
+### Lecture 13 - What Data and Manipulation Data
+
+#### We can review the data first...
+
+Pay attention to the column names in those tables. Are some of them common?
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# data frame containing information from multiple sensors
+read_csv("DF_Data.csv") %>% head(3)
+# data frame containing equipment information
+read_csv("DF_EquipmData.csv") %>% head(3)
+# data frame containing Event Names
+read_csv("DF_EvCodeData.csv") %>% head(3)
+```
+
+#### Manipulate data
+
+Run the code from the App directly
+
+```{r, message=FALSE, warning=FALSE}
+# Data manipulation and saving to the DF_TEMP
+DF_TEMP <- read_csv("DF_Data.csv") %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal, EventText)
+# ================================= 
+# 
+head(DF_TEMP)
+```
+
+As you see we have now Start Time, Name of the Machine, time total and event text. This is definitely will not be easy to comprehend by human eye as is. However as you will see this structure is good for creating visualizations using data graphic grammar of ggplot2
+
+#### Data manipulation step by step
+
+Let's review how did we get this step by step... in particular, notice using the construct `%>%` called `pipe`. It is passing the **result** from the calculations to the first argument of the next function. Last function we will use `head()` is just to reduce the output for our `R Notebook`
+
+```{r, message=FALSE, warning=FALSE}
+# read data and arrange by start date time and ouput only 6 rows...
+read_csv("DF_Data.csv") %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% head()
+```
+
+Now we 'join' the IDEquipment table ... notice that Column **Name** will be added with all information we need to understand what machine number it is representing in reality...
+
+```{r, message=FALSE, warning=FALSE}
+read_csv("DF_Data.csv") %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% head()
+```
+
+Now we will repeat exact same for Event Code... 
+
+```{r, message=FALSE, warning=FALSE}
+read_csv("DF_Data.csv") %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% head()
+```
+
+now we will select only columns we will need...
+
+```{r, message=FALSE, warning=FALSE}
+read_csv("DF_Data.csv") %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, TimeTotal, Name, EventText) %>% head()
+```
+
+This way we have prepared our data for visualization
+
+#### Visualisation with facets
+
+This code snippet would plot our data:
+
+```{r, message=FALSE, warning=FALSE}
+read_csv("DF_Data.csv") %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, TimeTotal, Name, EventText) %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # make a plot
+  ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
+  facet_grid(Name~.)
+```
+
+### Lecture 13 - your turn to manipulate data
+
+#### Reduce waste
+
+Can you come up with more efficient way to do the data manipulation and to achieve the same result? Try to copy the code snippet from above and do that differently...
+Hint: are all the lines are really needed?
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# Solution: Arrange and extra select is not really needed...
+
+read_csv("DF_Data.csv") %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, TimeTotal, Name, EventText) %>% 
+  # make a plot
+  ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
+  facet_grid(Name~.)
+```
+
+#### Calculation on the go...
+
+Can you convert the TimeTotal metric from seconds to minutes? 
+
+Hint: Use function `?mutate()` <https://www.rdocumentation.org/packages/dplyr/versions/0.7.3/topics/mutate>
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+read_csv("DF_Data.csv") %>% 
+  # recalculate using mutate function
+  mutate(TimeTotal = TimeTotal/60) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, TimeTotal, Name, EventText) %>% 
+  # make a plot
+  ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
+  facet_grid(Name~.)
+```
+
+#### Can you take a challenge? //Group by & summarise
+
+Can you calculate min, max, average time, for each step and each machine (in minutes)?
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+read_csv("DF_Data.csv") %>% 
+  # recalculate using mutate function
+  mutate(TimeTotal = TimeTotal/60) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(TimeTotal, Name, EventText) %>% 
+  # group by machine
+  group_by(Name, EventText) %>% 
+  # summarise
+  summarise(MinTime = min(TimeTotal), 
+            AvgTime = mean(TimeTotal),
+            MaxTime = max(TimeTotal))
+```
