@@ -11,7 +11,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 Pay attention to the column names in those tables. Are some of them common?
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
 # data frame containing information from multiple sensors
 read_csv("DF_Data.csv") %>% head(3)
 # data frame containing equipment information
@@ -24,7 +24,7 @@ read_csv("DF_EvCodeData.csv") %>% head(3)
 
 Run the code from the App directly
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # Data manipulation and saving to the DF_TEMP
 DF_TEMP <- read_csv("DF_Data.csv") %>% 
   # arrange by date 
@@ -42,22 +42,22 @@ DF_TEMP <- read_csv("DF_Data.csv") %>%
 head(DF_TEMP)
 ```
 
-As you see we have now Start Time, Name, time total and event text. This is definitely will not be easy to comprehend by human eye as is. However as you will see this structure is good for creating visualizations using data graphic grammar
+As you see we have now Start Time, Name of the Machine, time total and event text. This is definitely will not be easy to comprehend by human eye as is. However as you will see this structure is good for creating visualizations using data graphic grammar of ggplot2
 
 #### Data manipulation step by step
 
 Let's review how did we get this step by step... in particular, notice using the construct `%>%` called `pipe`. It is passing the **result** from the calculations to the first argument of the next function. Last function we will use `head()` is just to reduce the output for our `R Notebook`
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 # read data and arrange by start date time and ouput only 6 rows...
 read_csv("DF_Data.csv") %>% 
   # arrange by date 
   arrange(StartDateTime) %>% head()
 ```
 
-Now we 'join' the IDEquipment table ...
+Now we 'join' the IDEquipment table ... notice that Column **Name** will be added with all information we need to understand what machine number it is representing in reality...
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 read_csv("DF_Data.csv") %>% 
   # arrange by date 
   arrange(StartDateTime) %>% 
@@ -65,9 +65,9 @@ read_csv("DF_Data.csv") %>%
   inner_join(DF_Equipm, by = "IDEquipment") %>% head()
 ```
 
-Now we have additional column Name of equipment... we will repeat exact same for Event Code
+Now we will repeat exact same for Event Code... 
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 read_csv("DF_Data.csv") %>% 
   # arrange by date 
   arrange(StartDateTime) %>% 
@@ -81,7 +81,7 @@ read_csv("DF_Data.csv") %>%
 
 now we will select only columns we will need...
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 read_csv("DF_Data.csv") %>% 
   # arrange by date 
   arrange(StartDateTime) %>% 
@@ -101,7 +101,7 @@ This way we have prepared our data for visualization
 
 This code snippet would plot our data:
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 read_csv("DF_Data.csv") %>% 
   # join to decode equipment serial number
   inner_join(DF_Equipm, by = "IDEquipment") %>% 
@@ -125,7 +125,9 @@ read_csv("DF_Data.csv") %>%
 Can you come up with more efficient way to do the data manipulation and to achieve the same result? Try to copy the code snippet from above and do that differently...
 Hint: are all the lines are really needed?
 
-```{r}
+```{r, eval=FALSE, include=FALSE}
+# Solution: Arrange and extra select is not really needed...
+
 read_csv("DF_Data.csv") %>% 
   # join to decode equipment serial number
   inner_join(DF_Equipm, by = "IDEquipment") %>% 
@@ -138,13 +140,13 @@ read_csv("DF_Data.csv") %>%
   facet_grid(Name~.)
 ```
 
-### Calculation on the go...
+#### Calculation on the go...
 
 Can you convert the TimeTotal metric from seconds to minutes? 
 
 Hint: Use function `?mutate()` <https://www.rdocumentation.org/packages/dplyr/versions/0.7.3/topics/mutate>
 
-```{r}
+```{r, eval=FALSE, include=FALSE}
 read_csv("DF_Data.csv") %>% 
   mutate(TimeTotal = TimeTotal/60) %>% 
   # join to decode equipment serial number
@@ -155,23 +157,14 @@ read_csv("DF_Data.csv") %>%
   select(StartDateTime, TimeTotal, Name, EventText) %>% 
   # make a plot
   ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
-  facet_grid(~Name)
+  facet_grid(Name~.)
 ```
 
 #### Can you take a challenge? //Group by & summarise
 
 Can you calculate min, max, average time, for each step and each machine (in minutes)?
 
-```{r}
-detach("package:tidyverse", unload = T)
-library(dplyr)
-mtcars %>% 
-  tbl_df() %>% 
-  group_by(cyl) %>% 
-  summarise (mean_mpg = mean(mpg))
-
-data.frame(a = c(10, 100)) %>% summarise(sum(a), sum(a) * 2)
-
+```{r, eval=FALSE, warning=FALSE, include=FALSE}
 read_csv("DF_Data.csv") %>% 
   tbl_df() %>% 
   mutate(TimeTotal = TimeTotal/60) %>% 
@@ -181,12 +174,10 @@ read_csv("DF_Data.csv") %>%
   inner_join(DF_EvCode, by = "EventCode") %>% 
   # select only column needed
   select(TimeTotal, Name, EventText) %>% 
-
-  # arrange
-  arrange(Name, EventText) %>% 
-    # group by machine
-  group_by(Name) %>% 
-  #head()
+  # group by machine
+  group_by(Name, EventText) %>% 
   # summarise
-  summarise(MinTime = min(TimeTotal), MaxTime = max(TimeTotal))
+  summarise(MinTime = min(TimeTotal), 
+            AvgTime = mean(TimeTotal),
+            MaxTime = max(TimeTotal))
 ```
