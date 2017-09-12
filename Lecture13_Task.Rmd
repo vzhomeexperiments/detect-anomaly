@@ -92,15 +92,17 @@ read_csv("DF_Data.csv") %>%
   # join to decode Event Code meaning
   inner_join(DF_EvCode, by = "EventCode") %>% 
   # select only column needed
-  select(StartDateTime, Name, EventCode, TimeTotal, EventText) %>% head()
+  select(StartDateTime, TimeTotal, Name, EventText) %>% head()
 ```
 
-This way we have not this data prepared for visualization which would look like this if we will plot it
+This way we have prepared our data for visualization
+
+#### Visualisation with facets
+
+This code snippet would plot our data:
 
 ```{r}
 read_csv("DF_Data.csv") %>% 
-  # arrange by date 
-  arrange(StartDateTime) %>% 
   # join to decode equipment serial number
   inner_join(DF_Equipm, by = "IDEquipment") %>% 
   # select only column needed
@@ -108,10 +110,83 @@ read_csv("DF_Data.csv") %>%
   # join to decode Event Code meaning
   inner_join(DF_EvCode, by = "EventCode") %>% 
   # select only column needed
-  select(StartDateTime, Name, EventCode, TimeTotal, EventText) %>% 
+  select(StartDateTime, TimeTotal, Name, EventText) %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
   # make a plot
   ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
-  facet_wrap(~Name)
+  facet_grid(Name~.)
 ```
 
-The End
+### Lecture 13 - your turn to manipulate data
+
+#### Reduce waste
+
+Can you come up with more efficient way to do the data manipulation and to achieve the same result? Try to copy the code snippet from above and do that differently...
+Hint: are all the lines are really needed?
+
+```{r}
+read_csv("DF_Data.csv") %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, TimeTotal, Name, EventText) %>% 
+  # make a plot
+  ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
+  facet_grid(Name~.)
+```
+
+### Calculation on the go...
+
+Can you convert the TimeTotal metric from seconds to minutes? 
+
+Hint: Use function `?mutate()` <https://www.rdocumentation.org/packages/dplyr/versions/0.7.3/topics/mutate>
+
+```{r}
+read_csv("DF_Data.csv") %>% 
+  mutate(TimeTotal = TimeTotal/60) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, TimeTotal, Name, EventText) %>% 
+  # make a plot
+  ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
+  facet_grid(~Name)
+```
+
+#### Can you take a challenge? //Group by & summarise
+
+Can you calculate min, max, average time, for each step and each machine (in minutes)?
+
+```{r}
+detach("package:tidyverse", unload = T)
+library(dplyr)
+mtcars %>% 
+  tbl_df() %>% 
+  group_by(cyl) %>% 
+  summarise (mean_mpg = mean(mpg))
+
+data.frame(a = c(10, 100)) %>% summarise(sum(a), sum(a) * 2)
+
+read_csv("DF_Data.csv") %>% 
+  tbl_df() %>% 
+  mutate(TimeTotal = TimeTotal/60) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(TimeTotal, Name, EventText) %>% 
+
+  # arrange
+  arrange(Name, EventText) %>% 
+    # group by machine
+  group_by(Name) %>% 
+  #head()
+  # summarise
+  summarise(MinTime = min(TimeTotal), MaxTime = max(TimeTotal))
+```
