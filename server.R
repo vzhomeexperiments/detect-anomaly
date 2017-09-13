@@ -104,19 +104,23 @@ shinyServer(function(input, output, session) {
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
-  # ================================= 
   
-  ### Render function to create a main plot:
-  output$Plot1 <- renderPlot({
-    # generate object for the plot using DF_SUM
-    DF_SUM()  %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
-      geom_smooth(alpha = 0.5, se = StatErr()) +
-      facet_wrap(~Name) + 
-      ylab("Duration of Step, seconds") +
-      ggtitle(paste("Overview of Steps ", "from: ",
-                                      StartDate(), " to: ", EndDate(), sep = "")) 
-  })
+  ## creating eventReactive using new button
+  updateGraph <- eventReactive(input$updateGraph,
+    {
+      DF_SUM()  %>% 
+            ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
+            geom_smooth(alpha = 0.5, se = StatErr()) +
+            facet_wrap(~Name) +
+            ylab("Duration of Step, seconds") +
+            ggtitle(paste("Overview of Steps ", "from: ",
+                                            StartDate(), " to: ", EndDate(), sep = ""))
+      
+    })
+  
+  ## make a plot
+  output$Plot1 <- renderPlot({ updateGraph() })
+  
   
   # ================================= 
   

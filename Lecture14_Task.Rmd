@@ -93,22 +93,21 @@ In some cases you will want to avoid using reactivity concept immediately. It ma
 # in ui.R: Generate actionButton with inputId = "updateGraph"
 actionButton(inputId = "updateGraph", label = "Update Graphs")
 
-# in server.R: create snippet module with observeEvent
- observeEvent(input$updateGraph, {
-    # code below will be executed only when actionButton is pressed
-   DF_SUM <- reactive({
-    
-    DF_TEMP %>% 
-      # filters for categories
-      filter(EventText == input$selInput) %>% 
-      # group by 
-      group_by(Name) %>% 
-      # filters X date
-      filter(StartDateTime > StartDate(), StartDateTime < EndDate())
+# in server.R: create snippet module with eventReactive(input$inputId{ code })
+ delayReaction <- eventReactive(input$updateGraph, {
+   
+     # place the code here that will be run when button is clicked
+    DF_SUM() %>% 
+        ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
+        geom_smooth(alpha = 0.5, se = StatErr()) +
+        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
+        ggtitle(paste("Overview of Steps ", "from: ",
+                                        StartDate(), " to: ", EndDate(), sep = "")) 
   })
 
-  })
-
+  # finally create the output using delayReaction() object!
+  output$Plot1 <- renderPlot({   delayReaction() })
+ 
 ```
 
 
@@ -165,4 +164,36 @@ DF_TEMP <- DF_Data %>%
 
 This practical excercise will allow you to practice skills to crete action button with inputId = "updateGraph" as well as to execute code in Shiny only after this button was pressed
 
-Try to add new button to the right of the selectInput field and make sure that the Plot-Points is only updated once user pressing the new button
+Try to add new button to the right of the selectInput field...
+
+```{r, eval=FALSE, include=FALSE}
+# create new action button in ui.R
+column(1, actionButton(inputId = "updateGraph", label = "Update Point Plot"))
+```
+
+... make sure that the Plot-Points is only updated once user pressing the new button?
+
+Hint: use delayed <- eventReactive(input$<inputId>, { code })
+
+```{r, eval=FALSE, include=FALSE}
+  ## creating eventReactive using new button
+  updateGraph <- eventReactive(input$updateGraph,
+    {
+      DF_SUM()  %>% 
+            ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
+            geom_smooth(alpha = 0.5, se = StatErr()) +
+            facet_wrap(~Name) +
+            ylab("Duration of Step, seconds") +
+            ggtitle(paste("Overview of Steps ", "from: ",
+                                            StartDate(), " to: ", EndDate(), sep = ""))
+      
+    })
+```
+
+Hint: use delayed() object when creating output$<object>
+
+```{r, eval=FALSE, include=FALSE}
+ ## make a plot
+  output$Plot1 <- renderPlot({ updateGraph() })
+```
+
