@@ -28,8 +28,16 @@ in case of creation of reactive objects we can re-use them by adding `()` to the
 
 ```r
 # using reactive value further in the code 
- filter(StartDateTime > StartDate(), StartDateTime < EndDate())
+ filter(StartDateTime > StartDate())
 ```
+
+obviously if you will use your input value only once you can do the same by:
+
+```r
+# using reactive value further in the code 
+ filter(StartDateTime > input$DateStart)
+```
+
 
 #### Modularise your code
 
