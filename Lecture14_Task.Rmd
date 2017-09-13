@@ -1,0 +1,88 @@
+---
+title: "Lecture 14 - Theory and Task for Homework"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+
+### Lecture 14 - Using inputs in the ShinyApp
+
+#### Basic idea of using inputs
+
+The overall idea of using `inputs` from the User Interface is to define them first in ui.R file as `inputId` objects and use them in server.R file as `input$inputId` for example:
+
+```r
+
+# Defined in the ui.R:
+dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01")
+
+# Used in server.R as:
+  # create reactive object 
+  StartDate <- reactive( {as.POSIXct(input$DateStart)} ) 
+  # or simply
+  input$DateStart
+
+```
+
+in case of creation of reactive objects we can re-use them by adding `()` to the object name, for example: 
+
+```r
+# using reactive value further in the code 
+ filter(StartDateTime > StartDate(), StartDateTime < EndDate())
+```
+
+#### Modularise your code
+
+You can create reactive objects using `reactive` function. Advantage is that:
+
+* you can perform data manipulation inside this reactive function
+* result of manipulation will be kept in the memory
+* you can modularise your code by reusing obtained result several times later in your code
+
+For example, we perform complex manipulations and filtering as follows:
+
+```r
+# Creating reactive object inside reactive function
+    # save as data frame data used for statistics in other render functions
+  DF_SUM <- reactive({
+    
+    DF_TEMP %>% 
+      # filters for categories
+      filter(EventText == input$selInput) %>% 
+      # group by 
+      group_by(Name) %>% 
+      # filters X date
+      filter(StartDateTime > StartDate(), StartDateTime < EndDate())
+  })
+
+# Object DF_SUM() can be accessed later in the script...
+
+  output$Plot2 <- renderPlot({
+    # generate object for the plot using DF_SUM
+    DF_SUM() %>% 
+      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
+      facet_wrap(Name ~ EventText) +
+      ggtitle(paste("Overview of Steps ", "from: ",
+                                      StartDate(), " to: ", EndDate(), sep = "")) 
+```
+
+#### Debugging / develop your code modules
+
+Once creating your `server.R` script you will inevitably need to try our what you will get. My personal hint is to try pieces of code using pre-defined `dummy` variables that you can comment inside your code. For example:
+
+```r
+# Un comment this code for debugging...
+  # uncomment for debugging...
+  StartDate <- "2017-04-20 00:10:20"
+  EndDate <- "2017-08-20 00:10:20"
+
+# ... and temporary remove brackets
+ DF_SUM %>% 
+      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
+      facet_wrap(Name ~ EventText) +
+      ggtitle(paste("Overview of Steps ", "from: ",
+                                      StartDate, " to: ", EndDate, sep = "")) 
+```
+Then you can execute this code by pressing **CTRL + Enter** or **CMD + Enter** on Mac and verify the result in the Environment or as a Plot output result...
+
+
