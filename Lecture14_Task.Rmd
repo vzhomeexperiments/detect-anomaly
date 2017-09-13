@@ -162,18 +162,24 @@ DF_TEMP <- DF_Data %>%
 
 #### use buttons in your ShinyApp
 
-This practical excercise will allow you to practice skills to crete action button with inputId = "updateGraph" as well as to execute code in Shiny only after this button was pressed
+This practical excercise will allow you to practice skills to create action button with `inputId = "updateGraph"` as well as to execute code in Shiny only after this button was pressed
 
-Try to add new button to the right of the selectInput field...
+Try to add new `button` to the right of the `selectInput` field... ![alt text][id]
+
+
+
+[id]: task/t1.png "Title"
+
+
 
 ```{r, eval=FALSE, include=FALSE}
 # create new action button in ui.R
 column(1, actionButton(inputId = "updateGraph", label = "Update Point Plot"))
 ```
 
-... make sure that the Plot-Points is only updated once user pressing the new button?
+... make sure that the `Plot-Points` is only updated once user pressing the new button?
 
-Hint: use delayed <- eventReactive(input$<inputId>, { code })
+Hint: use `delayed <- eventReactive(input$<inputId>, { code })`
 
 ```{r, eval=FALSE, include=FALSE}
   ## creating eventReactive using new button
@@ -190,7 +196,7 @@ Hint: use delayed <- eventReactive(input$<inputId>, { code })
     })
 ```
 
-Hint: use delayed() object when creating output$<object>
+Hint: use `delayed()` object when creating `output$'object'`
 
 ```{r, eval=FALSE, include=FALSE}
  ## make a plot
