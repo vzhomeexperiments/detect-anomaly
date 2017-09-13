@@ -175,11 +175,7 @@ This practical excercise will allow you to practice skills to create action butt
 
 Try to add new `button` to the right of the `selectInput` field... ![alt text][id]
 
-
-
 [id]: task/t1.png "Title"
-
-
 
 ```{r, eval=FALSE, include=TRUE}
 # create new action button in ui.R
