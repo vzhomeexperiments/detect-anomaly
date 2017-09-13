@@ -106,7 +106,7 @@ shinyServer(function(input, output, session) {
   
   
   ### Render function to create a point plot:
-  output$Plot1 <- renderPlot({ 
+  output$Plot1 <- renderPlot({
     
     DF_SUM()  %>% 
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
@@ -115,7 +115,6 @@ shinyServer(function(input, output, session) {
       ylab("Duration of Step, seconds") +
       ggtitle(paste("Overview of Steps ", "from: ",
                     StartDate(), " to: ", EndDate(), sep = ""))
-    
     
      })
   
