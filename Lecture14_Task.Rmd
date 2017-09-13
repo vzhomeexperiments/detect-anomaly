@@ -85,4 +85,84 @@ Once creating your `server.R` script you will inevitably need to try our what yo
 ```
 Then you can execute this code by pressing **CTRL + Enter** or **CMD + Enter** on Mac and verify the result in the Environment or as a Plot output result...
 
+### Using buttons to delay reactions
 
+In some cases you will want to avoid using reactivity concept immediately. It may be relevant to only update **outputs** only after specific confirmation. To create this interaction flavour of ShinyApp you will need to define the actionButton and then use this object in your server.R script using observeEvent function. For example:
+
+```{r}
+# in ui.R: Generate actionButton with inputId = "updateGraph"
+actionButton(inputId = "updateGraph", label = "Update Graphs")
+
+# in server.R: create snippet module with observeEvent
+ observeEvent(input$updateGraph, {
+    # code below will be executed only when actionButton is pressed
+   DF_SUM <- reactive({
+    
+    DF_TEMP %>% 
+      # filters for categories
+      filter(EventText == input$selInput) %>% 
+      # group by 
+      group_by(Name) %>% 
+      # filters X date
+      filter(StartDateTime > StartDate(), StartDateTime < EndDate())
+  })
+
+  })
+
+```
+
+
+### Some ideas for practical work
+
+#### Debug your code in Shiny server.R file
+
+Snippet of code below was taken directly from the server.R script. 
+
+```{r}
+############# Run this code to create object DF_TEMP
+
+# data frame containing information from multiple sensors
+DF_Data <- read_csv("DF_Data.csv")
+# data frame containing equipment information
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeData.csv")
+
+# Data manipulation and saving to the DF_TEMP
+DF_TEMP <- DF_Data %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal, EventText)
+#############
+
+ # # uncomment below code for debugging...
+  # StartDate <- "2017-04-20 00:10:20"
+  # EndDate <- "2017-08-20 00:10:20"
+  # StatErr <- FALSE
+
+############ Modify this code below to be able to run the code inside
+
+ DF_SUM <- reactive({
+    
+    DF_TEMP %>% 
+      # filters for categories
+      filter(EventText == input$selInput) %>% 
+      # group by 
+      group_by(Name) %>% 
+      # filters X date
+      filter(StartDateTime > StartDate(), StartDateTime < EndDate())
+  })
+```
+
+#### use buttons in your ShinyApp
+
+This practical excercise will allow you to practice skills to crete action button with inputId = "updateGraph" as well as to execute code in Shiny only after this button was pressed
+
+Try to add new button to the right of the selectInput field and make sure that the Plot-Points is only updated once user pressing the new button

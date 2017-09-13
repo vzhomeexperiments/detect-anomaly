@@ -44,9 +44,10 @@ shinyUI(fluidPage(theme = "bootstrap.css",
            column(3, helpText("Note: while the data view will show only",
                               "the specified number of observations, the",
                               "summary will be based on the full dataset."))),
-  fluidRow(column(8, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
+  fluidRow(column(6, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
                                  selected = stepsChoices[1], multiple = TRUE, 
-                                 selectize = TRUE, width = '100%', size = NULL))),
+                                 selectize = TRUE, width = '100%', size = NULL)),
+           column(1, actionButton(inputId = "updateGraph", label = "Update Point Plot"))),
   
   # Adding a horizontal line
   hr(),
