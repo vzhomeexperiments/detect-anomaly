@@ -105,21 +105,19 @@ shinyServer(function(input, output, session) {
   })
   
   
-  ## creating eventReactive using new button
-  updateGraph <- eventReactive(input$updateGraph,
-    {
-      DF_SUM()  %>% 
-            ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
-            geom_smooth(alpha = 0.5, se = StatErr()) +
-            facet_wrap(~Name) +
-            ylab("Duration of Step, seconds") +
-            ggtitle(paste("Overview of Steps ", "from: ",
-                                            StartDate(), " to: ", EndDate(), sep = ""))
-      
-    })
-  
-  ## make a plot
-  output$Plot1 <- renderPlot({ updateGraph() })
+  ### Render function to create a point plot:
+  output$Plot1 <- renderPlot({ 
+    
+    DF_SUM()  %>% 
+      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
+      geom_smooth(alpha = 0.5, se = StatErr()) +
+      facet_wrap(~Name) +
+      ylab("Duration of Step, seconds") +
+      ggtitle(paste("Overview of Steps ", "from: ",
+                    StartDate(), " to: ", EndDate(), sep = ""))
+    
+    
+     })
   
   
   # ================================= 
