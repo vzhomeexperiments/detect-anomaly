@@ -71,7 +71,7 @@ fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept
     inFile <- input$myTable
     if (is.null(inFile))
       return()
-    file.copy(inFile$datapath, file.path("temp_data", paste(Sys.time(), ".csv")))
+    file.copy(inFile$datapath, file.path("temp_data", inFile$name))
   })
   ## ******---------------********
 ```

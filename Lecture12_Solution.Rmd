@@ -71,7 +71,7 @@ fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept
     inFile <- input$myTable
     if (is.null(inFile))
       return()
-    file.copy(inFile$datapath, file.path("temp_data", paste(Sys.time(), ".csv")))
+    file.copy(inFile$datapath, file.path("temp_data", inFile$name))
   })
   ## ******---------------********
 ```
@@ -93,7 +93,8 @@ Now that our App runs in the Viewer Pane let's pay attention to the warnings we 
 * Run the App again and see that few warnings would appear...
 * Pay attention that you will need to press **stop** button to actually stop execution of ShinyApp, otherwise you can't execute any code
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, warning=FALSE}
+library(tidyverse)
 DF <- read_csv("DF_Data.csv")
 ```
 
