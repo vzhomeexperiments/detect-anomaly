@@ -57,7 +57,7 @@ shinyServer(function(input, output, session) {
       return()
     #save R object to file for further investigations
     saveRDS(inFile,file = "in.File")
-    file.copy(inFile$datapath, file.path("temp_data", paste(Sys.Date(), ".csv")))
+    file.copy(inFile$datapath, file.path("temp_data", inFile$name))
   })
   ## ******---------------********
   
