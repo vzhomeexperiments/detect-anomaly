@@ -7,7 +7,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 ### Lecture 12 - More ideas for ShinyApp server.R Data Import
 
-This time there is now real stress for you! Simply read provided text below. If possible try to understand what this code does...
+This time there is no real stress for you! Simply read provided text below. Try to understand what this code does...
 
 #### Import data from SQL Database
 
@@ -93,7 +93,8 @@ Now that our App runs in the Viewer Pane let's pay attention to the warnings we 
 * Run the App again and see that few warnings would appear...
 * Pay attention that you will need to press **stop** button to actually stop execution of ShinyApp, otherwise you can't execute any code
 
-```{r, echo=TRUE}
+```{r, echo=TRUE, message=TRUE, warning=TRUE}
+library(tidyverse)
 DF <- read_csv("DF_Data.csv")
 ```
 
