@@ -49,6 +49,19 @@ shinyServer(function(input, output, session) {
   
 # =================================  
 
+  ## ****** ---------------*******
+  # Uploading data using the app
+  observeEvent(input$myTable, {
+    inFile <- input$myTable
+    if (is.null(inFile))
+      return()
+    #save R object to file for further investigations
+    saveRDS(inFile,file = "in.File")
+    file.copy(inFile$datapath, file.path("temp_data", paste(Sys.time(), ".csv")))
+  })
+  ## ******---------------********
+  
+  
 # =================================
     # save as data frame data used for statistics in other render functions
   DF_SUM <- reactive({
@@ -88,17 +101,6 @@ shinyServer(function(input, output, session) {
       
   })
   
-  # # Updating inputs ...
-  observe({
-    x <- unique(DF_TEMP$EventText)
-    #Can also set the label and select items
-    updateSelectInput(session, "selInput",
-                      choices = x,
-                      selected = x[1]
-    )
-  })
-  
-  
 # =================================  
 # OUTPUTS
 # =================================  
@@ -110,7 +112,7 @@ shinyServer(function(input, output, session) {
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
       geom_smooth(alpha = 0.5, se = StatErr()) +
       facet_wrap(~Name) + ylab("Duration of Step, seconds") +
-      ggtitle(paste("Overview of CIP/SIP Steps ", "from: ",
+      ggtitle(paste("Overview of Steps ", "from: ",
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
@@ -124,7 +126,7 @@ shinyServer(function(input, output, session) {
       geom_smooth(alpha = 0.5, se = StatErr()) +
       facet_wrap(~Name) + 
       ylab("Duration of Step, seconds") +
-      ggtitle(paste("Overview of CIP/SIP Steps ", "from: ",
+      ggtitle(paste("Overview of Steps ", "from: ",
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
@@ -136,7 +138,7 @@ shinyServer(function(input, output, session) {
     DF_SUM() %>% 
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
       facet_wrap(Name ~ EventText) +
-      ggtitle(paste("Overview of CIP/SIP Steps ", "from: ",
+      ggtitle(paste("Overview of Steps ", "from: ",
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
@@ -153,23 +155,21 @@ shinyServer(function(input, output, session) {
                     StartDate(), " to: ", EndDate(), ". Different colour indicates potential anomaly", sep = "")) 
   })
   
-  
-  # ### Render function to create a data table:
-  
-  # output$table <- DT::renderDataTable({
-  #   #visualize statistics
-  #   DF_SUM() %>%
-  #     group_by(Name) %>%
-  #     filter(AnalogVal != 0) %>%
-  #     summarise(AverageFlowSLM = round(mean(AnalogVal),digits = 1),
-  #               TargetSLM = 6.5,
-  #               From = min(StartDate),
-  #               To = max(StartDate),
-  #               DurationDays = round((To - From)/86400), # 86400 = seconds in 1 day
-  #               WaterSaveOpportunityMcub = round(1.2*DurationDays* (AverageFlowSLM - 6.5))) #assumed 20 hours work x day
-  # })    
-  
-  
+  # ================================= 
+  # visualize the table that user loads
+  output$inFilecontents <- renderTable({
+    
+    # input$file1 will be NULL initially. After the user selects
+    # and uploads a file, all rows will be shown.
+    
+    req(input$myTable)
+    
+    df <- read_csv(input$myTable$datapath)
+    
+      # show maximum 10 lines
+      return(head(df, 10))
+    
+  })
   
   
 })

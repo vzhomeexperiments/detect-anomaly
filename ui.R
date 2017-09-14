@@ -41,6 +41,7 @@ shinyUI(fluidPage(theme = "bootstrap.css",
   fluidRow(column(2, dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01")),
            column(2, dateInput(inputId = "DateEnd",   label = "Insert End Date")),
            column(1, checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL)),
+           column(1, fileInput(inputId = "myTable", label = "Upload a csv file", multiple = F, accept = 'text/csv')),
            column(3, helpText("Note: while the data view will show only",
                               "the specified number of observations, the",
                               "summary will be based on the full dataset."))),
@@ -64,7 +65,8 @@ shinyUI(fluidPage(theme = "bootstrap.css",
                                selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
                                            selected = stepsChoices[1], multiple = FALSE, 
                                            selectize = TRUE, size = NULL), hr(),
-                               plotOutput("Plot3"))
+                               plotOutput("Plot3")),
+                      tabPanel("Table from File Upload", tableOutput("inFilecontents"))
                     )
 
                   )
