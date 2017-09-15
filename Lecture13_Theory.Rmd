@@ -16,7 +16,7 @@ Pay attention to the column names in those tables. Are some of them common?
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
 library(tidyverse)
 # data frame containing information from multiple sensors
-read_csv("DF_Data.csv") %>% head(3)
+read_csv("DF_Data.csv") %>% head(6)
 # data frame containing equipment information
 read_csv("DF_EquipmData.csv") %>% head(3)
 # data frame containing Event Names

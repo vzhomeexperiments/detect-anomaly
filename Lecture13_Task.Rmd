@@ -1,8 +1,8 @@
 ---
 title: "Lecture 13 - Data Manipulation Homework"
 output:
-  html_notebook: default
   html_document: default
+  html_notebook: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
@@ -22,7 +22,8 @@ DF_EvCode <- read_csv("DF_EvCodeData.csv")
 #### Reduce waste
 
 Can you come up with more efficient way to do the data manipulation and to achieve the same result? Try to use the code snippet below and do that differently... (do not alter the code that makes a plot)
-Hint: are all the lines are really needed?
+
+**Hint:** are all the lines are really needed?
 
 ```{r, message=FALSE, warning=FALSE}
 # Task: Try to optimize this code...
@@ -63,11 +64,11 @@ read_csv("DF_Data.csv") %>%
 
 #### Calculation on the go...
 
-Can you convert the TimeTotal metric from seconds to minutes? 
+Can you convert the `TimeTotal` metric from `seconds` to `minutes`? 
 
 Hint: Use function `?mutate()` <https://www.rdocumentation.org/packages/dplyr/versions/0.7.3/topics/mutate>
 
-```{r, eval=FALSE, include=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 read_csv("DF_Data.csv") %>% 
   mutate(TimeTotal = TimeTotal/60) %>% 
   # join to decode equipment serial number
@@ -83,9 +84,9 @@ read_csv("DF_Data.csv") %>%
 
 #### Can you take a challenge? //Group by & summarise
 
-Can you calculate min, max, average time, for each step and each machine (in minutes)?
+Can you calculate `min`, `max`, `average time`, for each step and each machine (in minutes)?
 
-```{r, eval=FALSE, warning=FALSE, include=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 read_csv("DF_Data.csv") %>% 
   tbl_df() %>% 
   mutate(TimeTotal = TimeTotal/60) %>% 
