@@ -1,117 +1,33 @@
 ---
-title: "Lecture 13 - Theory and Homework"
+title: "Lecture 13 - Data Manipulation Homework"
 output:
-  html_document: default
   html_notebook: default
+  html_document: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+ 
 
-### Lecture 13 - What Data and Manipulation Data
+### Lecture 13 - your turn to manipulate data
 
-#### We can review the data first...
 
-Pay attention to the column names in those tables. Are some of them common?
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
+```{r, include=FALSE}
 library(tidyverse)
-# data frame containing information from multiple sensors
-read_csv("DF_Data.csv") %>% head(3)
-# data frame containing equipment information
-read_csv("DF_EquipmData.csv") %>% head(3)
-# data frame containing Event Names
-read_csv("DF_EvCodeData.csv") %>% head(3)
-```
-
-#### Manipulate data
-
-Run the code from the App directly
-
-```{r, echo=TRUE, message=FALSE, warning=FALSE}
 # data frame containing equipment information
 DF_Equipm <- read_csv("DF_EquipmData.csv")
 # data frame containing Event Names
 DF_EvCode <- read_csv("DF_EvCodeData.csv")
 ```
 
-```{r, message=FALSE, warning=FALSE}
-# Data manipulation and saving to the DF_TEMP
-DF_TEMP <- read_csv("DF_Data.csv") %>% 
-  # arrange by date 
-  arrange(StartDateTime) %>% 
-  # join to decode equipment serial number
-  inner_join(DF_Equipm, by = "IDEquipment") %>% 
-  # select only column needed
-  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
-  # join to decode Event Code meaning
-  inner_join(DF_EvCode, by = "EventCode") %>% 
-  # select only column needed
-  select(StartDateTime, Name, EventCode, TimeTotal, EventText)
-# ================================= 
-# 
-head(DF_TEMP)
-```
+#### Reduce waste
 
-As you see we have now Start Time, Name of the Machine, time total and event text. This is definitely will not be easy to comprehend by human eye as is. However as you will see this structure is good for creating visualizations using data graphic grammar of ggplot2
-
-#### Data manipulation step by step
-
-Let's review how did we get this step by step... in particular, notice using the construct `%>%` called `pipe`. It is passing the **result** from the calculations to the first argument of the next function. Last function we will use `head()` is just to reduce the output for our `R Notebook`
+Can you come up with more efficient way to do the data manipulation and to achieve the same result? Try to use the code snippet below and do that differently... (do not alter the code that makes a plot)
+Hint: are all the lines are really needed?
 
 ```{r, message=FALSE, warning=FALSE}
-# read data and arrange by start date time and ouput only 6 rows...
-read_csv("DF_Data.csv") %>% 
-  # arrange by date 
-  arrange(StartDateTime) %>% head()
-```
+# Task: Try to optimize this code...
 
-Now we 'join' the IDEquipment table ... notice that Column **Name** will be added with all information we need to understand what machine number it is representing in reality...
 
-```{r, message=FALSE, warning=FALSE}
-read_csv("DF_Data.csv") %>% 
-  # arrange by date 
-  arrange(StartDateTime) %>% 
-  # join to decode equipment serial number
-  inner_join(DF_Equipm, by = "IDEquipment") %>% head()
-```
-
-Now we will repeat exact same for Event Code... 
-
-```{r, message=FALSE, warning=FALSE}
-read_csv("DF_Data.csv") %>% 
-  # arrange by date 
-  arrange(StartDateTime) %>% 
-  # join to decode equipment serial number
-  inner_join(DF_Equipm, by = "IDEquipment") %>% 
-  # select only column needed
-  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
-  # join to decode Event Code meaning
-  inner_join(DF_EvCode, by = "EventCode") %>% head()
-```
-
-now we will select only columns we will need...
-
-```{r, message=FALSE, warning=FALSE}
-read_csv("DF_Data.csv") %>% 
-  # arrange by date 
-  arrange(StartDateTime) %>% 
-  # join to decode equipment serial number
-  inner_join(DF_Equipm, by = "IDEquipment") %>% 
-  # select only column needed
-  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
-  # join to decode Event Code meaning
-  inner_join(DF_EvCode, by = "EventCode") %>% 
-  # select only column needed
-  select(StartDateTime, TimeTotal, Name, EventText) %>% head()
-```
-
-This way we have prepared our data for visualization
-
-#### Visualisation with facets
-
-This code snippet would plot our data:
-
-```{r, message=FALSE, warning=FALSE}
 read_csv("DF_Data.csv") %>% 
   # join to decode equipment serial number
   inner_join(DF_Equipm, by = "IDEquipment") %>% 
@@ -125,17 +41,10 @@ read_csv("DF_Data.csv") %>%
   arrange(StartDateTime) %>% 
   # make a plot
   ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
-  facet_grid(.~Name)
+  facet_grid(Name~.)
 ```
 
-Seems like it's hard to get some good understanding on what is going on, isn't it?
 
-### Lecture 13 - your turn to manipulate data
-
-#### Reduce waste
-
-Can you come up with more efficient way to do the data manipulation and to achieve the same result? Try to copy the code snippet from above and do that differently...
-Hint: are all the lines are really needed?
 
 ```{r, eval=FALSE, include=FALSE}
 # Solution: Arrange and extra select is not really needed...
