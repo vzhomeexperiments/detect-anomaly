@@ -1,6 +1,8 @@
 ---
 title: "Lecture 13 - Theory and Homework"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
@@ -12,6 +14,7 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 Pay attention to the column names in those tables. Are some of them common?
 
 ```{r, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
 # data frame containing information from multiple sensors
 read_csv("DF_Data.csv") %>% head(3)
 # data frame containing equipment information
@@ -23,6 +26,13 @@ read_csv("DF_EvCodeData.csv") %>% head(3)
 #### Manipulate data
 
 Run the code from the App directly
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# data frame containing equipment information
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeData.csv")
+```
 
 ```{r, message=FALSE, warning=FALSE}
 # Data manipulation and saving to the DF_TEMP
@@ -115,8 +125,10 @@ read_csv("DF_Data.csv") %>%
   arrange(StartDateTime) %>% 
   # make a plot
   ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
-  facet_grid(Name~.)
+  facet_grid(.~Name)
 ```
+
+Seems like it's hard to get some good understanding on what is going on, isn't it?
 
 ### Lecture 13 - your turn to manipulate data
 
