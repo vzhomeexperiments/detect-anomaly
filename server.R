@@ -67,15 +67,33 @@ shinyServer(function(input, output, session) {
   DF_SUM_ALL <- reactive({
     
     # Data manipulation and saving to the DF_Data reactive value
-    DF_KM <- DF_TEMP %>% 
+    DF_KM <- DF_TEMP %>% #filter(EventText == "Step 2 SubStep 6") 
       # filters for category
       filter(EventText == input$Step) 
     
-    KM <- DF_KM %>% 
+   # # to visualize the construct
+   #  DF_KM %>%
+   #    select(Name, TimeTotal) %>%
+   #    mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+   #    ggplot(aes(x = Name, y = TimeTotal, col = Name)) + geom_point()
+    
+    # without scaling
+    KM <- DF_KM %>%
       select(Name, TimeTotal) %>%
-      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>% 
+      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+      mutate(Name = as.numeric(Name)) %>%
       kmeans(centers = 2, nstart = 20)
     
+    
+    # # with scaling
+    # KM <- DF_KM %>%
+    #   select(Name, TimeTotal) %>%
+    #   mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+    #   mutate(Name = as.numeric(Name)) %>%
+    #   scale() %>% 
+    #   as.data.frame() %>% 
+    #   kmeans(centers = 2, nstart = 20)
+
       # saving clustering result to the new data frame
       vector <- as.data.frame.vector(KM$cluster)
       names(vector) <- "Clust"
@@ -85,6 +103,8 @@ shinyServer(function(input, output, session) {
       # join clustering result
       bind_cols(vector) %>% 
       mutate(Clust = as.factor(Clust))  
+    
+    #head(DF_SUM_ALL)
       
   })
   
