@@ -125,7 +125,9 @@ actionButton(inputId = "updateGraph", label = "Update Graphs")
 
 #### Debug your code in Shiny server.R file
 
-Snippet of code below was taken directly from the `server.R` script. 
+Snippet of code below was taken directly from the `server.R` script. Use some `dummy` variables to verify your code inside `reactive` function that builds `DF_SUM`. Make sure that filter functions are properly working...
+
+Hint: create another `dummy` variable give it the value `"Step 2 SubStep 6"`. Use it instead of `input$selInput`
 
 ```r
 ############# Run this code to create object DF_TEMP
@@ -154,6 +156,7 @@ DF_TEMP <- DF_Data %>%
  # # uncomment below code for debugging...
   StartDate <- "2017-04-20 00:10:20"
   EndDate <- "2017-08-20 00:10:20"
+  Step <- "Step 2 SubStep 6"
   #StatErr <- FALSE
 
 ############ Modify this code below to be able to run the code inside
@@ -163,13 +166,50 @@ DF_TEMP <- DF_Data %>%
   # run this code manually 
     DF_TEMP %>% 
       # filters for categories //replace input$... with a string...
-      filter(EventText == "Step1 Substep 1") %>% 
+      filter(EventText == Step) %>% 
       # group by 
       group_by(Name) %>% 
       # filters X date
       filter(StartDateTime > StartDate, StartDateTime < EndDate)
+      
+      # chunk can be now selected and executed with CTRL + ENTER
+      
   })
 ```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+  library(tidyverse)
+# data frame containing information from multiple sensors
+DF_Data <- read_csv("DF_Data.csv")
+# data frame containing equipment information
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeData.csv")  
+DF_TEMP <- DF_Data %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal, EventText)
+  StartDate <- "2017-04-20 00:10:20"
+  EndDate <- "2017-08-20 00:10:20"
+  Step <- "Step 2 SubStep 6"
+
+# run this code manually 
+    DF_TEMP %>% 
+      # filters for categories //replace input$... with a string...
+      filter(EventText == Step) %>% 
+      # group by 
+      group_by(Name) %>% 
+      # filters X date
+      filter(StartDateTime > StartDate, StartDateTime < EndDate) %>% head()
+```
+
 
 #### use buttons in your ShinyApp
 

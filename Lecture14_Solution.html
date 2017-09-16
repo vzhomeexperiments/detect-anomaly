@@ -218,7 +218,8 @@ actionButton(inputId = &quot;updateGraph&quot;, label = &quot;Update Graphs&quot
 <h3>Some ideas for practical work</h3>
 <div id="debug-your-code-in-shiny-server.r-file" class="section level4">
 <h4>Debug your code in Shiny server.R file</h4>
-<p>Snippet of code below was taken directly from the <code>server.R</code> script.</p>
+<p>Snippet of code below was taken directly from the <code>server.R</code> script. Use some <code>dummy</code> variables to verify your code inside <code>reactive</code> function that builds <code>DF_SUM</code>. Make sure that filter functions are properly working…</p>
+<p>Hint: create another <code>dummy</code> variable give it the value <code>&quot;Step 2 SubStep 6&quot;</code>. Use it instead of <code>input$selInput</code></p>
 <pre class="r"><code>############# Run this code to create object DF_TEMP
 
 # data frame containing information from multiple sensors
@@ -245,6 +246,7 @@ DF_TEMP &lt;- DF_Data %&gt;%
  # # uncomment below code for debugging...
   StartDate &lt;- &quot;2017-04-20 00:10:20&quot;
   EndDate &lt;- &quot;2017-08-20 00:10:20&quot;
+  Step &lt;- &quot;Step 2 SubStep 6&quot;
   #StatErr &lt;- FALSE
 
 ############ Modify this code below to be able to run the code inside
@@ -254,12 +256,26 @@ DF_TEMP &lt;- DF_Data %&gt;%
   # run this code manually 
     DF_TEMP %&gt;% 
       # filters for categories //replace input$... with a string...
-      filter(EventText == &quot;Step1 Substep 1&quot;) %&gt;% 
+      filter(EventText == Step) %&gt;% 
       # group by 
       group_by(Name) %&gt;% 
       # filters X date
       filter(StartDateTime &gt; StartDate, StartDateTime &lt; EndDate)
+      
+      # chunk can be now selected and executed with CTRL + ENTER
+      
   })</code></pre>
+<pre><code>## Source: local data frame [6 x 5]
+## Groups: Name [4]
+## 
+##         StartDateTime       Name EventCode TimeTotal        EventText
+##                &lt;time&gt;      &lt;chr&gt;     &lt;int&gt;     &lt;int&gt;            &lt;chr&gt;
+## 1 2017-04-21 06:21:00 Machine #3 103007350      1169 Step 2 SubStep 6
+## 2 2017-04-21 06:23:30 Machine #1 103007350      1079 Step 2 SubStep 6
+## 3 2017-04-21 06:24:52 Machine #2 103007350       998 Step 2 SubStep 6
+## 4 2017-04-21 09:24:10 Machine #4 103007350       580 Step 2 SubStep 6
+## 5 2017-04-22 15:52:10 Machine #1 103007350      1112 Step 2 SubStep 6
+## 6 2017-04-22 15:57:06 Machine #2 103007350       963 Step 2 SubStep 6</code></pre>
 </div>
 <div id="use-buttons-in-your-shinyapp" class="section level4">
 <h4>use buttons in your ShinyApp</h4>
