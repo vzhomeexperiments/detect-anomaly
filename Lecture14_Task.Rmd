@@ -1,6 +1,8 @@
 ---
 title: "Lecture 14 - Theory and Task for Homework"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
@@ -12,7 +14,8 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 The overall idea of using `inputs` from the User Interface is to define them first in ui.R file as `inputId` objects and use them in server.R file as `input$inputId` for example:
 
 ```r
-
+library(shiny)
+library(tidyverse)
 # Defined in the ui.R:
 dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01")
 
@@ -95,9 +98,9 @@ Then you can execute this code by pressing **CTRL + Enter** or **CMD + Enter** o
 
 ### Using buttons to delay reactions
 
-In some cases you will want to avoid using reactivity concept immediately. It may be relevant to only update **outputs** only after specific confirmation. To create this interaction flavour of ShinyApp you will need to define the actionButton and then use this object in your server.R script using observeEvent function. For example:
+In some cases you will want to avoid using reactivity concept immediately. It may be relevant to only update **outputs** only after specific confirmation. To create this interaction flavour of ShinyApp you will need to define the actionButton and then use this object in your server.R script using `observeEvent` or like shown below the `eventReactive` function. For example:
 
-```{r}
+```r
 # in ui.R: Generate actionButton with inputId = "updateGraph"
 actionButton(inputId = "updateGraph", label = "Update Graphs")
 
@@ -123,9 +126,11 @@ actionButton(inputId = "updateGraph", label = "Update Graphs")
 
 #### Debug your code in Shiny server.R file
 
-Snippet of code below was taken directly from the server.R script. 
+Snippet of code below was taken directly from the `server.R` script. Use some `dummy` variables to verify your code inside `reactive` function that builds `DF_SUM`. Make sure that filter functions are properly working...
 
-```{r}
+Hint: create another `dummy` variable give it the value `"Step 2 SubStep 6"`. Use it instead of `input$selInput`
+
+```r
 ############# Run this code to create object DF_TEMP
 
 # data frame containing information from multiple sensors

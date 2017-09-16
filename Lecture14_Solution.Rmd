@@ -1,6 +1,8 @@
 ---
 title: "Lecture 14 - Theory and Task for Homework with Solution"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
@@ -97,7 +99,7 @@ Then you can execute this code by pressing **CTRL + Enter** or **CMD + Enter** o
 
 In some cases you will want to avoid using reactivity concept immediately. It may be relevant to only update **outputs** only after specific confirmation. To create this interaction flavour of ShinyApp you will need to define the actionButton and then use this object in your server.R script using observeEvent function. For example:
 
-```{r}
+```r
 # in ui.R: Generate actionButton with inputId = "updateGraph"
 actionButton(inputId = "updateGraph", label = "Update Graphs")
 
@@ -125,7 +127,7 @@ actionButton(inputId = "updateGraph", label = "Update Graphs")
 
 Snippet of code below was taken directly from the `server.R` script. 
 
-```{r}
+```r
 ############# Run this code to create object DF_TEMP
 
 # data frame containing information from multiple sensors
