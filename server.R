@@ -131,10 +131,9 @@ shinyServer(function(input, output, session) {
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
-  
   # ================================= 
-  ### Render function to create another plot:
-  output$Plot3 <- renderPlot({
+  ### function that creates a plot
+  deviationPlot <- function(){
     # generate object for the plot using DF_SUM
     DF_SUM_ALL() %>% 
       filter(StartDateTime > StartDate(), StartDateTime < EndDate()) %>% 
@@ -142,6 +141,23 @@ shinyServer(function(input, output, session) {
       
       ggtitle(paste("Anomaly Detection of the Step Duration", "from: ",
                     StartDate(), " to: ", EndDate(), ". Different colour indicates potential anomaly", sep = "")) 
+  }
+  
+  # ================================= 
+  ### Render function to create another plot:
+  output$Plot3 <- renderPlot({
+    ggsave("plot.png", plot = deviationPlot(), device = "png")
+    deviationPlot()
   })
  
+  # ================================= 
+  ### download plot:
+  output$downloadPlot <- downloadHandler(
+    filename = function(){ "plot.png"},
+    content = function(file){
+      file.copy("plot.png", file, overwrite = TRUE)
+    }
+  )
+  
+  
 })
