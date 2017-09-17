@@ -1,0 +1,51 @@
+---
+title: "Lecture 16 - Homework"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+
+### Lecture 16 - Unsupervised Machine Learning
+
+#### Add possibility for the user to specify number of classes in the data ...
+
+Do you know how to modify ShinyApp in a way that user can specify number of groups the data should be sorted?
+Preferrably start from solution obtained from the Lecture 15
+
+```{r, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+# in ui.R
+library(shiny)
+ column(4, numericInput(inputId = "numClasses", label = "Select Number of Classes",
+                                                      value = 2, min = 1, max = 4, step = 1))
+
+# in server.R
+
+# created reactive value
+Classes <- reactive({input$numClasses})
+
+# used this value in the clustering section of code
+
+      if(!input$scaled) {
+        KM <- KM1 %>% 
+          kmeans(centers = Classes(), nstart = 20)
+      } else {
+        KM <- KM1 %>% 
+          scale() %>%
+          as.data.frame() %>%
+          kmeans(centers = Classes(), nstart = 20)
+      }
+
+# of course it can be done as well without creating reactive value...
+      if(!input$scaled) {
+        KM <- KM1 %>% 
+          kmeans(centers = input$numClasses, nstart = 20)
+      } else {
+        KM <- KM1 %>% 
+          scale() %>%
+          as.data.frame() %>%
+          kmeans(centers = input$numClasses, nstart = 20)
+      }
+```
+

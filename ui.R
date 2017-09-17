@@ -56,15 +56,17 @@ shinyUI(fluidPage(theme = "bootstrap.css",
                   # Show a plot 
                   mainPanel(
                     tabsetPanel(
-                      tabPanel("Plot - Smoothed", plotOutput(outputId = "Plot")),
-                      tabPanel("Plot - Points", plotOutput(outputId = "Plot1")),
-                      tabPanel("Plot - Box Plot", plotOutput(outputId = "Plot2")),
+                      tabPanel("Plot - Smoothed", plotOutput("Plot")),
+                      tabPanel("Plot - Points", plotOutput("Plot1")),
+                      tabPanel("Plot - Box Plot", plotOutput("Plot2")),
                       tabPanel("Deviation Auto Detection", "Select machine step and choose the dates of interest",
                                hr(), 
-                               column(5, selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
+                               column(4, selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
                                            selected = stepsChoices[1], multiple = FALSE, 
                                            selectize = TRUE, size = NULL)),
-                               column(2, downloadButton(outputId = "downloadPlot",label = "Download Plot")), hr(),
+                               column(3, checkboxInput(inputId = "scaled", label = "Scale Data?", value = FALSE)),
+                               column(4, numericInput(inputId = "numClasses", label = "Select Number of Classes",
+                                                      value = 2, min = 1, max = 4, step = 1)), hr(),
                                plotOutput(outputId = "Plot3"))
                     )
 
