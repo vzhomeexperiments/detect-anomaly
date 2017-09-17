@@ -1,0 +1,137 @@
+---
+title: "Lecture 15 - Theory and Homework"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+
+### Lecture 15 - Unsupervised Machine Learning
+
+#### Preparing data for Modelling...
+
+The main idea of the course is to `detect anomaly` leveraging the `data` from several objects that should behave similarly. We would like to arrange this data in a way that our objective variable `TimeTotal` is on the `Y axis` and our `objects` are on the `X axis`. In our `shiny app` we achieving this by loading the data to our R Session...
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(plyr)
+# data frame containing information from multiple sensors
+DF_Data <- read_csv("DF_Data.csv")
+# data frame containing equipment information
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeData.csv")
+
+# Data manipulation and saving to the DF_TEMP
+DF_TEMP <- DF_Data %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal, EventText)
+```
+
+Data was manipulated and stored to the object `DF_TEMP`. We will let the user to decide which category should be checked (dummy text element is used to produce the object DF_KM):
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# Data manipulation and saving to the DF_Data reactive value
+    DF_KM <- DF_TEMP %>% filter(EventText == "Step 2 SubStep 6") 
+      # # filters for category
+      # filter(EventText == input$Step) 
+```
+
+We can output just the result of this object DF_KM to confirm that we only have information from step named "Step 2 SubStep 6"
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+head(DF_KM)
+```
+
+We will further arrange our data in a way we need:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+KM <- DF_KM %>%
+      select(Name, TimeTotal) %>%
+      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+      mutate(Name = as.numeric(Name))
+head(KM)
+```
+
+We can visualize this construct with ggplot function. Notice we are using **geom_jitter** to 'smash' our data a bit around the X axis point:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+KM  %>%
+   ggplot(aes(x = Name, y = TimeTotal)) + geom_jitter()
+```
+
+#### Scaling and Outliers...
+
+Data featured in this course is real-life dirty data! No cleaning or massaging of the data was performed. In the real case it will be just necessary to perform proper quality check of the data. In the meantime we will look on how to perform scaling on the data:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# with scaling
+KM_sc <- DF_KM %>%
+  select(Name, TimeTotal) %>%
+  mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+  mutate(Name = as.numeric(Name)) %>%
+  scale() %>%
+  as.data.frame() 
+```
+
+We will visualize scaled data...
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# visualized scaled dataset, notice mapping color to see the equipment
+KM_sc %>%
+  ggplot(aes(x = Name, y = TimeTotal)) + geom_jitter(alpha = 0.7) 
+```
+
+Probably in this case nothing is really impacting can be detected... In a real life scaling will probably be a must especially if you deal with the data having different working range.
+
+Further in the **Homework** section you will be asked to create an option button in the ShinyApp to actually allow option "Scale Data"
+
+In this course we are not going to discuss about outliers or remove them and the reason is simply because this data is coming from anonimised manufacturing process and just provided to the fellow students "as is". In any case there are different methods to remove the outliers which is for example to use statistical methods or simply **filter** entire rows that are below or above certain value
+
+#### Clustering using **kmeans**
+
+To use clustering it is enough to provide prepared data to the function **kmeans** and specify numbers of centers or estimated clusters in the data.
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# visualized scaled dataset, notice mapping color to see the equipment
+    KM <- DF_KM %>%
+      select(Name, TimeTotal) %>%
+      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+      mutate(Name = as.numeric(Name)) %>%
+      kmeans(centers = 2, nstart = 20)
+```
+
+We are obtaining a List KM composed of different elements:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+str(KM)
+```
+
+there are of course different metrics that are deserve further attention however in our case we are going to simply use the resulting element of the list **$cluster**
+
+We are going to convert this element to the dataframe, rename it and join to the original dataset...
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# saving clustering result to the new data frame
+      vector <- as.data.frame.vector(KM$cluster)
+      names(vector) <- "Clust"
+    
+    DF_SUM_ALL <- DF_KM %>% 
+      select(StartDateTime, TimeTotal, Name) %>%
+      # join clustering result
+      bind_cols(vector) %>% 
+      mutate(Clust = as.factor(Clust))  
+    
+    head(DF_SUM_ALL)
+```
+
+Of course there are other methods available to perform Clustering. Please feel free to study them and experiment further in their application for present dataset

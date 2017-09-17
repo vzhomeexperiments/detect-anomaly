@@ -1,0 +1,147 @@
+---
+title: "Lecture 15 - Theory and Homework"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
+
+### Lecture 15 - Unsupervised Machine Learning
+
+#### Data import for the exercise:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(plyr)
+# data frame containing information from multiple sensors
+DF_Data <- read_csv("DF_Data.csv")
+# data frame containing equipment information
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeData.csv")
+
+# Data manipulation and saving to the DF_TEMP
+DF_TEMP <- DF_Data %>% 
+  # arrange by date 
+  arrange(StartDateTime) %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # select only column needed
+  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDateTime, Name, TimeTotal, EventText)
+```
+
+#### Filter the data...
+
+Can you manually select EventText `"Step 1 SubStep 1"` instead of `"Step 2 SubStep 6"`? 
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# Data manipulation and saving to the DF_Data reactive value
+    DF_KM <- DF_TEMP %>% filter(EventText == "Step 2 SubStep 6") 
+      # # filters for category
+      # filter(EventText == input$Step) 
+```
+
+Verify your result...
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+head(DF_KM)
+```
+
+We will further arrange our data and visualize it before scaling:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+KM <- DF_KM %>%
+      select(Name, TimeTotal) %>%
+      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+      mutate(Name = as.numeric(Name))
+KM  %>%
+   ggplot(aes(x = Name, y = TimeTotal)) + geom_jitter()
+```
+
+What do you thinking about these points? Do you have any special thoughts? Perhaps do you see something special in the data?
+
+#### Try scaling...
+
+run this code to perform scaling of the data and visualize them:
+
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+# with scaling
+KM_sc <- DF_KM %>%
+  select(Name, TimeTotal) %>%
+  mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+  mutate(Name = as.numeric(Name)) %>%
+  scale() %>%
+  as.data.frame() %>% ggplot(aes(x = Name, y = TimeTotal)) + geom_jitter(alpha = 0.7) 
+```
+
+Do you see anything different compare to the previous chart?
+
+#### Try apply scaling in shiny!
+
+This task probably especially intensive. Why don't we try to add an option directly in `Shiny` that can let the user option to scale the data and directly visualize the result?
+
+**Hint:** Add another `checkBox` in the `ui.R` with `inputId = "scaled"`
+
+**Hint:** You can try simple **if / else** construct :)
+
+```{r, eval=FALSE, include=FALSE}
+## in ui.R
+# modifying tabPanel to add checkboxInput 
+tabPanel("Deviation Auto Detection", "Select machine step and choose the dates of interest",
+           hr(), 
+           column(4, selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
+                       selected = stepsChoices[1], multiple = FALSE, 
+                       selectize = TRUE, size = NULL)),
+           column(3, checkboxInput(inputId = "scaled", label = "Scale Data?", value = FALSE)), hr(),
+           plotOutput(outputId = "Plot3"))
+
+## in server.R
+ # Prepare data for clustering and do clustering with if/else statement...
+  DF_SUM_ALL <- reactive({
+    
+      # Data manipulation and saving to the DF_Data reactive value
+      DF_KM <- DF_TEMP %>% #filter(EventText == "Step 2 SubStep 6") 
+        # filters for category
+        filter(EventText == input$Step) 
+      
+      # make intermediate dataframe
+      KM1 <- DF_KM %>%
+        select(Name, TimeTotal) %>%
+        mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+        mutate(Name = as.numeric(Name)) 
+      
+      if(!input$scaled) {
+        KM <- KM1 %>% 
+          kmeans(centers = 2, nstart = 20)
+      } else {
+        KM <- KM1 %>% 
+          scale() %>%
+          as.data.frame() %>%
+          kmeans(centers = 2, nstart = 20)
+      }
+        
+      # saving clustering result to the new data frame
+      vector <- as.data.frame.vector(KM$cluster)
+      names(vector) <- "Clust"
+      
+      DF_SUM_ALL <- DF_KM %>% 
+        select(StartDateTime, TimeTotal, Name) %>%
+        # join clustering result
+        bind_cols(vector) %>% 
+        mutate(Clust = as.factor(Clust))  
+     
+      
+  })
+  
+
+```
+
+
+#### Try and evaluate differences
+
+Run the app and record steps that significantly alter result of clustering once scaling is performed. Overall what is your mind for the future? Will you use scaling or not... Try to explain your opinion...
