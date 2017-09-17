@@ -158,7 +158,7 @@ shinyServer(function(input, output, session) {
     # generate object for the plot using DF_SUM
     DF_SUM_ALL() %>% 
       filter(StartDateTime > StartDate(), StartDateTime < EndDate()) %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col =Clust)) + geom_point() + facet_wrap(~Name)+
+      ggplot(aes(x = StartDateTime, y = TimeTotal, col = Clust)) + geom_point() + facet_wrap(~Name) +
       
       ggtitle(paste("Anomaly Detection of the Step Duration", "from: ",
                     StartDate(), " to: ", EndDate(), ". Different colour indicates potential anomaly", sep = "")) 
