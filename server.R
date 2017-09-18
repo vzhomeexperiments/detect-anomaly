@@ -42,6 +42,7 @@ shinyServer(function(input, output, session) {
   StartDate <- reactive( {as.POSIXct(input$DateStart)} )
   EndDate <- reactive( {as.POSIXct(input$DateEnd)} )
   StatErr <- reactive( {input$cboxSE} )
+  Classes <- reactive({input$numClasses})
   # # uncomment for debugging...
   # StartDate <- "2017-04-20 00:10:20"
   # EndDate <- "2017-08-20 00:10:20"
@@ -63,32 +64,45 @@ shinyServer(function(input, output, session) {
   })
   
 # =================================  
-  # This object is needed exclusively for clustering
+  # Prepare data for clustering and do clustering with if/else statement...
   DF_SUM_ALL <- reactive({
     
-    # Data manipulation and saving to the DF_Data reactive value
-    DF_KM <- DF_TEMP %>% 
-      # filters for category
-      filter(EventText == input$Step) 
-    
-    KM <- DF_KM %>% 
-      select(Name, TimeTotal) %>%
-      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>% 
-      kmeans(centers = 2, nstart = 20)
-    
+      # Data manipulation and saving to the DF_Data reactive value
+      DF_KM <- DF_TEMP %>% #filter(EventText == "Step 2 SubStep 6") 
+        # filters for category
+        filter(EventText == input$Step) 
+      
+      # make intermediate dataframe
+      KM1 <- DF_KM %>%
+        select(Name, TimeTotal) %>%
+        mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+        mutate(Name = as.numeric(Name)) 
+      
+      # perform different modelling depending on the user choice...
+      if(!input$scaled) {
+        KM <- KM1 %>% 
+          kmeans(centers = Classes(), nstart = 20)
+      } else {
+        KM <- KM1 %>% 
+          scale() %>%
+          as.data.frame() %>%
+          kmeans(centers = Classes(), nstart = 20)
+      }
+        
       # saving clustering result to the new data frame
       vector <- as.data.frame.vector(KM$cluster)
       names(vector) <- "Clust"
-    
-    DF_SUM_ALL <- DF_KM %>% 
-      select(StartDateTime, TimeTotal, Name) %>%
-      # join clustering result
-      bind_cols(vector) %>% 
-      mutate(Clust = as.factor(Clust))  
+      
+      DF_SUM_ALL <- DF_KM %>% 
+        select(StartDateTime, TimeTotal, Name) %>%
+        # join clustering result
+        bind_cols(vector) %>% 
+        mutate(Clust = as.factor(Clust))  
+     
       
   })
   
-
+ 
   
 # =================================  
 # OUTPUTS
@@ -131,33 +145,20 @@ shinyServer(function(input, output, session) {
                                       StartDate(), " to: ", EndDate(), sep = "")) 
   })
   
-  # ================================= 
-  ### function that creates a plot
-  deviationPlot <- function(){
-    # generate object for the plot using DF_SUM
-    DF_SUM_ALL() %>% 
-      filter(StartDateTime > StartDate(), StartDateTime < EndDate()) %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col =Clust)) + geom_point() + facet_wrap(~Name)+
-      
-      ggtitle(paste("Anomaly Detection of the Step Duration", "from: ",
-                    StartDate(), " to: ", EndDate(), ". Different colour indicates potential anomaly", sep = "")) 
-  }
   
   # ================================= 
   ### Render function to create another plot:
   output$Plot3 <- renderPlot({
-    ggsave("plot.png", plot = deviationPlot(), device = "png")
-    deviationPlot()
+    # generate object for the plot using DF_SUM
+    DF_SUM_ALL() %>% 
+      filter(StartDateTime > StartDate(), StartDateTime < EndDate()) %>% 
+      ggplot(aes(x = StartDateTime, y = TimeTotal, col = Clust)) + geom_point() + facet_wrap(~Name) +
+      
+      ggtitle(paste("Anomaly Detection of the Step Duration", "from: ",
+                    StartDate(), " to: ", EndDate(), ". Different colour indicates potential anomaly", sep = "")) 
   })
- 
-  # ================================= 
-  ### download plot:
-  output$downloadPlot <- downloadHandler(
-    filename = function(){ "plot.png"},
-    content = function(file){
-      file.copy("plot.png", file, overwrite = TRUE)
-    }
-  )
   
+  
+ 
   
 })
