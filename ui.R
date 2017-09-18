@@ -28,7 +28,7 @@ shinyUI(fluidPage(theme = "bootstrap.css",
   
   # Page Row 1 == Information Pane ==
   # Adding Logo [optional]
-  fluidRow(column(2, img(height = 50, width  = 106, src    = "logo.JPG")),
+  fluidRow(column(2, img(height = 75, width  = 136, src    = "logo.png")),
            column(9, 
                   # Application title
                   titlePanel("Preparation Steps Duration Overview"))),

@@ -88,16 +88,7 @@ shinyServer(function(input, output, session) {
       
   })
   
-  # # Updating inputs ...
-  observe({
-    x <- unique(DF_TEMP$EventText)
-    #Can also set the label and select items
-    updateSelectInput(session, "selInput",
-                      choices = x,
-                      selected = x[1]
-    )
-  })
-  
+ 
   
 # =================================  
 # OUTPUTS
@@ -108,7 +99,7 @@ shinyServer(function(input, output, session) {
     # generate object for the plot using DF_SUM
     DF_SUM() %>% 
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
-      geom_smooth(alpha = 0.5, se = StatErr()) +
+      geom_smooth(alpha = 0.5, se = StatErr(), formula = y ~ poly(x, 2)) +
       facet_wrap(~Name) + ylab("Duration of Step, seconds") +
       ggtitle(paste("Overview of Steps ", "from: ",
                                       StartDate(), " to: ", EndDate(), sep = "")) 
@@ -116,7 +107,7 @@ shinyServer(function(input, output, session) {
   
   # ================================= 
   
-  ### Render function to create a main plot:
+  ### Render function to create a point plot:
   output$Plot1 <- renderPlot({
     # generate object for the plot using DF_SUM
     DF_SUM()  %>% 
