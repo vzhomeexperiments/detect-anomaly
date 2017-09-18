@@ -23,16 +23,12 @@ DF_EvCode <- read_csv("DF_EvCodeData.csv")
 
 # Data manipulation and saving to the DF_TEMP
 DF_TEMP <- DF_Data %>% 
-  # arrange by date 
-  arrange(StartDateTime) %>% 
   # join to decode equipment serial number
   inner_join(DF_Equipm, by = "IDEquipment") %>% 
-  # select only column needed
-  select(StartDateTime, Name, EventCode, TimeTotal) %>% 
   # join to decode Event Code meaning
   inner_join(DF_EvCode, by = "EventCode") %>% 
   # select only column needed
-  select(StartDateTime, Name, EventCode, TimeTotal, EventText)
+  select(StartDateTime, Name, TimeTotal, EventText)
 # ================================= 
 
 shinyServer(function(input, output, session) {
@@ -56,8 +52,8 @@ shinyServer(function(input, output, session) {
     DF_TEMP %>% 
       # filters for categories
       filter(EventText == input$selInput) %>% 
-      # group by 
-      group_by(Name) %>% 
+      # group by
+      group_by(Name) %>%
       # filters X date
       filter(StartDateTime > StartDate(), StartDateTime < EndDate())
   })
@@ -88,60 +84,65 @@ shinyServer(function(input, output, session) {
       
   })
   
- 
+# =================================  
+# FUNCTIONS
+# =================================  
+  # Function to draw main plot, using condition of input$point to add points to the graph
+  mainPlot <- function(){
+    if(input$points){
+      DF_SUM() %>% 
+        ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
+        geom_smooth(alpha = 0.5, se = StatErr(), formula = y ~ poly(x, 2)) +
+        geom_point(alpha = 0.4) +
+        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
+        ggtitle(paste("Overview of Steps ", "from: ",
+                      StartDate(), " to: ", EndDate(), sep = "")) 
+      
+    } else {
+      DF_SUM() %>% 
+        ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
+        geom_smooth(alpha = 0.5, se = StatErr(), formula = y ~ poly(x, 2)) +
+        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
+        ggtitle(paste("Overview of Steps ", "from: ",
+                      StartDate(), " to: ", EndDate(), sep = "")) 
+      
+    }
+    
+  }
+  
+  boxPlot <- function(){
+    DF_SUM() %>% 
+      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
+      facet_grid(~Name) + 
+      ylab("Duration of Step, seconds") +
+      ggtitle(label = paste("Box Plot from all data. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
+              subtitle = "Box plots can help to indicate average values and outliers") 
+    
+  }
   
 # =================================  
 # OUTPUTS
 # =================================  
     
   ### Render function to create a main plot:
-  output$Plot <- renderPlot({
-    # generate object for the plot using DF_SUM
-    DF_SUM() %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
-      geom_smooth(alpha = 0.5, se = StatErr(), formula = y ~ poly(x, 2)) +
-      facet_wrap(~Name) + ylab("Duration of Step, seconds") +
-      ggtitle(paste("Overview of Steps ", "from: ",
-                                      StartDate(), " to: ", EndDate(), sep = "")) 
-  })
-  
+  output$Plot <- renderPlot({ mainPlot() })
+
   # ================================= 
   
-  ### Render function to create a point plot:
-  output$Plot1 <- renderPlot({
-    # generate object for the plot using DF_SUM
-    DF_SUM()  %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_point()+
-      geom_smooth(alpha = 0.5, se = StatErr()) +
-      facet_wrap(~Name) + 
-      ylab("Duration of Step, seconds") +
-      ggtitle(paste("Overview of Steps ", "from: ",
-                                      StartDate(), " to: ", EndDate(), sep = "")) 
-  })
-  
-  # ================================= 
-  
-  ### Render function to create another plot:
-  output$Plot2 <- renderPlot({
-    # generate object for the plot using DF_SUM
-    DF_SUM() %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
-      facet_wrap(Name ~ EventText) +
-      ggtitle(paste("Overview of Steps ", "from: ",
-                                      StartDate(), " to: ", EndDate(), sep = "")) 
-  })
+  ### Render function to create Box Plot:
+  output$Plot2 <- renderPlot({ boxPlot() })
   
   
   # ================================= 
-  ### Render function to create another plot:
+  ### Render function to create plot Anomaly:
   output$Plot3 <- renderPlot({
     # generate object for the plot using DF_SUM
     DF_SUM_ALL() %>% 
       filter(StartDateTime > StartDate(), StartDateTime < EndDate()) %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col =Clust)) + geom_point() + facet_wrap(~Name)+
-      
-      ggtitle(paste("Anomaly Detection of the Step Duration", "from: ",
-                    StartDate(), " to: ", EndDate(), ". Different colour indicates potential anomaly", sep = "")) 
+      ggplot(aes(x = StartDateTime, y = TimeTotal, col = Clust)) + geom_point() + facet_wrap(~Name)+
+      ylab("Duration of Step, seconds") +
+      ggtitle(label = paste("Anomaly Detection of the Step Duration. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
+              subtitle = "Different colors may highlight potential anomaly") 
   })
   
   

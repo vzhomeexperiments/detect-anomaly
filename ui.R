@@ -40,13 +40,9 @@ shinyUI(fluidPage(theme = "bootstrap.css",
   
   fluidRow(column(2, dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01")),
            column(2, dateInput(inputId = "DateEnd",   label = "Insert End Date")),
-           column(1, checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL)),
-           column(3, helpText("Note: while the data view will show only",
-                              "the specified number of observations, the",
-                              "summary will be based on the full dataset."))),
-  fluidRow(column(8, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
-                                 selected = stepsChoices[1], multiple = TRUE, 
-                                 selectize = TRUE, width = '100%', size = NULL))),
+           column(3, helpText("Note: Set Desired dates of interest",
+                              "and select plots below to visualize",
+                              "specific step of interest."))),
   
   # Adding a horizontal line
   hr(),
@@ -56,15 +52,21 @@ shinyUI(fluidPage(theme = "bootstrap.css",
                   # Show a plot 
                   mainPanel(
                     tabsetPanel(
-                      tabPanel("Plot - Smoothed", plotOutput("Plot")),
-                      tabPanel("Plot - Points", plotOutput("Plot1")),
-                      tabPanel("Plot - Box Plot", plotOutput("Plot2")),
-                      tabPanel("Deviation Auto Detection", "Select machine step and choose the dates of interest",
-                               hr(), 
+                      tabPanel("Plot - Overview", 
+                               column(6, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
+                                         selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL)),
+                               column(2, checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL)),
+                               column(2, checkboxInput(inputId = "points", label = "Add Points?")),
+                               plotOutput(outputId = "Plot")),
+                      tabPanel("Plot - Box Plot", 
+                               column(6, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
+                                                     selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL)),
+                               plotOutput(outputId = "Plot2")),
+                      tabPanel("Plot - Anomaly", 
                                selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
                                            selected = stepsChoices[1], multiple = FALSE, 
                                            selectize = TRUE, size = NULL), hr(),
-                               plotOutput("Plot3"))
+                               plotOutput(outputId = "Plot3"))
                     )
 
                   )
