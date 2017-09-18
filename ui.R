@@ -9,6 +9,7 @@
 # ----------------------------
 
 library(shiny)
+library(shinydashboard)
 library(DT)
 
 # Define steps choices for selectInput function (it is containing steps the user can filter)
@@ -24,52 +25,37 @@ stepsChoices <- c("Step 1 SubStep 1",
                   "Step 2 SubStep 6",
                   "Step 2 SubStep 7")
 
-shinyUI(fluidPage(theme = "bootstrap.css",
-  
-  # Page Row 1 == Information Pane ==
-  # Adding Logo [optional]
-  fluidRow(column(2, img(height = 75, width  = 136, src    = "logo.png")),
-           column(9, 
-                  # Application title
-                  titlePanel("Preparation Steps Duration Overview"))),
-  
-  # Adding a horizontal line
-  hr(),
-  
-  # Page Row 2 == User Inputs ==
-  
-  fluidRow(column(2, dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01")),
-           column(2, dateInput(inputId = "DateEnd",   label = "Insert End Date")),
-           column(3, helpText("Note: Set Desired dates of interest",
-                              "and select plots below to visualize",
-                              "specific step of interest."))),
-  
-  # Adding a horizontal line
-  hr(),
-  
-  # Page Row 3 == Plot or other Outputs ==
-  fluidRow(column(12,  
-                  # Show a plot 
-                  mainPanel(
-                    tabsetPanel(
-                      tabPanel("Plot - Overview", 
-                               column(6, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
-                                         selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL)),
-                               column(2, checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL)),
-                               column(2, checkboxInput(inputId = "points", label = "Add Points?")),
-                               plotOutput(outputId = "Plot")),
-                      tabPanel("Plot - Box Plot", 
-                               column(6, selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
-                                                     selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL)),
-                               plotOutput(outputId = "Plot2")),
-                      tabPanel("Plot - Anomaly", 
-                               selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
-                                           selected = stepsChoices[1], multiple = FALSE, 
-                                           selectize = TRUE, size = NULL), hr(),
-                               plotOutput(outputId = "Plot3"))
-                    )
-
-                  )
-  ))
-))
-
+# 
+dashboardPage(
+  dashboardHeader(title = "Preparation Steps Duration Overview"),
+  dashboardSidebar(
+    # Elements on the Sidebar of the App
+    dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01"),
+    dateInput(inputId = "DateEnd",   label = "Insert End Date"),
+    helpText("Note: Set Desired dates of interest",
+                                            "and select plots below to visualize",
+                                            "specific step of interest."),
+    selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
+                selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL),
+    checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL),
+    checkboxInput(inputId = "points", label = "Add Points?")
+  ),
+  dashboardBody(
+    
+    mainPanel(
+      img(height = 75, width  = 136, src    = "logo.png"), 
+      # Elements of the Dashboard: header and tabset panel
+      headerPanel("Visualization of steps duration"),
+      tabsetPanel(
+        # Default chart visualizing the overall performance of the systems
+        tabPanel("Plot - Overview", plotOutput(outputId = "Plot")),
+        # Box plot helping to perform comparison
+        tabPanel("Plot - Box Plot", plotOutput(outputId = "Plot2")),
+        tabPanel("Plot - Anomaly", selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
+                                               selected = stepsChoices[1], multiple = FALSE, 
+                                               selectize = TRUE, size = NULL), hr(),
+                                               plotOutput(outputId = "Plot3"))
+      )  
+    )
+  )
+)
