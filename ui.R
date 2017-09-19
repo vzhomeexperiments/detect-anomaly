@@ -30,7 +30,7 @@ dashboardPage(
   dashboardHeader(title = "Preparation Steps Duration Overview"),
   dashboardSidebar(
     # Elements on the Sidebar of the App
-    img(height = 75, width  = 136, src    = "logo.png"), 
+    img(height = 100, width  = 230, src    = "logo.png"), 
     dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01"),
     dateInput(inputId = "DateEnd",   label = "Insert End Date", value = "2017-09-01"),
     helpText("Note: Set Desired dates of interest",
