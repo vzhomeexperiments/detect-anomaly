@@ -30,8 +30,9 @@ dashboardPage(
   dashboardHeader(title = "Preparation Steps Duration Overview"),
   dashboardSidebar(
     # Elements on the Sidebar of the App
+    img(height = 75, width  = 136, src    = "logo.png"), 
     dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01"),
-    dateInput(inputId = "DateEnd",   label = "Insert End Date"),
+    dateInput(inputId = "DateEnd",   label = "Insert End Date", value = "2017-09-01"),
     helpText("Note: Set Desired dates of interest",
                                             "and select plots below to visualize",
                                             "specific step of interest."),
@@ -43,7 +44,7 @@ dashboardPage(
   dashboardBody(
     
     mainPanel(
-      img(height = 75, width  = 136, src    = "logo.png"), 
+      
       # Elements of the Dashboard: header and tabset panel
       headerPanel("Visualization of steps duration"),
       tabsetPanel(

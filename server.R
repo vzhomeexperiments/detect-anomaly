@@ -115,6 +115,7 @@ shinyServer(function(input, output, session) {
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
       facet_grid(~Name) + 
       ylab("Duration of Step, seconds") +
+      theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Box Plot from all data. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
               subtitle = "Box plots can help to indicate average values and outliers") 
     
@@ -125,12 +126,12 @@ shinyServer(function(input, output, session) {
 # =================================  
     
   ### Render function to create a main plot:
-  output$Plot <- renderPlot({ mainPlot() })
+  output$Plot <- renderPlot({ mainPlot() },  height = "auto", width = 650)
 
   # ================================= 
   
   ### Render function to create Box Plot:
-  output$Plot2 <- renderPlot({ boxPlot() })
+  output$Plot2 <- renderPlot({ boxPlot() }, height = "auto", width = 650)
   
   
   # ================================= 
@@ -141,9 +142,10 @@ shinyServer(function(input, output, session) {
       filter(StartDateTime > StartDate(), StartDateTime < EndDate()) %>% 
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = Clust)) + geom_point() + facet_wrap(~Name)+
       ylab("Duration of Step, seconds") +
+      theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Anomaly Detection of the Step Duration. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
               subtitle = "Different colors may highlight potential anomaly") 
-  })
+  },  height = "auto", width = 650)
   
   
   
