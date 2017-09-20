@@ -40,7 +40,7 @@ dashboardPage(
                 selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL),
     checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL),
     checkboxInput(inputId = "points", label = "Add Points?"),
-    downloadButton(outputId = "downloadPlot",label = "Download Plot")
+    div(style="display:inline-block;width:65%;text-align: right;",downloadButton(outputId = "downloadPlot",label = "Download Plot"))
     
   ),
   dashboardBody(
