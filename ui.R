@@ -39,7 +39,8 @@ dashboardPage(
     selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
                 selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL),
     checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL),
-    checkboxInput(inputId = "points", label = "Add Points?")
+    checkboxInput(inputId = "points", label = "Add Points?"),
+    downloadButton(outputId = "downloadPlot",label = "Download Plot")
     
   ),
   dashboardBody(

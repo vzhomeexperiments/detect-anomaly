@@ -125,6 +125,7 @@ shinyServer(function(input, output, session) {
     
   }
   
+  # Function to draw Box plot
   boxPlot <- function(){
     DF_SUM() %>% 
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
@@ -135,24 +136,9 @@ shinyServer(function(input, output, session) {
               subtitle = "Box plots can help to indicate average values and outliers") 
     
   }
-  
-# =================================  
-# OUTPUTS
-# =================================  
+  # Function to draw deviation plot
+  deviationPlot <- function(){
     
-  ### Render function to create a main plot:
-  output$Plot <- renderPlot({ mainPlot() },  height = "auto", width = 650)
-
-  # ================================= 
-  
-  ### Render function to create Box Plot:
-  output$Plot2 <- renderPlot({ boxPlot() }, height = "auto", width = 650)
-  
-  
-  # ================================= 
-  ### Render function to create plot Anomaly:
-  output$Plot3 <- renderPlot({
-    # generate object for the plot using DF_SUM
     DF_SUM_ALL() %>% 
       filter(StartDateTime > StartDate(), StartDateTime < EndDate()) %>% 
       ggplot(aes(x = StartDateTime, y = TimeTotal, col = Clust)) + geom_point() + facet_wrap(~Name)+
@@ -160,10 +146,38 @@ shinyServer(function(input, output, session) {
       theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Anomaly Detection of the Step Duration. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
               subtitle = "Different colors may highlight potential anomaly") 
-  },  height = "auto", width = 650)
+
+  }
+# =================================  
+# OUTPUTS
+# =================================  
+    
+  ### Render function to create a main plot:
+  output$Plot <- renderPlot({ 
+    ggsave("plot.png", plot = mainPlot(), device = "png")
+    mainPlot() },  height = "auto", width = 650)
+
+  # ================================= 
+  
+  ### Render function to create Box Plot:
+  output$Plot2 <- renderPlot({ 
+    ggsave("plot.png", plot = boxPlot(), device = "png")
+    boxPlot() }, height = "auto", width = 650)
   
   
+  # ================================= 
+  ### Render function to create plot Anomaly:
+  output$Plot3 <- renderPlot({ 
+    ggsave("plot.png", plot = deviationPlot(), device = "png")
+    deviationPlot() }, height = "auto", width = 650)
   
-  
+  # ================================= 
+  ### download plot:
+  output$downloadPlot <- downloadHandler(
+      filename = function(){ "plot.png"},
+      content = function(file){
+      file.copy("plot.png", file, overwrite = TRUE)
+      }
+    )
   
 })
