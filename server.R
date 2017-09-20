@@ -38,6 +38,7 @@ shinyServer(function(input, output, session) {
   StartDate <- reactive( {as.POSIXct(input$DateStart)} )
   EndDate <- reactive( {as.POSIXct(input$DateEnd)} )
   StatErr <- reactive( {input$cboxSE} )
+  Classes <- reactive({input$numClasses})
   # # uncomment for debugging...
   # StartDate <- "2017-04-20 00:10:20"
   # EndDate <- "2017-08-20 00:10:20"

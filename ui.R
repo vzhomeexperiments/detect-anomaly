@@ -39,7 +39,10 @@ dashboardPage(
     selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
                 selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL),
     checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL),
-    checkboxInput(inputId = "points", label = "Add Points?")
+    checkboxInput(inputId = "points", label = "Add Points?"),
+    checkboxInput(inputId = "scaled", label = "Scale Data?", value = FALSE),
+    numericInput(inputId = "numClasses", label = "Select Number of Classes",
+                 value = 2, min = 1, max = 4, step = 1)
   ),
   dashboardBody(
     
