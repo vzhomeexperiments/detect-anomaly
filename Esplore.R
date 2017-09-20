@@ -66,4 +66,18 @@ DF_Data_Seals_Recent %>%
   filter(EventText == "Strip applicator, phase") %>% 
   ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
 
+# creating human readable data
+DF_Data_Seals_Recent %>% 
+  left_join(DF_EvCode, by = "EventCode") %>% 
+  left_join(DF_Equipm, by = "IDEquipment") %>% 
+  select(StartDate, SN, EventText, AnalogVal) %>% 
+  filter(EventText == "Transversal sealing, impedance") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
 
+# creating human readable data
+DF_Data_Seals_Recent %>% 
+  left_join(DF_EvCode, by = "EventCode") %>% 
+  left_join(DF_Equipm, by = "IDEquipment") %>% 
+  select(StartDate, SN, EventText, AnalogVal) %>% 
+  filter(EventText == "Transversal sealing, phase") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
