@@ -39,10 +39,8 @@ dashboardPage(
     selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
                 selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL),
     checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL),
-    checkboxInput(inputId = "points", label = "Add Points?"),
-    checkboxInput(inputId = "scaled", label = "Scale Data?", value = FALSE),
-    numericInput(inputId = "numClasses", label = "Select Number of Classes",
-                 value = 2, min = 1, max = 4, step = 1)
+    checkboxInput(inputId = "points", label = "Add Points?")
+    
   ),
   dashboardBody(
     
@@ -55,10 +53,12 @@ dashboardPage(
         tabPanel("Plot - Overview", plotOutput(outputId = "Plot")),
         # Box plot helping to perform comparison
         tabPanel("Plot - Box Plot", plotOutput(outputId = "Plot2")),
-        tabPanel("Plot - Anomaly", selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
-                                               selected = stepsChoices[1], multiple = FALSE, 
-                                               selectize = TRUE, size = NULL), hr(),
-                                               plotOutput(outputId = "Plot3"))
+        tabPanel("Plot - Anomaly", column(4, selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
+                                                      selected = stepsChoices[1], multiple = FALSE, selectize = TRUE, size = NULL)),
+                                   column(4, numericInput(inputId = "numClasses", label = "Select Number of Classes", 
+                                                          value = 2, min = 1, max = 4, step = 1)),
+                                   column(4, checkboxInput(inputId = "scaled", label = "Scale Data?", value = FALSE)), hr(),
+                                   plotOutput(outputId = "Plot3"))
       )  
     )
   )

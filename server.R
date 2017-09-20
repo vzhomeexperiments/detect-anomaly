@@ -60,30 +60,44 @@ shinyServer(function(input, output, session) {
   })
   
 # =================================  
-  # This object is needed exclusively for clustering
+  # Prepare data for clustering and do clustering with if/else statement...
   DF_SUM_ALL <- reactive({
     
     # Data manipulation and saving to the DF_Data reactive value
-    DF_KM <- DF_TEMP %>% 
+    DF_KM <- DF_TEMP %>% #filter(EventText == "Step 2 SubStep 6") 
       # filters for category
       filter(EventText == input$Step) 
     
-    KM <- DF_KM %>% 
+    # make intermediate dataframe
+    KM1 <- DF_KM %>%
       select(Name, TimeTotal) %>%
-      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>% 
-      kmeans(centers = 2, nstart = 20)
+      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+      mutate(Name = as.numeric(Name)) 
     
-      # saving clustering result to the new data frame
-      vector <- as.data.frame.vector(KM$cluster)
-      names(vector) <- "Clust"
+    # perform different modelling depending on the user choice...
+    if(!input$scaled) {
+      KM <- KM1 %>% 
+        kmeans(centers = Classes(), nstart = 20)
+    } else {
+      KM <- KM1 %>% 
+        scale() %>%
+        as.data.frame() %>%
+        kmeans(centers = Classes(), nstart = 20)
+    }
+    
+    # saving clustering result to the new data frame
+    vector <- as.data.frame.vector(KM$cluster)
+    names(vector) <- "Clust"
     
     DF_SUM_ALL <- DF_KM %>% 
       select(StartDateTime, TimeTotal, Name) %>%
       # join clustering result
       bind_cols(vector) %>% 
       mutate(Clust = as.factor(Clust))  
-      
+    
+    
   })
+  
   
 # =================================  
 # FUNCTIONS
