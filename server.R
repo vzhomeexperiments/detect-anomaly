@@ -15,11 +15,11 @@ library(plyr)
 # importing data (code will be run once)
 
 # data frame containing information from multiple sensors
-DF_Data <- read_csv("DF_Data.csv")
+DF_Data <- readRDS("DF_Data_Seals_Recent.data")
 # data frame containing equipment information
-DF_Equipm <- read_csv("DF_EquipmData.csv")
+DF_Equipm <- readRDS("DF_Equipm.data")
 # data frame containing Event Names
-DF_EvCode <- read_csv("DF_EvCodeData.csv")
+DF_EvCode <- readRDS("DF_EvCode.data")
 
 # Data manipulation and saving to the DF_TEMP
 DF_TEMP <- DF_Data %>% 
@@ -28,7 +28,7 @@ DF_TEMP <- DF_Data %>%
   # join to decode Event Code meaning
   inner_join(DF_EvCode, by = "EventCode") %>% 
   # select only column needed
-  select(StartDateTime, Name, TimeTotal, EventText)
+  select(StartDate, SN, AnalogVal, EventText)
 # ================================= 
 
 shinyServer(function(input, output, session) {
@@ -54,9 +54,9 @@ shinyServer(function(input, output, session) {
       # filters for categories
       filter(EventText == input$selInput) %>% 
       # group by
-      group_by(Name) %>%
+      group_by(SN) %>%
       # filters X date
-      filter(StartDateTime > StartDate(), StartDateTime < EndDate())
+      filter(StartDate > StartDate(), StartDate < EndDate())
   })
   
 # =================================  
@@ -64,15 +64,15 @@ shinyServer(function(input, output, session) {
   DF_SUM_ALL <- reactive({
     
     # Data manipulation and saving to the DF_Data reactive value
-    DF_KM <- DF_TEMP %>% #filter(EventText == "Step 2 SubStep 6") 
+    DF_KM <- DF_TEMP %>% #filter(EventText == "Strip applicator, impedance") 
       # filters for category
       filter(EventText == input$Step) 
     
     # make intermediate dataframe
     KM1 <- DF_KM %>%
-      select(Name, TimeTotal) %>%
-      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
-      mutate(Name = as.numeric(Name)) 
+      select(SN, AnalogVal) %>%
+      mutate(SN = revalue(SN, c("21219/00178" = "1", "21219/00179" = "2", "21219/00201" = "3", "21219/00398" = "4"))) %>%
+      mutate(SN = as.numeric(SN)) 
     
     # perform different modelling depending on the user choice...
     if(!input$scaled) {
@@ -90,7 +90,7 @@ shinyServer(function(input, output, session) {
     names(vector) <- "Clust"
     
     DF_SUM_ALL <- DF_KM %>% 
-      select(StartDateTime, TimeTotal, Name) %>%
+      select(StartDate, AnalogVal, SN) %>%
       # join clustering result
       bind_cols(vector) %>% 
       mutate(Clust = as.factor(Clust))  
@@ -106,18 +106,18 @@ shinyServer(function(input, output, session) {
   mainPlot <- function(){
     if(input$points){
       DF_SUM() %>% 
-        ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
-        geom_smooth(alpha = 0.5, se = StatErr(), formula = y ~ poly(x, 2)) +
+        ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + 
+        geom_smooth(se = StatErr()) +
         geom_point(alpha = 0.4) +
-        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
+        facet_wrap(~SN) + ylab("Duration of Step, seconds") +
         ggtitle(paste("Overview of Steps ", "from: ",
                       StartDate(), " to: ", EndDate(), sep = "")) 
       
     } else {
       DF_SUM() %>% 
-        ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + 
-        geom_smooth(alpha = 0.5, se = StatErr(), formula = y ~ poly(x, 2)) +
-        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
+        ggplot(aes(x = StartDate, y = AnalogVal, col = as.factor(EventText))) + 
+        geom_smooth(alpha = 0.5, se = StatErr()) +
+        facet_wrap(~SN) + ylab("Duration of Step, seconds") +
         ggtitle(paste("Overview of Steps ", "from: ",
                       StartDate(), " to: ", EndDate(), sep = "")) 
       
@@ -128,8 +128,8 @@ shinyServer(function(input, output, session) {
   # Function to draw Box plot
   boxPlot <- function(){
     DF_SUM() %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col = EventText)) + geom_boxplot() +
-      facet_grid(~Name) + 
+      ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + geom_boxplot() +
+      facet_grid(~SN) + 
       ylab("Duration of Step, seconds") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Box Plot from all data. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
@@ -140,8 +140,8 @@ shinyServer(function(input, output, session) {
   deviationPlot <- function(){
     
     DF_SUM_ALL() %>% 
-      filter(StartDateTime > StartDate(), StartDateTime < EndDate()) %>% 
-      ggplot(aes(x = StartDateTime, y = TimeTotal, col = Clust)) + geom_point() + facet_wrap(~Name)+
+      filter(StartDate > StartDate(), StartDate < EndDate()) %>% 
+      ggplot(aes(x = StartDate, y = AnalogVal, col = Clust)) + geom_point() + facet_wrap(~SN)+
       ylab("Duration of Step, seconds") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Anomaly Detection of the Step Duration. From: ", StartDate(), " To: ", EndDate(), sep = ""), 

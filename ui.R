@@ -13,17 +13,12 @@ library(shinydashboard)
 library(DT)
 
 # Define steps choices for selectInput function (it is containing steps the user can filter)
-stepsChoices <- c("Step 1 SubStep 1",
-                  "Step 1 SubStep 2",
-                  "Step 1 SubStep 3",
-                  "Step 1 SubStep 4",
-                  "Step 2 SubStep 1",
-                  "Step 2 SubStep 2",
-                  "Step 2 SubStep 3",
-                  "Step 2 SubStep 4",
-                  "Step 2 SubStep 5",
-                  "Step 2 SubStep 6",
-                  "Step 2 SubStep 7")
+stepsChoices <- c("Longitudinal sealing, phase",
+                  "Longitudinal sealing, impedance",
+                  "Strip applicator, phase",
+                  "Strip applicator, impedance",
+                  "Transversal sealing, phase",
+                  "Transversal sealing, impedance")
 
 # 
 dashboardPage(
@@ -32,7 +27,7 @@ dashboardPage(
     # Elements on the Sidebar of the App
     img(height = 100, width  = 230, src    = "logo.png"), 
     dateInput(inputId = "DateStart", label = "Insert Start Date", value = "2017-01-01"),
-    dateInput(inputId = "DateEnd",   label = "Insert End Date", value = "2017-09-01"),
+    dateInput(inputId = "DateEnd",   label = "Insert End Date"),
     helpText("Note: Set Desired dates of interest",
                                             "and select plots below to visualize",
                                             "specific step of interest."),
