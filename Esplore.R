@@ -81,3 +81,22 @@ DF_Data_Seals_Recent %>%
   select(StartDate, SN, EventText, AnalogVal) %>% 
   filter(EventText == "Transversal sealing, phase") %>% 
   ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
+
+
+#### Arrange data to matrix x - machine, y - anal value A, z - anal value B
+
+df_groups <- as.data.frame(groupsChoices)
+df_steps <- as.data.frame(stepsChoices)  
+
+DF_TEMP  %>%     
+  filter(EventText == )
+
+
+# deep learning dummy data
+data <- matrix(rexp(1000*784), nrow = 1000, ncol = 784)
+plot(data)
+str(data)
+dim(data)
+
+# Make dummy target values for your dummy data
+labels <- matrix(round(runif(1000*10, min = 0, max = 9)), nrow = 1000, ncol = 10)
