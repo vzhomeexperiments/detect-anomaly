@@ -66,7 +66,7 @@ shinyServer(function(input, output, session) {
     # Data manipulation and saving to the DF_Data reactive value
     DF_KM <- DF_TEMP %>% #filter(EventText == "Strip applicator, impedance") 
       # filters for category
-      filter(str_detect(EventText, input$Step))
+      filter(EventText == input$Step) 
     
     # make intermediate dataframe
     KM1 <- DF_KM %>%
