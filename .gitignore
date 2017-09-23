@@ -24,3 +24,8 @@ vignettes/*.pdf
 *.knit.md
 .Rproj.user
 plot.png
+DF_Data_Label.data
+DF_Data_Seals_All.data
+DF_Data_Seals_Recent.data
+DF_EvCode.data
+DF_Equipm.data
