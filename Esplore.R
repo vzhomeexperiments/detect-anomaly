@@ -50,49 +50,10 @@ DF_Temp1 <- DF_Data_Seals_Recent %>%
 DF_Data_Seals_Recent %>% 
   left_join(DF_EvCode, by = "EventCode") %>% 
   left_join(DF_Equipm, by = "IDEquipment") %>% 
-  select(StartDate, SN, EventText, AnalogVal) %>% 
-  filter(EventText == "Longitudinal sealing, phase") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
+  select(StartDate, Name, EventText, AnalogVal) %>% 
+  filter(EventText == "Cutting Process, phase angle") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
 
-# creating human readable data
-DF_Data_Seals_Recent %>% 
-  left_join(DF_EvCode, by = "EventCode") %>% 
-  left_join(DF_Equipm, by = "IDEquipment") %>% 
-  select(StartDate, SN, EventText, AnalogVal) %>% 
-  filter(EventText == "Longitudinal sealing, impedance") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
-
-# creating human readable data
-DF_Data_Seals_Recent %>% 
-  left_join(DF_EvCode, by = "EventCode") %>% 
-  left_join(DF_Equipm, by = "IDEquipment") %>% 
-  select(StartDate, SN, EventText, AnalogVal) %>% 
-  filter(EventText == "Strip applicator, impedance") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
-
-# creating human readable data
-DF_Data_Seals_Recent %>% 
-  left_join(DF_EvCode, by = "EventCode") %>% 
-  left_join(DF_Equipm, by = "IDEquipment") %>% 
-  select(StartDate, SN, EventText, AnalogVal) %>% 
-  filter(EventText == "Strip applicator, phase") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
-
-# creating human readable data
-DF_Data_Seals_Recent %>% 
-  left_join(DF_EvCode, by = "EventCode") %>% 
-  left_join(DF_Equipm, by = "IDEquipment") %>% 
-  select(StartDate, SN, EventText, AnalogVal) %>% 
-  filter(EventText == "Transversal sealing, impedance") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
-
-# creating human readable data
-DF_Data_Seals_Recent %>% 
-  left_join(DF_EvCode, by = "EventCode") %>% 
-  left_join(DF_Equipm, by = "IDEquipment") %>% 
-  select(StartDate, SN, EventText, AnalogVal) %>% 
-  filter(EventText == "Transversal sealing, phase") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = SN)) + geom_point()+facet_grid(~SN)
 
 
 #### Arrange data to matrix x - machine, y - anal value A, z - anal value B
@@ -100,8 +61,6 @@ DF_Data_Seals_Recent %>%
 df_groups <- as.data.frame(groupsChoices)
 df_steps <- as.data.frame(stepsChoices)  
 
-DF_TEMP  %>%     
-  filter(EventText == )
 
 
 # deep learning dummy data
