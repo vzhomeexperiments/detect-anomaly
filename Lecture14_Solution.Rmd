@@ -1,8 +1,8 @@
 ---
 title: "Lecture 14 - Theory and Task for Homework with Solution"
 output:
-  html_document: default
   html_notebook: default
+  html_document: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
