@@ -109,7 +109,7 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + 
         geom_smooth(se = StatErr()) +
         geom_point(alpha = 0.4) +
-        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
+        facet_wrap(~Name) + ylab("Process parameter, Arbitrary unit") +
         ggtitle(paste("Overview of Steps ", "from: ",
                       StartDate(), " to: ", EndDate(), sep = "")) 
       
@@ -117,7 +117,7 @@ shinyServer(function(input, output, session) {
       DF_SUM() %>% 
         ggplot(aes(x = StartDate, y = AnalogVal, col = as.factor(EventText))) + 
         geom_smooth(alpha = 0.5, se = StatErr()) +
-        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
+        facet_wrap(~Name) + ylab("Process parameter, Arbitrary unit") +
         ggtitle(paste("Overview of Steps ", "from: ",
                       StartDate(), " to: ", EndDate(), sep = "")) 
       
@@ -130,7 +130,7 @@ shinyServer(function(input, output, session) {
     DF_SUM() %>% 
       ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + geom_boxplot() +
       facet_grid(~Name) + 
-      ylab("Duration of Step, seconds") +
+      ylab("Process parameter, Arbitrary unit") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Box Plot from all data. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
               subtitle = "Box plots can help to indicate average values and outliers") 
@@ -142,7 +142,7 @@ shinyServer(function(input, output, session) {
     DF_SUM_ALL() %>% 
       filter(StartDate > StartDate(), StartDate < EndDate()) %>% 
       ggplot(aes(x = StartDate, y = AnalogVal, col = Clust)) + geom_point() + facet_wrap(~Name)+
-      ylab("Duration of Step, seconds") +
+      ylab("Process parameter, Arbitrary unit") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Anomaly Detection of the Step Duration. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
               subtitle = "Different colors may highlight potential anomaly") 
