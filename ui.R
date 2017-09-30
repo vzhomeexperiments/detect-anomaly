@@ -13,12 +13,16 @@ library(shinydashboard)
 library(DT)
 
 # Define steps choices for selectInput function (it is containing steps the user can filter)
-stepsChoices <- c("Longitudinal sealing, phase",
-                  "Longitudinal sealing, impedance",
-                  "Strip applicator, phase",
-                  "Strip applicator, impedance",
-                  "Transversal sealing, phase",
-                  "Transversal sealing, impedance")
+stepsChoices <- c("Tubing Process, phase angle",
+                  "Tubing Process, resistance Ohm",
+                  "Tubing Process, power (Setting)",
+                  "Edging Process, phase angle",
+                  "Edging Process, resistance Ohm",
+                  "Edging Process, power (Setting)",
+                  "Cutting Process, phase angle",
+                  "Cutting Process, resistance Ohm",
+                  "Cutting Process, power (Setting)",
+                  "Cutting Process, pressure")
 
 # 
 dashboardPage(

@@ -18,6 +18,18 @@ DF_Data_Label <- readRDS("DF_Data_Label.data")
 
 # ============= END OF READ DATA =================
 
+# ============= ANONIMISE DATA =================
+# find unique Ev Code Descriptions and replace the name
+DF_Temp <- DF_Data_Seals_Recent %>% 
+  left_join(DF_EvCode, by = "EventCode") %>% 
+  select(EventText, EventCode) %>% 
+  unique() %>% 
+  write_csv(path="DF_EvCodeDataProject.csv")
+
+
+# ============= END OF ANONIMISE DATA =================
+
+
 # ============= JOIN, Visualize DATA =================
 
 # bringing unique table of events logged with the data

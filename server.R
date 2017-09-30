@@ -17,9 +17,9 @@ library(plyr)
 # data frame containing information from multiple sensors
 DF_Data <- readRDS("DF_Data_Seals_Recent.data")
 # data frame containing equipment information
-DF_Equipm <- readRDS("DF_Equipm.data")
+DF_Equipm <- read_csv("DF_EquipmData.csv")
 # data frame containing Event Names
-DF_EvCode <- readRDS("DF_EvCode.data")
+DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
 
 # Data manipulation and saving to the DF_TEMP
 DF_TEMP <- DF_Data %>% 
@@ -28,7 +28,7 @@ DF_TEMP <- DF_Data %>%
   # join to decode Event Code meaning
   inner_join(DF_EvCode, by = "EventCode") %>% 
   # select only column needed
-  select(StartDate, SN, AnalogVal, EventText)
+  select(StartDate, Name, AnalogVal, EventText)
 # ================================= 
 
 shinyServer(function(input, output, session) {
@@ -54,7 +54,7 @@ shinyServer(function(input, output, session) {
       # filters for categories
       filter(EventText == input$selInput) %>% 
       # group by
-      group_by(SN) %>%
+      group_by(Name) %>%
       # filters X date
       filter(StartDate > StartDate(), StartDate < EndDate())
   })
@@ -70,9 +70,9 @@ shinyServer(function(input, output, session) {
     
     # make intermediate dataframe
     KM1 <- DF_KM %>%
-      select(SN, AnalogVal) %>%
-      mutate(SN = revalue(SN, c("21219/00178" = "1", "21219/00179" = "2", "21219/00201" = "3", "21219/00398" = "4"))) %>%
-      mutate(SN = as.numeric(SN)) 
+      select(Name, AnalogVal) %>%
+      mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
+      mutate(Name = as.numeric(Name)) 
     
     # perform different modelling depending on the user choice...
     if(!input$scaled) {
@@ -90,7 +90,7 @@ shinyServer(function(input, output, session) {
     names(vector) <- "Clust"
     
     DF_SUM_ALL <- DF_KM %>% 
-      select(StartDate, AnalogVal, SN) %>%
+      select(StartDate, AnalogVal, Name) %>%
       # join clustering result
       bind_cols(vector) %>% 
       mutate(Clust = as.factor(Clust))  
@@ -109,7 +109,7 @@ shinyServer(function(input, output, session) {
         ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + 
         geom_smooth(se = StatErr()) +
         geom_point(alpha = 0.4) +
-        facet_wrap(~SN) + ylab("Duration of Step, seconds") +
+        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
         ggtitle(paste("Overview of Steps ", "from: ",
                       StartDate(), " to: ", EndDate(), sep = "")) 
       
@@ -117,7 +117,7 @@ shinyServer(function(input, output, session) {
       DF_SUM() %>% 
         ggplot(aes(x = StartDate, y = AnalogVal, col = as.factor(EventText))) + 
         geom_smooth(alpha = 0.5, se = StatErr()) +
-        facet_wrap(~SN) + ylab("Duration of Step, seconds") +
+        facet_wrap(~Name) + ylab("Duration of Step, seconds") +
         ggtitle(paste("Overview of Steps ", "from: ",
                       StartDate(), " to: ", EndDate(), sep = "")) 
       
@@ -129,7 +129,7 @@ shinyServer(function(input, output, session) {
   boxPlot <- function(){
     DF_SUM() %>% 
       ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + geom_boxplot() +
-      facet_grid(~SN) + 
+      facet_grid(~Name) + 
       ylab("Duration of Step, seconds") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Box Plot from all data. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
@@ -141,7 +141,7 @@ shinyServer(function(input, output, session) {
     
     DF_SUM_ALL() %>% 
       filter(StartDate > StartDate(), StartDate < EndDate()) %>% 
-      ggplot(aes(x = StartDate, y = AnalogVal, col = Clust)) + geom_point() + facet_wrap(~SN)+
+      ggplot(aes(x = StartDate, y = AnalogVal, col = Clust)) + geom_point() + facet_wrap(~Name)+
       ylab("Duration of Step, seconds") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Anomaly Detection of the Step Duration. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
