@@ -15,7 +15,7 @@ library(plyr)
 # importing data (code will be run once)
 
 # data frame containing information from multiple sensors
-DF_Data <- readRDS("DF_Data_Seals_Recent.data")
+DF_Data <- readRDS("DF_Data_Process_Recent.data")
 # data frame containing equipment information
 DF_Equipm <- read_csv("DF_EquipmData.csv")
 # data frame containing Event Names
@@ -64,7 +64,7 @@ shinyServer(function(input, output, session) {
   DF_SUM_ALL <- reactive({
     
     # Data manipulation and saving to the DF_Data reactive value
-    DF_KM <- DF_TEMP %>% #filter(EventText == "Strip applicator, impedance") 
+    DF_KM <- DF_TEMP %>% #filter(EventText == "xxx") 
       # filters for category
       filter(EventText == input$Step) 
     
