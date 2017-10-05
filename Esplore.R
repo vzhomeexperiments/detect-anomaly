@@ -6,47 +6,28 @@ DF_Data_Process_All <- readRDS("DF_Data_Process.data")
 
 # Read our small data second ... 
 DF_Data_Process_Recent <- readRDS("DF_Data_Process_Recent.data") 
-
-# Read our Ev.Codes...
-DF_EvCode <- readRDS("DF_EvCode.data")
-
-# Read our Equipment
-DF_Equipm <- readRDS("DF_Equipm.data")
-
-# Read our Label
-DF_Data_Label <- readRDS("DF_Data_Label.data")
-
 # ============= END OF READ DATA =================
-
-# ============= ANONIMISE DATA =================
-# find unique Ev Code Descriptions and replace the name
-DF_Temp <- DF_Data_Seals_Recent %>% 
-  left_join(DF_EvCode, by = "EventCode") %>% 
-  select(EventText, EventCode) %>% 
-  unique() %>% 
-  write_csv(path="DF_EvCodeDataProject.csv")
-
-
-# ============= END OF ANONIMISE DATA =================
 
 
 # ============= JOIN, Visualize DATA =================
+# data frame containing information from multiple sensors
+DF_Data <- readRDS("DF_Data_Process_Recent.data")
+# data frame containing equipment information
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
 
-# bringing unique table of events logged with the data
-DF_Temp <- DF_Data_Process_All %>% 
-  left_join(DF_EvCode, by = "EventCode") %>% 
-  left_join(DF_Equipm, by = "IDEquipment") %>% 
-  select(EventText, EventCode) %>% 
-  unique()
+# Data manipulation and saving to the DF_TEMP
+DF_TEMP <- DF_Data %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDate, Name, AnalogVal, EventText)
 
-# bringing unique table of machines logged with the data
-DF_Temp1 <- DF_Data_Process_All %>% 
-  left_join(DF_EvCode, by = "EventCode") %>% 
-  left_join(DF_Equipm, by = "IDEquipment") %>% 
-  select(SN) %>% 
-  unique()
 
-# creating human readable data
+# Visualize the data...
 DF_Data_Process_All %>% 
   left_join(DF_EvCode, by = "EventCode") %>% 
   left_join(DF_Equipm, by = "IDEquipment") %>% 
@@ -56,18 +37,3 @@ DF_Data_Process_All %>%
 
 
 
-#### Arrange data to matrix x - machine, y - anal value A, z - anal value B
-
-df_groups <- as.data.frame(groupsChoices)
-df_steps <- as.data.frame(stepsChoices)  
-
-
-
-# deep learning dummy data
-data <- matrix(rexp(1000*784), nrow = 1000, ncol = 784)
-plot(data)
-str(data)
-dim(data)
-
-# Make dummy target values for your dummy data
-labels <- matrix(round(runif(1000*10, min = 0, max = 9)), nrow = 1000, ncol = 10)
