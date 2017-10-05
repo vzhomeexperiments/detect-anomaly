@@ -31,5 +31,6 @@ DF_Data_Process_All %>%
   left_join(DF_EvCode, by = "EventCode") %>% 
   left_join(DF_Equipm, by = "IDEquipment") %>% 
   select(StartDate, Name, EventText, AnalogVal) %>% 
-  filter(EventText == "Cutting Process, phase angle") %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
   ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+
