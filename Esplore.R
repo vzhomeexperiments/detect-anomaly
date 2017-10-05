@@ -5,7 +5,7 @@ library(tidyverse)
 DF_Data_Process_All <- readRDS("DF_Data_Process.data")
 
 # Read our small data second ... 
-DF_Data_Process_Recent <- readRDS("DF_Data_Process_Recent.data") 
+DF_Data_Process_Recent <- readRDS("DF_Data_Process_Recent.data")
 # ============= END OF READ DATA =================
 
 
@@ -26,7 +26,6 @@ DF_TEMP <- DF_Data %>%
   # select only column needed
   select(StartDate, Name, AnalogVal, EventText)
 
-
 # Visualize the data...
 DF_Data_Process_All %>% 
   left_join(DF_EvCode, by = "EventCode") %>% 
@@ -34,6 +33,3 @@ DF_Data_Process_All %>%
   select(StartDate, Name, EventText, AnalogVal) %>% 
   filter(EventText == "Cutting Process, phase angle") %>% 
   ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
-
-
-
