@@ -2,10 +2,10 @@
 library(tidyverse)
 # ============= READ DATA =================
 # Read our big data first ... 9 mln rows...
-DF_Data_Seals_All <- readRDS("DF_Data_Seals_All.data")
+DF_Data_Process_All <- readRDS("DF_Data_Process.data")
 
 # Read our small data second ... 
-DF_Data_Seals_Recent <- readRDS("DF_Data_Seals_Recent.data")
+DF_Data_Process_Recent <- readRDS("DF_Data_Process_Recent.data") 
 
 # Read our Ev.Codes...
 DF_EvCode <- readRDS("DF_EvCode.data")
@@ -33,21 +33,21 @@ DF_Temp <- DF_Data_Seals_Recent %>%
 # ============= JOIN, Visualize DATA =================
 
 # bringing unique table of events logged with the data
-DF_Temp <- DF_Data_Seals_Recent %>% 
+DF_Temp <- DF_Data_Process_All %>% 
   left_join(DF_EvCode, by = "EventCode") %>% 
   left_join(DF_Equipm, by = "IDEquipment") %>% 
   select(EventText, EventCode) %>% 
   unique()
 
 # bringing unique table of machines logged with the data
-DF_Temp1 <- DF_Data_Seals_Recent %>% 
+DF_Temp1 <- DF_Data_Process_All %>% 
   left_join(DF_EvCode, by = "EventCode") %>% 
   left_join(DF_Equipm, by = "IDEquipment") %>% 
   select(SN) %>% 
   unique()
 
 # creating human readable data
-DF_Data_Seals_Recent %>% 
+DF_Data_Process_All %>% 
   left_join(DF_EvCode, by = "EventCode") %>% 
   left_join(DF_Equipm, by = "IDEquipment") %>% 
   select(StartDate, Name, EventText, AnalogVal) %>% 
