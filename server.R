@@ -144,7 +144,7 @@ shinyServer(function(input, output, session) {
       ggplot(aes(x = StartDate, y = AnalogVal, col = Clust)) + geom_point() + facet_wrap(~Name)+
       ylab("Process parameter, Arbitrary unit") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
-      ggtitle(label = paste("Anomaly Detection of the Step Duration. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
+      ggtitle(label = paste("Anomaly Detection of the Arbitrary Parameter. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
               subtitle = "Different colors may highlight potential anomaly") 
 
   }

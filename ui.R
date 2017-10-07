@@ -12,7 +12,7 @@ library(shiny)
 library(shinydashboard)
 library(DT)
 
-# Define steps choices for selectInput function (it is containing steps the user can filter)
+# Define choices for selectInput function (it is containing steps the user can filter)
 stepsChoices <- c("Tubing Process, phase angle",
                   "Tubing Process, resistance Ohm",
                   "Tubing Process, power (Setting)",
@@ -26,7 +26,7 @@ stepsChoices <- c("Tubing Process, phase angle",
 
 # 
 dashboardPage(
-  dashboardHeader(title = "Preparation Steps Duration Overview"),
+  dashboardHeader(title = "Industrial process overview"),
   dashboardSidebar(
     # Elements on the Sidebar of the App
     img(height = 100, width  = 230, src    = "logo.png"), 
@@ -47,7 +47,7 @@ dashboardPage(
     mainPanel(
       
       # Elements of the Dashboard: header and tabset panel
-      headerPanel("Visualization of steps duration"),
+      headerPanel("Visualization of Process parameters"),
       tabsetPanel(
         # Default chart visualizing the overall performance of the systems
         tabPanel("Plot - Overview", plotOutput(outputId = "Plot")),
