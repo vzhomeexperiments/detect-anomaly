@@ -15,7 +15,7 @@ library(magrittr)
 library(tidyverse)
 
 # Define choices for selectInput function (it is containing steps the user can filter)
-stepsChoices <- read_csv("DF_EvCodeDataProject.csv") %$% EventText
+stepsChoices <- read_csv("DF_EvCodeDataProject.csv") %$% sort(EventText)
 
 # Shiny User Interface 
 dashboardPage(

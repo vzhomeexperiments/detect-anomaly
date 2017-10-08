@@ -15,7 +15,7 @@ library(plyr)
 # importing data (code will be run once)
 
 # data frame containing information from multiple sensors
-DF_Data <- readRDS("DF_Data_Process_Recent.data")
+DF_Data <- readRDS("DF_Data_Process_Recent.data") #
 # data frame containing equipment information
 DF_Equipm <- read_csv("DF_EquipmData.csv")
 # data frame containing Event Names
