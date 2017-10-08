@@ -11,20 +11,13 @@
 library(shiny)
 library(shinydashboard)
 library(DT)
+library(magrittr)
+library(tidyverse)
 
 # Define choices for selectInput function (it is containing steps the user can filter)
-stepsChoices <- c("Tubing Process, phase angle",
-                  "Tubing Process, resistance Ohm",
-                  "Tubing Process, power (Setting)",
-                  "Edging Process, phase angle",
-                  "Edging Process, resistance Ohm",
-                  "Edging Process, power (Setting)",
-                  "Cutting Process, phase angle",
-                  "Cutting Process, resistance Ohm",
-                  "Cutting Process, power (Setting)",
-                  "Cutting Process, pressure")
+stepsChoices <- read_csv("DF_EvCodeDataProject.csv") %$% EventText
 
-# 
+# Shiny User Interface 
 dashboardPage(
   dashboardHeader(title = "Industrial process overview"),
   dashboardSidebar(
