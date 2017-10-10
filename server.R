@@ -64,7 +64,7 @@ shinyServer(function(input, output, session) {
   DF_SUM_ALL <- reactive({
     
     # Data manipulation and saving to the DF_Data reactive value
-    DF_KM <- DF_TEMP %>% #filter(EventText == "xxx") 
+    DF_KM <- DF_TEMP %>% #filter(EventText == "Cutting Process, phase angle") 
       # filters for category
       filter(EventText == input$Step) 
     

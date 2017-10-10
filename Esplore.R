@@ -39,4 +39,11 @@ library(xts)
 # create xts object (matrix and index)
 DF_RecentXTS <- as.xts(DF_TEMP[, -1], order.by = as.POSIXct(DF_TEMP$StartDate))
 
+# getting to know the perioficity of the data and the time span
+periodicity(DF_RecentXTS)
+# getting to know number of hours, seconds, etc
+nseconds(DF_RecentXTS)
+nhours(DF_RecentXTS)
 
+# convert periodicity from seconds to hours
+DF_RecentXTS_H <- to.period(DF_RecentXTS, k = 60, period = "hours")
