@@ -46,4 +46,12 @@ nseconds(DF_RecentXTS)
 nhours(DF_RecentXTS)
 
 # convert periodicity from seconds to hours
-DF_RecentXTS_H <- to.period(DF_RecentXTS, k = 60, period = "hours")
+DF_RecentXTS_H <- period.apply(DF_RecentXTS, endpoints(DF_RecentXTS, "hours"), mean)
+
+# let us select and group specific point in the dataframe
+DF1 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, phase angle") %>% 
+  arrange(StartDate) %>% 
+  group_by(Name) %>% 
+  
+  head()
