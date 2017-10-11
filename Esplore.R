@@ -1,5 +1,9 @@
-# Esplore data ideas
+#  Esplore data ideas
+# 
+#  Objective: do some feature engineering, convert to time series, create some new features from the data, return back to dataframes...
+#
 library(tidyverse)
+library(xts)
 
 # ============= READ DATA =================
 # Read our big data first ... 9 mln rows...
@@ -23,6 +27,17 @@ DF_TEMP <- DF_Data_Recent %>%
 
 # ============= END OF READ DATA =================
 
+########### Plan ###########
+# 1. For each specific machine solve the problem: 
+#   - convert to xts object
+#   - find periodicity, esplore data
+#   - aggregate by hour and create new features
+#   - merge into one object
+#   - return back to the dataframe
+#   - join back initial features of the object
+# 2. Create function, apply this to every single machine, process...
+# 3. Deploy for ShinyApp
+# 4. Verify on the dataset & compare...
 
 # ============= JOIN, Visualize DATA =================
 
@@ -63,13 +78,15 @@ head(AnalogVal__Min)
 head(AnalogVal_sd)
 
 # merge these features together
-xts_CUT_Ph <- merge(AnalogVal_mean, AnalogVal_max, AnalogVal__Min,AnalogVal_sd)
+xts_CUT_Ph <- merge(AnalogVal_mean, AnalogVal_max, AnalogVal__Min, AnalogVal_sd)
 
 # view dataset we have now
 head(xts_CUT_Ph)
 
 # now we can return to the dataframe
-
+cd <- coredata(xts_CUT_Ph) %>% as.data.frame(row.names = F) 
+cd$StartDate <- index(xts_CUT_Ph)
+head(cd)
 
 
 
