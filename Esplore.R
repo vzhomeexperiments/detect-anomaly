@@ -1,6 +1,6 @@
 # Esplore data ideas
 library(tidyverse)
-library(lubridate)
+
 # ============= READ DATA =================
 # Read our big data first ... 9 mln rows...
 DF_Data_All <- readRDS("DF_Data_Process.data") #
@@ -36,17 +36,42 @@ DF_TEMP %>%
 # use xts package to manipulate time data series object and do feature engineering
 library(xts)
 
+# we can apply transformation to each specific machine and each specific sub-process
+DF_M1_Cut_Ph <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, phase angle") %>% 
+  filter(Name == "Machine #1") %>% 
+  select(StartDate, AnalogVal)
+
 # create xts object (matrix and index)
-DF_RecentXTS <- as.xts(DF_TEMP[, -1], order.by = as.POSIXct(DF_TEMP$StartDate))
+xts_M1_Cut_Ph <- as.xts(DF_M1_Cut_Ph[, -1], order.by = as.POSIXct(DF_M1_Cut_Ph$StartDate))
 
 # getting to know the perioficity of the data and the time span
-periodicity(DF_RecentXTS)
+periodicity(xts_M1_Cut_Ph)
 # getting to know number of hours, seconds, etc
-nseconds(DF_RecentXTS)
-nhours(DF_RecentXTS)
+nseconds(xts_M1_Cut_Ph)
+nhours(xts_M1_Cut_Ph)
 
-# convert periodicity from seconds to hours
-DF_RecentXTS_H <- period.apply(DF_RecentXTS, endpoints(DF_RecentXTS, "hours"), mean)
+# convert periodicity from seconds to hours and apply some functions to create new features
+AnalogVal_mean <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), mean)
+AnalogVal_max <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), max)
+AnalogVal__Min <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), min)
+AnalogVal_sd <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), sd)
+# review obtained object
+head(AnalogVal_mean)
+head(AnalogVal_max)
+head(AnalogVal__Min)
+head(AnalogVal_sd)
+
+# merge these features together
+xts_CUT_Ph <- merge(AnalogVal_mean, AnalogVal_max, AnalogVal__Min,AnalogVal_sd)
+
+# view dataset we have now
+head(xts_CUT_Ph)
+
+# now we can return to the dataframe
+
+
+
 
 # let us select and group specific point in the dataframe
 DF1 <- DF_TEMP %>% 
