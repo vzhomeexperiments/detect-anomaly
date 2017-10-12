@@ -32,29 +32,28 @@ feature_eng_ts <- function(x, funcToApply = c("mean", "min", "max", "sd")){
 
 # function that apply function feature_eng_ts to each machine and return common dataframe
 feature_eng_machines <- function(x, Machines){
-  
-# apply transformation and feature engineering for each machine
-# x - dataframe containing only one selected event for each machine
-# Machines - vector containing machine names
+  # apply transformation and feature engineering for each machine
+  # x - dataframe containing only one selected event for each machine
+  # Machines - vector containing machine names
+      
+  for(i in 1:length(Machines)){
     
-for(i in 1:length(Machines)){
-  
-  DF_A <- x %>% 
-    filter(Name == Machines[i]) %>% 
-    select(StartDate, AnalogVal)
-  DF_B <- x %>% 
-    filter(Name == Machines[i]) %>% 
-    select(EventText, Name) %>% unique()
-  DF_F <- feature_eng_ts(DF_A)
-  DF_F$EventText <- DF_B[1,1]
-  DF_F$Name <- DF_B[1,2]
-  
-  if(i == 1){
-    DF_SUM <- DF_F
-  } else {
-    DF_SUM <- DF_SUM %>% bind_rows(DF_F)
-  }  
-  
-}
-  return(DF_SUM)
+    DF_A <- x %>% 
+      filter(Name == Machines[i]) %>% 
+      select(StartDate, AnalogVal)
+    DF_B <- x %>% 
+      filter(Name == Machines[i]) %>% 
+      select(EventText, Name) %>% unique()
+    DF_F <- feature_eng_ts(DF_A)
+    DF_F$EventText <- DF_B[1,1]
+    DF_F$Name <- DF_B[1,2]
+    
+    if(i == 1){
+      DF_SUM <- DF_F
+    } else {
+      DF_SUM <- DF_SUM %>% bind_rows(DF_F)
+    }  
+    
+  }
+    return(DF_SUM)
 }
