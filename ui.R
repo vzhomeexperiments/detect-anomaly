@@ -29,9 +29,9 @@ dashboardPage(
                                             "and select plots below to visualize",
                                             "specific step of interest."),
     selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
-                selected = stepsChoices[1], multiple = TRUE, selectize = TRUE, width = '100%', size = NULL),
+                selected = stepsChoices[1], multiple = FALSE, selectize = TRUE, width = '100%', size = NULL),
     checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL),
-    checkboxInput(inputId = "points", label = "Add Points?"),
+    checkboxInput(inputId = "points", label = "Add Points?", value = TRUE),
     div(style="display:inline-block;width:65%;text-align: right;",downloadButton(outputId = "downloadPlot",label = "Download Plot"))
     
   ),
