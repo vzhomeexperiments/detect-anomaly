@@ -56,26 +56,8 @@ shinyServer(function(input, output, session) {
       filter(EventText == input$selInput) 
     # make vector of machines
     Machines <- DF %>% select(Name) %>% unique() %$% Name
-    # apply transformation and feature engineering for each machine
-    for(i in 1:length(Machines)){
-      
-      DF_A <- DF %>% 
-        filter(Name == Machines[i]) %>% 
-        select(StartDate, AnalogVal)
-      DF_B <- DF %>% 
-        filter(Name == Machines[i]) %>% 
-        select(EventText, Name) %>% unique()
-      DF_F <- feature_eng_ts(DF_A)
-      DF_F$EventText <- DF_B[1,1]
-      DF_F$Name <- DF_B[1,2]
-      
-      if(i == 1){
-        DF_SUM <- DF_F
-      } else {
-        DF_SUM <- DF_SUM %>% bind_rows(DF_F)
-      }  
-    }
-    DF_SUM
+    
+    DF_SUM <- feature_eng_machines(DF, Machines)
   })
   
 # =================================  
