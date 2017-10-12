@@ -10,6 +10,7 @@ library(shiny)
 library(tidyverse)
 library(scales)
 library(plyr)
+library(magrittr)
 
 # ================================= 
 # importing data (code will be run once)
@@ -50,13 +51,31 @@ shinyServer(function(input, output, session) {
     # save as data frame data used for statistics in other render functions
   DF_SUM <- reactive({
     
-    DF_TEMP %>% 
+    DF <- DF_TEMP %>% 
       # filters for categories
-      filter(EventText == input$selInput) %>% 
-      # group by
-      group_by(Name) %>%
-      # filters X date
-      filter(StartDate > StartDate(), StartDate < EndDate())
+      filter(EventText == input$selInput) 
+    # make vector of machines
+    Machines <- DF %>% select(Name) %>% unique() %$% Name
+    # apply transformation and feature engineering for each machine
+    for(i in 1:length(Machines)){
+      
+      DF_A <- DF %>% 
+        filter(Name == Machines[i]) %>% 
+        select(StartDate, AnalogVal)
+      DF_B <- DF %>% 
+        filter(Name == Machines[i]) %>% 
+        select(EventText, Name) %>% unique()
+      DF_F <- feature_eng_ts(DF_A)
+      DF_F$EventText <- DF_B[1,1]
+      DF_F$Name <- DF_B[1,2]
+      
+      if(i == 1){
+        DF_SUM <- DF_F
+      } else {
+        DF_SUM <- DF_SUM %>% bind_rows(DF_F)
+      }  
+    }
+    DF_SUM
   })
   
 # =================================  
@@ -106,7 +125,7 @@ shinyServer(function(input, output, session) {
   mainPlot <- function(){
     if(input$points){
       DF_SUM() %>% 
-        ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + 
+        ggplot(aes(x = StartDate, y = AnalogVal_mean, col = EventText)) + 
         geom_smooth(se = StatErr()) +
         geom_point(alpha = 0.4) +
         facet_wrap(~Name) + ylab("Process parameter, Arbitrary unit") +
@@ -115,7 +134,7 @@ shinyServer(function(input, output, session) {
       
     } else {
       DF_SUM() %>% 
-        ggplot(aes(x = StartDate, y = AnalogVal, col = as.factor(EventText))) + 
+        ggplot(aes(x = StartDate, y = AnalogVal_mean, col = as.factor(EventText))) + 
         geom_smooth(alpha = 0.5, se = StatErr()) +
         facet_wrap(~Name) + ylab("Process parameter, Arbitrary unit") +
         ggtitle(paste("Overview of Steps ", "from: ",
@@ -128,7 +147,7 @@ shinyServer(function(input, output, session) {
   # Function to draw Box plot
   boxPlot <- function(){
     DF_SUM() %>% 
-      ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + geom_boxplot() +
+      ggplot(aes(x = StartDate, y = AnalogVal_sd, col = EventText)) + geom_boxplot() +
       facet_grid(~Name) + 
       ylab("Process parameter, Arbitrary unit") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+

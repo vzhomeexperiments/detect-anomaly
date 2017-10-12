@@ -59,6 +59,7 @@ DF_TEMP <- DF_Data_Recent %>%
 ##### Our strategy
 
  1. For each specific machine solve the problem: 
+   - generate specific dataset
    - convert to xts object
    - find periodicity, esplore data
    - aggregate by hour and create new features
@@ -146,7 +147,7 @@ head(cd)
 ##### Turn this into function
 
 ```{r}
-feature_eng_ts <- function(x, funcToApply = c("mean", "min", "max", "sd")){
+feature_eng_ts <- function(x, funcToApply = c("mean", "min", "mad", "sd")){
   #function will return new dataframe with new features
   #x = dataframe with columns to perform feature engineering, it must contain data from one specific category
   #tscolname = column name containing time series data
@@ -177,7 +178,11 @@ feature_eng_ts <- function(x, funcToApply = c("mean", "min", "max", "sd")){
 ```
 
 
-# example of usage
+##### Example of usage
+
+Let's try to see how to use our function... 
+
+```{r}
 # we can apply transformation to each specific machine and each specific sub-process
 DF <- DF_TEMP %>% 
   filter(EventText == "Cutting Process, phase angle") %>% 
@@ -199,100 +204,16 @@ DF_FE$Name <- DF_Cat[1,2]
 head(DF_FE)
 
 # plot some variables
-ggplot(DF_FE, aes(x = StartDate, y = AnalogVal_sd))+geom_point()
+ggplot(DF_FE, aes(x = StartDate, y = AnalogVal_mad, col = Name)) + geom_point()
 
 ```
 
-We can use this data to better understand the process and come up with some sort of strategy on how we can detect anomaly.
-
-Apart of that we have also a smaller data set with more 'recent' data. This data is from several days of operation.
-
-```{r}
-# Read our small data second ... 
-DF_Data_Process_Recent <- readRDS("DF_Data_Process_Recent.data")
-# Dimension of dataset
-dim(DF_Data_Process_Recent)
-```
-
-#### Join and visualize the data
-
-We can make some better overview of data starting from 'recent' dataset. We join this dataset to more human readable format...
-
-```{r, message=FALSE, warning=FALSE}
-library(tidyverse)
-# ============= JOIN DATA =================
-# data frame containing information from multiple sensors
-DF_Data <- readRDS("DF_Data_Process_Recent.data")
-# data frame containing equipment information
-DF_Equipm <- read_csv("DF_EquipmData.csv")
-# data frame containing Event Names
-DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
-
-# Data manipulation and saving to the DF_TEMP
-DF_TEMP <- DF_Data %>% 
-  # join to decode equipment serial number
-  inner_join(DF_Equipm, by = "IDEquipment") %>% 
-  # join to decode Event Code meaning
-  inner_join(DF_EvCode, by = "EventCode") %>% 
-  # select only column needed
-  select(StartDate, Name, AnalogVal, EventText)
-```
-
-We can visualize this dataset, putting all the points together...
-
-```{r}
-# Visualize the data...
-DF_TEMP %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + geom_point()+facet_grid(~Name)
-```
-
-Almost impossible to gather any insights. It's just too much data in the graph...
-
-#### Join and visualize the data - Your turn
-
-1. Create separate visualizations for all 9 processes (use sample code below to start with).
-
-```{r}
-# Visualize the data...
-DF_TEMP %>% 
-  filter(EventText == "Cutting Process, phase angle") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + geom_point()+facet_grid(~Name)
-```
-
-Hint: you can copy/paste proposed code, write a `for` loop, etc
-
-For your convenience, it's worth to use `for` loop using example as below
-
-```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
-# We can for loop those as well
-library(magrittr)
-# save our Event names into the vector 'Events'
-Events <- DF_TEMP %>% select(EventText) %>% unique() %$% EventText
-# make a for loop...
-for(i in 1:length(Events)){
-plots <- '...' %>% 
-  filter(EventText == Events[i]) %>% 
-  ggplot('...') + geom_point()+facet_grid(~Name) 
-# and we will print plots
-print(plots)
-}
-```
+At the first look, we have probably obtained much better separation between normality / anormality... we will see how it will work in our `ShinyApp`...
 
 
-2. Can you already observe some differences between the same parameter in different machines? Which ones?
+#### Your turn... [practice]
 
-Hint: Pay attention on parameters level, how are those parameters distributed, etc
+Let'me suggest you to do some practical activity in order to 'live' the moment of feature engineering...
 
-#### Same for larger dataset
-
-1. Import and join bigger dataset
-
-Hint: Use file `DF_Data_Process.data` to import bigger dataset
-
-2. Create a generalized plot for that dataset
-
-Hint: Use the for loop construct once again... data is quite big so running this code may take a while... also feel free to use `geom_smooth()` instead of `geom_point()`
-
-3. Can you observe some tendencies in the parameters in different machines? Which ones?
-
-Hint: Don't bother too much looking into that data. Answer can be even negative! Sometime human can not sence any tendency - it's normal!!!
+* Try to create similar data transformation using function 
+* Try to change the function `feature_eng_ts` in a way that `mad()` function is added [Median Absolute Deviation]
