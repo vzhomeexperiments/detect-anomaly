@@ -69,9 +69,16 @@ shinyServer(function(input, output, session) {
       # filters for category
       filter(EventText == input$Step) 
     
+    # make vector of machines
+    Machines <- DF_KM %>% select(Name) %>% unique() %$% Name
+    
+    # perform feature engineering, note this dataframe will contain 'AnalogVal_mean' and 'AnalogVal_sd'
+    # 'AnalogVal_mean' will be used for visualization and 'AnalogVal_sd' for clustering
+    DF_FE <- feature_eng_machines(DF_KM, Machines)
+    
     # make intermediate dataframe
-    KM1 <- DF_KM %>%
-      select(Name, AnalogVal) %>%
+    KM1 <- DF_FE %>%
+      select(Name, AnalogVal_mean) %>%
       mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
       mutate(Name = as.numeric(Name)) 
     
@@ -90,8 +97,8 @@ shinyServer(function(input, output, session) {
     vector <- as.data.frame.vector(KM$cluster)
     names(vector) <- "Clust"
     
-    DF_SUM_ALL <- DF_KM %>% 
-      select(StartDate, AnalogVal, Name) %>%
+    DF_SUM_ALL <- DF_FE %>% 
+      select(StartDate, AnalogVal_mean, Name) %>%
       # join clustering result
       bind_cols(vector) %>% 
       mutate(Clust = as.factor(Clust))  
@@ -142,7 +149,7 @@ shinyServer(function(input, output, session) {
     
     DF_SUM_ALL() %>% 
       filter(StartDate > StartDate(), StartDate < EndDate()) %>% 
-      ggplot(aes(x = StartDate, y = AnalogVal, col = Clust)) + geom_point() + facet_wrap(~Name)+
+      ggplot(aes(x = StartDate, y = AnalogVal_mean, col = Clust)) + geom_point() + facet_wrap(~Name)+
       ylab("Process parameter, Arbitrary unit") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
       ggtitle(label = paste("Anomaly Detection of the Arbitrary Parameter. From: ", StartDate(), " To: ", EndDate(), sep = ""), 
