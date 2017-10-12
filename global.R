@@ -26,6 +26,7 @@ feature_eng_ts <- function(x, funcToApply = c("mean", "min", "max", "sd")){
   # return to the dataframe
   DF_M1_NF <- coredata(DF_M1_newfeatures) %>% as.data.frame(row.names = F)
   DF_M1_NF$StartDate <- index(DF_M1_newfeatures)
+  DF_M1_NF <- na.omit(DF_M1_NF)
   # return result
   return(DF_M1_NF)
 }
