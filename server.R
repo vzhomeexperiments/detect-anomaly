@@ -137,7 +137,7 @@ shinyServer(function(input, output, session) {
   # Function to draw Box plot
   boxPlot <- function(){
     DF_SUM() %>% 
-      ggplot(aes(x = StartDate, y = AnalogVal_sd, col = EventText)) + geom_boxplot() +
+      ggplot(aes(x = StartDate, y = AnalogVal_mean, col = EventText)) + geom_boxplot() +
       facet_grid(~Name) + 
       ylab("Process parameter, Arbitrary unit") +
       theme(legend.direction = "horizontal", legend.position = "bottom")+
