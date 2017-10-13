@@ -9,7 +9,7 @@ feature_eng_ts <- function(x, funcToApply = c("mean", "min", "max", "sd")){
   #avcolname - column name contining data to perform manipulations
   #funcToApply - vector containing functions to apply data transformations
   # convert to xts object
-  DF_M1_xts <- as.xts(x[-1], order.by = as.POSIXct(x$StartDate))
+  DF_M1_xts <- as.xts(x[ ,-1], order.by = as.POSIXct(x$StartDate))
   # aggregate by hour and create new features
   # convert periodicity from seconds to hours and apply some functions to create new features
   for(i in 1: length(funcToApply)){

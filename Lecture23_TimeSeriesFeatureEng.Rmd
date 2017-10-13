@@ -105,6 +105,8 @@ periodicity(xts_M1_Cut_Ph)
 # getting to know number of hours, seconds, etc
 nseconds(xts_M1_Cut_Ph)
 nhours(xts_M1_Cut_Ph)
+# also plot data for quality control
+plot.xts(xts_M1_Cut_Ph)
 ```
 
 At this stage we can make apply some functions to the populations of the data during each hour. In this example it's simple `mean`, `max`, `min`, `sd` or Standard Deviation...
@@ -126,7 +128,15 @@ xts_CUT_Ph <- merge(AnalogVal_mean, AnalogVal_max, AnalogVal_Min, AnalogVal_sd)
 
 # view dataset we have now
 head(xts_CUT_Ph)
+
 ```
+
+```{r}
+# always good to see a plot
+# Use plot.zoo to plot these two columns in a single panel
+plot.zoo(xts_CUT_Ph[,c("AnalogVal_mean", "AnalogVal_sd")], plot.type = "multiple")
+```
+
 
 ##### Returning back to DataFrame
 
@@ -154,7 +164,7 @@ feature_eng_ts <- function(x, funcToApply = c("mean", "min", "max", "sd")){
   #avcolname - column name contining data to perform manipulations
   #funcToApply - vector containing functions to apply data transformations
   # convert to xts object
-  DF_M1_xts <- as.xts(x[-1], order.by = as.POSIXct(x$StartDate))
+  DF_M1_xts <- as.xts(x[ ,-1], order.by = as.POSIXct(x$StartDate))
   # aggregate by hour and create new features
   # convert periodicity from seconds to hours and apply some functions to create new features
   for(i in 1: length(funcToApply)){
