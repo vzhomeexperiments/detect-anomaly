@@ -27,7 +27,7 @@ The best way is to use specialized libraries such as `xts` that will transform o
 
 We will stat by including the required libraries. We will use `xts` to help us to manage time-series data...
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 #
 library(tidyverse)
 library(xts)
@@ -115,7 +115,7 @@ AnalogVal_max <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), 
 AnalogVal_Min <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), min)
 AnalogVal_sd <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), sd)
 # review obtained object and merging several columns (just for better visualization...)
-head(merge(AnalogVal_mean, AnalogVal_max, AnalogVal__Min, AnalogVal_sd))
+head(merge(AnalogVal_mean, AnalogVal_max, AnalogVal_Min, AnalogVal_sd))
 ```
 
 We can of course merge and store these new columns in one `xts` object. We should not worry because `xts` will make sure our data rows are matching index [time]
@@ -147,7 +147,7 @@ head(cd)
 ##### Turn this into function
 
 ```{r}
-feature_eng_ts <- function(x, funcToApply = c("mean", "min", "mad", "sd")){
+feature_eng_ts <- function(x, funcToApply = c("mean", "min", "max", "sd")){
   #function will return new dataframe with new features
   #x = dataframe with columns to perform feature engineering, it must contain data from one specific category
   #tscolname = column name containing time series data
@@ -204,7 +204,7 @@ DF_FE$Name <- DF_Cat[1,2]
 head(DF_FE)
 
 # plot some variables
-ggplot(DF_FE, aes(x = StartDate, y = AnalogVal_mad, col = Name)) + geom_point()
+ggplot(DF_FE, aes(x = StartDate, y = AnalogVal_mean, col = Name)) + geom_point()
 
 ```
 
@@ -213,7 +213,7 @@ At the first look, we have probably obtained much better separation between norm
 
 #### Your turn... [practice]
 
-Let'me suggest you to do some practical activity in order to 'live' the moment of feature engineering...
+Let'me suggest you to do some practical activity in order to 'live' the moment of feature engineering... Use R-Notebook and copy/paste code adapting for your specific needs to achieve the goal
 
-* Try to create similar data transformation using function 
+* Try to create similar data transformation using function for another 'Event' for example 'Tubing process resistance'. 
 * Try to change the function `feature_eng_ts` in a way that `mad()` function is added [Median Absolute Deviation]
