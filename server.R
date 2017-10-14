@@ -78,7 +78,7 @@ shinyServer(function(input, output, session) {
     
     # make intermediate dataframe
     KM1 <- DF_FE %>%
-      # performed clustering on two new features!!!
+      # performed clustering on two new features (example, it does not make sense here)
       select(Name, AnalogVal_mean, AnalogVal_sd) %>%
       mutate(Name = revalue(Name, c("Machine #1" = "1", "Machine #2" = "2", "Machine #3" = "3", "Machine #4" = "4"))) %>%
       mutate(Name = as.numeric(Name)) 
