@@ -77,6 +77,7 @@ res$plot
 res = AnomalyDetectionTs(DF_M1_Cut_Ph, max_anoms=0.02, direction='both', plot=TRUE)
 res$plot
 
+plot(res$anoms)
 
 # convert periodicity from seconds to hours and apply some functions to create new features
 AnalogVal_mean <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), mean)
