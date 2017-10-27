@@ -7,15 +7,15 @@ output:
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
-### Lecture 23 - Your project. Feature Engineering on Time Series
+### Lecture 24 - Your project. Specialized R packages, AnomalyDetection
 
-#### What is Feature Engineering
+#### Package AnomalyDetection
 
-`Feature Engineering` is a process to create new data from original data:
+https://github.com/twitter/AnomalyDetection
 
-* Better explaining, summarizing feature
-* We can use Domain Knowledge
-* Best to keep minimum...
+* Anomaly Definition: Something `different` from usual
+* Used Seasonal Hybrid ESD
+
 
 #### How to perform Feature Engineering on Time-Series data?
 

@@ -1,9 +1,11 @@
 #  Esplore data ideas
 # 
-#  Objective: do some feature engineering, convert to time series, create some new features from the data, return back to dataframes...
+#  Objective: using specialized packages for Anomaly Detection in R...
 #
 library(tidyverse)
 library(xts)
+devtools::install_github("twitter/AnomalyDetection")
+library(AnomalyDetection)
 
 # ============= READ DATA =================
 # Read our big data first ... 9 mln rows...
@@ -17,7 +19,7 @@ DF_Equipm <- read_csv("DF_EquipmData.csv")
 DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
 
 # Data manipulation and saving to the DF_TEMP
-DF_TEMP <- DF_Data_Recent %>% 
+DF_TEMP <- DF_Data_All %>% 
   # join to decode equipment serial number
   inner_join(DF_Equipm, by = "IDEquipment") %>% 
   # join to decode Event Code meaning
@@ -48,23 +50,33 @@ DF_TEMP %>%
   ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
 
 # =================================================================================
-# use xts package to manipulate time data series object and do feature engineering
-library(xts)
+# use xts package to convert to time data series object
 
 # we can apply transformation to each specific machine and each specific sub-process
 DF_M1_Cut_Ph <- DF_TEMP %>% 
   filter(EventText == "Cutting Process, phase angle") %>% 
-  filter(Name == "Machine #1") %>% 
+  filter(Name == "Machine #3") %>% 
   select(StartDate, AnalogVal)
 
 # create xts object (matrix and index)
 xts_M1_Cut_Ph <- as.xts(DF_M1_Cut_Ph[, -1], order.by = as.POSIXct(DF_M1_Cut_Ph$StartDate))
-
+# use plot.xts
+plot.xts(xts_M1_Cut_Ph)
 # getting to know the perioficity of the data and the time span
 periodicity(xts_M1_Cut_Ph)
 # getting to know number of hours, seconds, etc
 nseconds(xts_M1_Cut_Ph)
 nhours(xts_M1_Cut_Ph)
+
+# example featured by the package Anomaly Detection
+data(raw_data)
+res = AnomalyDetectionTs(raw_data, max_anoms=0.02, direction='both', plot=TRUE)
+res$plot
+
+# applied to our data
+res = AnomalyDetectionTs(DF_M1_Cut_Ph, max_anoms=0.02, direction='both', plot=TRUE)
+res$plot
+
 
 # convert periodicity from seconds to hours and apply some functions to create new features
 AnalogVal_mean <- period.apply(xts_M1_Cut_Ph, endpoints(xts_M1_Cut_Ph, "hours"), mean)
