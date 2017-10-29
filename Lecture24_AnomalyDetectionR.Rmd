@@ -126,7 +126,43 @@ res3$plot
 
 It seems that we are discovering really something interesting!!!
 
-#### Implementation in R
+Before we go into implementing that in our ShinyApp let's play with parameters a bit
+
+##### direction 'pos' or 'neg'
+
+This parameter will allow us to detect only anomalies that are more 'positive' from the mean. This might be quite relevant for example in cases when you know the nature of the data you are looking into...
+
+```{r}
+# applied to our data
+res4 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='pos', plot=TRUE)
+# getting out plot
+res4$plot
+```
+
+##### only_last
+
+If you are looking to only report anomalies in the last day or hour this parameter can be set up
+
+```{r}
+# applied to our data
+res5 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='pos', only_last = 'day', plot=TRUE)
+# getting out plot
+res5$plot
+```
+
+##### y_log
+
+We can benefit from log scaling, in our case we don't really have large positive anomalies...
+
+```{r}
+# applied to our data
+res6 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='pos', 
+                          y_log = TRUE, plot=TRUE)
+# getting out plot
+res6$plot
+```
+
+#### Implementation in Shiny...
 
 ##### Used Libraries...
 
