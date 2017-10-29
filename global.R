@@ -37,26 +37,29 @@ makePlot <- function(x){
   return(res$plot)
 }
 
+# useful steps
+stepsUseful <- stepsChoices[1, 5]
+
 # make for loop for each machine
 for(i in 1: length(machines)){
   # filter data belonging to each machine
-  DF <- DF_TEMP %>% filter(Name == machines[i])
+  DF <- DF_TEMP %>% filter(Name == machines[1])
   
     # run another loop for events
     for(j in 1:length(stepsChoices)){
-      df <- DF %>% filter(EventText == stepsChoices[j]) %>% 
+      df <- DF %>% filter(EventText == stepsChoices[5]) %>% 
         arrange(StartDate) %>% 
         # limit number of observations
         head(50000) %>%
         # select only 2 columns
         select(StartDate, AnalogVal) %>% 
-        AnomalyDetectionTs(max_anoms=0.02, direction='pos', 
+        AnomalyDetectionTs(max_anoms=0.02, direction='both', 
                            xlabel = "Production Dates", ylabel = "Process value, Arbitrary Unit",
                            title = "Anomaly Detection on Time Series data",
                            #only_last = 'day',
                            plot=TRUE)
       
-      AllPlots[i][j] <- df$plot  
+      AllPlot[[2]] <- df$plot  
     }
   
 
