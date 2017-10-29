@@ -21,6 +21,8 @@ Main idea is that we provide our data to the function which will attempt to get 
 
 Intuitevely, it is using statistical method where we have to provide parameters explicitly. 
 
+##### Extracting data
+
 In order to move things forward we will use the data from one process and one machine. Following chunk of code will get the data for us:
 
 ```{r, message=FALSE, warning=FALSE}
@@ -58,17 +60,71 @@ DF_M3_Cut_Ph <- DF_TEMP %>%
   filter(Name == "Machine #3") %>% 
   select(StartDate, AnalogVal)
 
+dim(DF_M3_Cut_Ph) # 82883 rows
+
 # extract data for one machine and one sub-process
-DF_M1_Cut_Ph <- DF_TEMP %>% 
-  filter(EventText == "Cutting Process, phase angle") %>% 
+DF_M3_Tub_Res <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
   filter(Name == "Machine #3") %>% 
-  select(StartDate, AnalogVal)
+  select(StartDate, AnalogVal) %>% 
+  arrange(StartDate)
+
+dim(DF_M3_Tub_Res) # 332620 rows
+
 ```
 
 
-#### How to perform Feature Engineering on Time-Series data?
+##### Apply function of anomaly detection
 
-The best way is to use specialized libraries such as `xts` that will transform our `Data Table` into `xts object`. We can perform statistical, matematical transformations on data and return back to our `Data Frame`
+Once we have our data frames with one parameter we can directly provide that to the function
+
+```{r}
+# applied to our data
+res = AnomalyDetectionTs(DF_M3_Cut_Ph, max_anoms=0.02, direction='both', plot=TRUE)
+# getting out plot
+res$plot
+```
+
+Things to notice function is quite long to run for a normal CPU. Nevertheless it works. A bit weird to state that there are 2% of anomalies before running the function, inst't it...
+
+And for another machine where we have 332000 rows this function was simply not giving result after 10 minutes:
+
+```{r}
+# applied to our data
+res2 = AnomalyDetectionTs(DF_M3_Tub_Res, max_anoms=0.02, direction='both', plot=TRUE)
+# getting out plot
+res2$plot
+```
+
+```{r}
+# get less rows to run function
+DF_M3_Tub_Res_Last <- DF_M3_Tub_Res %>% tail(50000)
+```
+
+```{r}
+# applied to our data
+res2 = AnomalyDetectionTs(DF_M3_Tub_Res_Last, max_anoms=0.02, direction='both', plot=TRUE)
+# getting out plot
+res2$plot
+```
+
+Intresting to see  that function runs very nice to detect anomalies! 
+
+How was that on the beginning of the period?
+
+```{r}
+# get less rows to run function
+DF_M3_Tub_Res_Rec <- DF_M3_Tub_Res %>% head(50000)
+```
+
+```{r}
+# applied to our data
+res3 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='both', plot=TRUE)
+# getting out plot
+res3$plot
+```
+
+It seems that we are discovering really something interesting!!!
 
 #### Implementation in R
 
