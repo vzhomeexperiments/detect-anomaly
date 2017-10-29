@@ -27,6 +27,44 @@ machines <- DF_TEMP %>% select(Name) %>% unique() %$% sort(Name)
 stepsChoices <- read_csv("DF_EvCodeDataProject.csv") %$% sort(EventText)
 # ================================= 
 
+# we will need to run all events for all machines to made plots available
+makePlot <- function(x){
+  res <- AnomalyDetectionTs(x, max_anoms=0.02, direction='pos', 
+                     xlabel = "Production Dates", ylabel = "Process value, Arbitrary Unit",
+                     title = "Anomaly Detection on Time Series data",
+                     #only_last = 'day',
+                     plot=TRUE)
+  return(res$plot)
+}
+
+# make for loop for each machine
+for(i in 1: length(machines)){
+  # filter data belonging to each machine
+  DF <- DF_TEMP %>% filter(Name == machines[i])
+  
+    # run another loop for events
+    for(j in 1:length(stepsChoices)){
+      df <- DF %>% filter(EventText == stepsChoices[j]) %>% 
+        arrange(StartDate) %>% 
+        # limit number of observations
+        head(50000) %>%
+        # select only 2 columns
+        select(StartDate, AnalogVal) %>% 
+        AnomalyDetectionTs(max_anoms=0.02, direction='pos', 
+                           xlabel = "Production Dates", ylabel = "Process value, Arbitrary Unit",
+                           title = "Anomaly Detection on Time Series data",
+                           #only_last = 'day',
+                           plot=TRUE)
+      
+      AllPlots[i][j] <- df$plot  
+    }
+  
+
+  
+    
+}
+
+
 
 
 
