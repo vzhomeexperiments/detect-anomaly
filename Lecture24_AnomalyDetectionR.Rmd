@@ -200,3 +200,7 @@ In order to implement that in Shiny we will need to take into account several fa
 
 * longer time to run function
 * must use larger dataset in order to allow function to run properly
+
+For that the idea will be to use the larger dataset and to limit number of rows for each machine/ process to be maximum 50000
+
+We will only keep new functionality for the App

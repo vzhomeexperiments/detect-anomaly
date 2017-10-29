@@ -8,14 +8,9 @@
 # Changed: 
 # ----------------------------
 
-library(shiny)
 library(shinydashboard)
-library(DT)
-library(magrittr)
 library(tidyverse)
 
-# Define choices for selectInput function (it is containing steps the user can filter)
-stepsChoices <- read_csv("DF_EvCodeDataProject.csv") %$% sort(EventText)
 
 # Shiny User Interface 
 dashboardPage(
@@ -30,6 +25,8 @@ dashboardPage(
                                             "specific step of interest."),
     selectInput(inputId = "selInput",label = "Add Machine Steps to Analysis", choices = stepsChoices, 
                 selected = stepsChoices[1], multiple = FALSE, selectize = TRUE, width = '100%', size = NULL),
+    selectInput(inputId = "machineInput", label = "Choose Machine to detect Anomaly", choices = machines,
+                selected = machines[1], multiple = FALSE, selectize = TRUE, width = '100%', size = NULL),
     checkboxInput(inputId = "cboxSE", label = "Add Stat Error?", value = FALSE, width = NULL),
     checkboxInput(inputId = "points", label = "Add Points?", value = TRUE),
     div(style="display:inline-block;width:65%;text-align: right;",downloadButton(outputId = "downloadPlot",label = "Download Plot"))
@@ -42,16 +39,7 @@ dashboardPage(
       # Elements of the Dashboard: header and tabset panel
       headerPanel("Visualization of Process parameters"),
       tabsetPanel(
-        # Default chart visualizing the overall performance of the systems
-        tabPanel("Plot - Overview", plotOutput(outputId = "Plot")),
-        # Box plot helping to perform comparison
-        tabPanel("Plot - Box Plot", plotOutput(outputId = "Plot2")),
-        tabPanel("Plot - Anomaly", column(4, selectInput(inputId = "Step",label = "ChooseStep", choices = stepsChoices, 
-                                                      selected = stepsChoices[1], multiple = FALSE, selectize = TRUE, size = NULL)),
-                                   column(4, numericInput(inputId = "numClasses", label = "Select Number of Classes", 
-                                                          value = 2, min = 1, max = 4, step = 1)),
-                                   column(4, checkboxInput(inputId = "scaled", label = "Scale Data?", value = FALSE)), hr(),
-                                   plotOutput(outputId = "Plot3"))
+        tabPanel("Plot - Anomaly", plotOutput(outputId = "Plot3"))
       )  
     )
   )

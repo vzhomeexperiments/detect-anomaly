@@ -1,5 +1,35 @@
-library(xts)
 library(tidyverse)
+library(magrittr)
+
+# ================================= 
+# importing data (code will be run once)
+
+# data frame containing ALL information from multiple sensors
+DF_Data <- readRDS("DF_Data_Process.data") #
+# data frame containing equipment information
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
+
+# Data manipulation and saving to the DF_TEMP for RECENT data
+DF_TEMP <- DF_Data %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDate, Name, AnalogVal, EventText)
+
+# Get only Machine names to vector 'Machines'
+machines <- DF_TEMP %>% select(Name) %>% unique() %$% sort(Name)
+
+# Define choices for selectInput function (it is containing steps the user can filter)
+stepsChoices <- read_csv("DF_EvCodeDataProject.csv") %$% sort(EventText)
+# ================================= 
+
+
+
+
 ## Turn this into function
 # function to create new features from original feature...
 feature_eng_ts <- function(x, funcToApply = c("mean", "min", "max", "sd")){
