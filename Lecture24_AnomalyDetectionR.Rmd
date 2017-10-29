@@ -9,12 +9,61 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 ### Lecture 24 - Your project. Specialized R packages, AnomalyDetection
 
+Hello everybody. Welcome back to one another bonus lecture. This one will be dedicated to specialized packages in R that are helping us to detect anomalies. We will see how to use package 'AnomalyDetection' on the example on our data.
+
+As usual, we will get a brief review of the functionalities and see how can we apply that in our ShinyApp
+
 #### Package AnomalyDetection
 
-https://github.com/twitter/AnomalyDetection
+This package can be found on github.com: https://github.com/twitter/AnomalyDetection
 
-* Anomaly Definition: Something `different` from usual
-* Used Seasonal Hybrid ESD
+Main idea is that we provide our data to the function which will attempt to get the anomalies taking assumption that **Anomaly** is "Something different" from usual! Function is using Seasonal Hybrid ESD method.
+
+Intuitevely, it is using statistical method where we have to provide parameters explicitly. 
+
+In order to move things forward we will use the data from one process and one machine. Following chunk of code will get the data for us:
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+# devtools::install_github("twitter/AnomalyDetection")
+library(AnomalyDetection)
+
+# ============= READ DATA =================
+# Read our big data first ... 9 mln rows...
+DF_Data_All <- readRDS("DF_Data_Process.data")
+# data about equipment
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
+
+# Data manipulation and saving to the DF_TEMP
+DF_TEMP <- DF_Data_All %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDate, Name, AnalogVal, EventText)
+
+# ============= END OF READ DATA =================
+
+```
+
+Further on we will extract two process for two different machines
+
+```{r}
+# extract data for one machine and one sub-process
+DF_M3_Cut_Ph <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, phase angle") %>% 
+  filter(Name == "Machine #3") %>% 
+  select(StartDate, AnalogVal)
+
+# extract data for one machine and one sub-process
+DF_M1_Cut_Ph <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, phase angle") %>% 
+  filter(Name == "Machine #3") %>% 
+  select(StartDate, AnalogVal)
+```
 
 
 #### How to perform Feature Engineering on Time-Series data?
