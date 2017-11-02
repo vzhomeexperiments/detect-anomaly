@@ -1,0 +1,45 @@
+---
+title: "Detecting anomalies in Industrial Process"
+author: "Vladimir Zhbanko"
+date: "11/2/2017"
+output: 
+  md_document:
+    variant: markdown_github
+---
+
+## Why to bother?
+
+Industrial equipment today is quite different from what we had 10 years ago. More controls, more sensors, more data. Process Output results are also data that can be used as an input to the next production process...
+
+This is all make sense as we want more control of the process. This bring us the possibility to better control production process and ultimately improve both productivity, quality and reduce costs at the same time.
+
+Depending on the process type, thresholds limits (warning, control) can be hard coded directly. For some processes however threshold values are not set precisely but left wide on purpose.
+
+This work tries to attempt to use R Statistical Software to analyse this 'sensor' data flow. Detect anomalies, tendencies and output the results to the easily digestable way for the human. Creating **Decision Support System** and bringing **Industry 4.0** to help operators of the process to detect problems before they would occur
+
+## 
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
