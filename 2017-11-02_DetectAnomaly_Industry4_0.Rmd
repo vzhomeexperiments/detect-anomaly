@@ -13,9 +13,9 @@ Industrial equipment today is quite different from what we had 10 years ago. Mor
 
 This is all make sense as we want more control of the process. This bring us the possibility to better control production process and ultimately improve both productivity, quality and reduce costs at the same time.
 
-Depending on the process type, thresholds limits (warning, control) can be hard coded directly. For some processes however threshold values are not set precisely but left wide on purpose.
+Depending on the process type, thresholds limits (warning, control) can be 'hard-coded' directly. For some processes however threshold values are not set precisely but left wide on purpose. These limits can be subject of seasonal variability, 'wear and tear', complex 'setpoints' and so on.
 
-This work tries to attempt to use R Statistical Software to analyse this 'sensor' data flow. Detect anomalies, tendencies and output the results to the easily digestable way for the human. Creating **Decision Support System** and bringing **Industry 4.0** to help operators of the process to detect problems before they would occur
+This work tries to attempt to use R Statistical Software to analyse 'sensor' data. Detect anomalies, tendencies and output the results to the easily digestable way for the human. Creating **Decision Support System** and bringing **Industry 4.0** to help operators of the process to detect problems before they would occur. Different methods covered including using Un-supervised Machine Learning **kmeans**
 
 ## 
 
