@@ -11,6 +11,7 @@ library(tidyverse)
 library(scales)
 library(plyr)
 library(magrittr)
+library(AnomalyDetection)
 
 
 

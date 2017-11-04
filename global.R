@@ -37,8 +37,7 @@ makePlot <- function(x){
   return(res$plot)
 }
 
-# useful steps
-stepsUseful <- stepsChoices[1, 5]
+# useful steps 1,5
 
 # make for loop for each machine
 for(i in 1: length(machines)){
