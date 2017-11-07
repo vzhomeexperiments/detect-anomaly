@@ -17,9 +17,9 @@ As usual, we will get a brief review of the functionalities and see how can we a
 
 This package can be found on github.com: https://github.com/twitter/AnomalyDetection
 
-Main idea is that we provide our data to the function which will attempt to get the anomalies taking assumption that **Anomaly** is "Something different" from usual! Function is using Seasonal Hybrid ESD method.
+Main idea is that we provide our data to the function which will attempt to get the anomalies taking assumption that **Anomaly** is "Something different" from usual! Function is using Seasonal Hybrid ESD method. It is **computationally intensive** method. Intuitevely, it is using statistical methods. Decomposition of time-series, finding `the robust statistical median`, `Median Absolute Deviation`... not a **Deep Learning**... 
 
-Intuitevely, it is using statistical method where we have to provide parameters explicitly. 
+Apparently, as described in this paper [https://arxiv.org/pdf/1704.07706.pdf](https://arxiv.org/pdf/1704.07706.pdf), **twitter** is using this to detect traffic anomalies and provision additional computing capacity. This way, everybody can send their tweet!!! 
 
 ##### Extracting data
 
@@ -61,7 +61,9 @@ DF_M3_Cut_Ph <- DF_TEMP %>%
   select(StartDate, AnalogVal)
 
 dim(DF_M3_Cut_Ph) # 82883 rows
+```
 
+```{r}
 # extract data for one machine and one sub-process
 DF_M3_Tub_Res <- DF_TEMP %>% 
   filter(EventText == "Tubing Process, resistance Ohm") %>% 
@@ -87,28 +89,46 @@ res$plot
 
 Things to notice function is quite long to run for a normal CPU. Nevertheless it works. A bit weird to state that there are 2% of anomalies before running the function, inst't it...
 
-And for another machine where we have 332000 rows this function was simply not giving result after 10 minutes:
+And for another machine where we have 332000 rows this function was simply not giving result after 10 minutes, For that our data frame will be limited to only 50000 rows...
 
 ```{r}
 # applied to our data
-res2 = AnomalyDetectionTs(DF_M3_Tub_Res, max_anoms=0.02, direction='both', plot=TRUE)
-# getting out plot
-res2$plot
-```
-
-```{r}
-# get less rows to run function
-DF_M3_Tub_Res_Last <- DF_M3_Tub_Res %>% tail(50000)
-```
-
-```{r}
-# applied to our data
-res2 = AnomalyDetectionTs(DF_M3_Tub_Res_Last, max_anoms=0.02, direction='both', plot=TRUE)
+res2 <- DF_M3_Tub_Res %>% 
+  tail(50000) %>% 
+  AnomalyDetectionTs(max_anoms=0.02, direction='both', plot=TRUE)
 # getting out plot
 res2$plot
 ```
 
 Intresting to see  that function runs very nice to detect anomalies! 
+
+Naiive question: How will it work if there are no anomalies???
+
+```{r}
+# extract data for one machine and one sub-process
+DF_M1_Tub_Res <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #1") %>% 
+  select(StartDate, AnalogVal) %>% 
+  arrange(StartDate)
+
+dim(DF_M1_Tub_Res) # 344084 rows
+
+```
+
+```{r}
+# applied to our data
+res3 <- DF_M1_Tub_Res %>% 
+  tail(50000) %>% 
+  AnomalyDetectionTs(max_anoms=0.02, direction='both', plot=TRUE)
+# getting out plot
+res3$plot
+```
+
+
+
+
+
 
 How was that on the beginning of the period?
 
