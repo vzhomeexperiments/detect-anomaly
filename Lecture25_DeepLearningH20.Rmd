@@ -15,6 +15,10 @@ Deep Learning... In this lecture I would like to esplore with you the DeepLearni
 
 Inspired from (https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o)[https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o]
 
+Also used: (https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true)[https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true]
+
+And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiring.github.io/machine_learning/2017/05/01/fraud]
+
 In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
 
 ##### Understanding architecture
@@ -117,8 +121,8 @@ plot.ts(recon_error)
 # Note: Testing = Reconstructing the test dataset
 test_recon <- h2o.predict(anomaly_model, test_ecg) 
 head(test_recon)
-h2o.saveModel(anomaly_model, "/Users/avkashchauhan/learn/tmp/anomaly_model.bin")
-h2o.download_pojo(anomaly_model, "/Users/avkashchauhan/learn/tmp/", get_jar = TRUE)
+h2o.saveModel(anomaly_model, "C:/Users/fxtrams/Downloads/tmp/anomaly_model.bin")
+h2o.download_pojo(anomaly_model, "C:/Users/fxtrams/Downloads/tmp", get_jar = TRUE)
 h2o.shutdown(prompt= FALSE)
 
 ```
