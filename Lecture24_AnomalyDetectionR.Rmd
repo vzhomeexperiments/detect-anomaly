@@ -51,17 +51,7 @@ DF_TEMP <- DF_Data_All %>%
 
 ```
 
-Further on we will extract two process for two different machines
-
-```{r}
-# extract data for one machine and one sub-process
-DF_M3_Cut_Ph <- DF_TEMP %>% 
-  filter(EventText == "Cutting Process, phase angle") %>% 
-  filter(Name == "Machine #3") %>% 
-  select(StartDate, AnalogVal)
-
-dim(DF_M3_Cut_Ph) # 82883 rows
-```
+Further on we will extract one process
 
 ```{r}
 # extract data for one machine and one sub-process
@@ -74,6 +64,9 @@ DF_M3_Tub_Res <- DF_TEMP %>%
 dim(DF_M3_Tub_Res) # 332620 rows
 
 ```
+```{r}
+head(DF_M3_Tub_Res)
+```
 
 
 ##### Apply function of anomaly detection
@@ -82,27 +75,91 @@ Once we have our data frames with one parameter we can directly provide that to 
 
 ```{r}
 # applied to our data
-res = AnomalyDetectionTs(DF_M3_Cut_Ph, max_anoms=0.02, direction='both', plot=TRUE)
+res = AnomalyDetectionTs(DF_M3_Tub_Res, max_anoms=0.02, direction='both', plot=TRUE)
 # getting out plot
 res$plot
 ```
 
-Things to notice function is quite long to run for a normal CPU. Nevertheless it works. A bit weird to state that there are 2% of anomalies before running the function, inst't it...
+Things to notice function is quite long to run for a normal CPU. Nevertheless it works. 
 
-And for another machine where we have 332000 rows this function was simply not giving result after 10 minutes, For that our data frame will be limited to only 50000 rows...
+Intresting to see  that function runs very nice to detect anomalies! 
+
+##### Getting to know the outputs
+
+Let's learn what is in the returned object `res`. Our goal will be to retrieve only the observations marked with anomalies!
+
+```{r}
+# saves just dataframe with anomalies
+anomalies <- res$anoms
+# notice class of time variable
+class(anomalies$timestamp)
+
+```
+```{r}
+# convert to POSICct
+anomalies$timestamp <- as.POSIXct(anomalies$timestamp)
+class(anomalies$timestamp)
+```
+```{r}
+head(anomalies)
+```
+
+
+```{r}
+# visualize only anomalies
+plot(anomalies)
+```
+
+Interesting that quite a lot of anomalies is there detected...
+
+#### Your turn... 
+
+Try to filter out another parameter for another machine...
+
+```{r}
+# extract data for one machine and one sub-process
+DF_M2_Tub_Res <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #2") %>% 
+  select(StartDate, AnalogVal) %>% 
+  arrange(StartDate)
+
+dim(DF_M2_Tub_Res) # 97493 rows
+
+```
+```{r}
+head(DF_M2_Tub_Res)
+```
+
+Now repeat for this machine...
 
 ```{r}
 # applied to our data
-res2 <- DF_M3_Tub_Res %>% 
-  tail(50000) %>% 
-  AnomalyDetectionTs(max_anoms=0.02, direction='both', plot=TRUE)
+res2 = AnomalyDetectionTs(DF_M2_Tub_Res, max_anoms=0.02, direction='both', plot=TRUE)
 # getting out plot
 res2$plot
 ```
 
-Intresting to see  that function runs very nice to detect anomalies! 
 
-Naiive question: How will it work if there are no anomalies???
+
+
+It would be interesting now to output this anomaly `label` to our original dataframe then to use it in our ShinyApp or for other Machine Learning Experiments...
+
+##### Change time series data class
+
+
+
+Now we can join data back
+
+```{r}
+DF_M3_Tub_Res_Anom <- DF_M3_Tub_Res %>% 
+  # joining by time frames
+  left_join(anomalies, by = c("StartDate" = "timestamp"))
+plot(DF_M3_Tub_Res_Anom$anoms)
+
+```
+
+
 
 ```{r}
 # extract data for one machine and one sub-process
