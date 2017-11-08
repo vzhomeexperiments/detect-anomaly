@@ -1,5 +1,5 @@
 ---
-title: "Lecture 23 - Time-Series. Feature Engineering"
+title: "Lecture 25 - Into Deep Learning"
 output:
   html_document: default
   html_notebook: default
@@ -7,288 +7,124 @@ output:
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
-### Lecture 24 - Your project. Specialized R packages, AnomalyDetection
+### Lecture 25 - Your project. Deep Learning
 
-Hello everybody. Welcome back to one another bonus lecture. This one will be dedicated to specialized packages in R that are helping us to detect anomalies. We will see how to use package 'AnomalyDetection' on the example on our data.
+Deep Learning... In this lecture I would like to esplore with you the DeepLearning we can do with H2O package in R...
 
-As usual, we will get a brief review of the functionalities and see how can we apply that in our ShinyApp
+#### Learning to do Deep Learning
 
-#### Package AnomalyDetection
+Inspired from (https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o)[https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o]
 
-This package can be found on github.com: https://github.com/twitter/AnomalyDetection
+In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
 
-Main idea is that we provide our data to the function which will attempt to get the anomalies taking assumption that **Anomaly** is "Something different" from usual! Function is using Seasonal Hybrid `ESD` method. Note: `ESD` stands for *Extreme Studentized Deviate*. It is **computationally intensive** method. Intuitevely, it is using statistical methods. Decomposition of time-series, finding `the robust statistical median`, `Median Absolute Deviation`... not a **Deep Learning**... 
+##### Understanding architecture
 
-Apparently, as described in this paper [https://arxiv.org/pdf/1704.07706.pdf](https://arxiv.org/pdf/1704.07706.pdf), **twitter** is using this to detect traffic anomalies and provision additional computing capacity. This way, everybody can send their tweet even during extraordinary events. For example, there is some news and everybody has to say something all at the same time!!! 
+The 'Thing' will be working on your computer. In fact you will install another 'computer' inside your 'computer'...
 
-##### Extracting data
+##### Installing from R and starting it up
 
-In order to move things forward we will use the data from one process and one machine. Following chunk of code will get the data for us:
 
-```{r, message=FALSE, warning=FALSE}
-library(tidyverse)
-# devtools::install_github("twitter/AnomalyDetection")
-library(AnomalyDetection)
+These instructions I got from: (http://h2o.ai/download/)[http://h2o.ai/download/]. Simply use 'Install from R' option
 
-# ============= READ DATA =================
-# Read our big data first ... 9 mln rows...
-DF_Data_All <- readRDS("DF_Data_Process.data")
-# data about equipment
-DF_Equipm <- read_csv("DF_EquipmData.csv")
-# data frame containing Event Names
-DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
+```{r, eval=FALSE, include=TRUE}
+# The following two commands will remove any previously installed H2O packages for R.
+if ("package:h2o" %in% search()) { detach("package:h2o", unload=TRUE) }
+if ("h2o" %in% rownames(installed.packages())) { remove.packages("h2o") }
 
-# Data manipulation and saving to the DF_TEMP
-DF_TEMP <- DF_Data_All %>% 
-  # join to decode equipment serial number
-  inner_join(DF_Equipm, by = "IDEquipment") %>% 
-  # join to decode Event Code meaning
-  inner_join(DF_EvCode, by = "EventCode") %>% 
-  # select only column needed
-  select(StartDate, Name, AnalogVal, EventText)
+# Next, we download packages that H2O depends on.
+pkgs <- c("statmod","RCurl","jsonlite")
+for (pkg in pkgs) {
+if (! (pkg %in% rownames(installed.packages()))) { install.packages(pkg) }
+}
 
-# ============= END OF READ DATA =================
+# Now we download, install and initialize the H2O package for R.
+install.packages("h2o", type="source", repos="http://h2o-release.s3.amazonaws.com/h2o/rel-weierstrass/7/R")
 
+# Finally, let's load H2O and start up an H2O cluster
+library(h2o)
+h2o.init()
 ```
 
-Further on we will extract one process
+As you see this will actually start the 'cluster' on our machine! We will now can look on `Localhost:54321` to see the 'interface' of our cluster...
 
-```{r}
-# extract data for one machine and one sub-process
-DF_M3_Tub_Res <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #3") %>% 
-  select(StartDate, AnalogVal) %>% 
-  arrange(StartDate)
+As a trial let's learn how to shut down the machine...
 
-dim(DF_M3_Tub_Res) # 332620 rows
-
-```
-```{r}
-head(DF_M3_Tub_Res)
+```{r, eval=FALSE, include=TRUE}
+# we can shut down the 'machine' like this...
+h2o.shutdown(prompt= FALSE)
 ```
 
+# Explore the thing on 'example'
 
-##### Apply function of anomaly detection
+We will now run the demo from H2O. First thing we will launch the machine again...
 
-Once we have our data frames with one parameter we can directly provide that to the function
+```{r, eval=FALSE, include=TRUE}
+# to load the library
+library(h2o)
 
-```{r}
-# applied to our data
-res = AnomalyDetectionTs(DF_M3_Tub_Res, max_anoms=0.02, direction='both', plot=TRUE)
-# getting out plot
-res$plot
+# to initialize the 'machine'
+h2o.init()
 ```
 
-Things to notice function is quite long to run for a normal CPU. Nevertheless it works. 
+Then we will download the datasets from h2o.
 
-Intresting to see  that function runs very nice to detect anomalies! 
-
-##### Getting to know the outputs
-
-Let's learn what is in the returned object `res`. Our goal will be to retrieve only the observations marked with anomalies!
-
-```{r}
-# saves just dataframe with anomalies
-anomalies <- res$anoms
-# notice class of time variable
-class(anomalies$timestamp)
-
-```
-```{r}
-# convert to POSICct
-anomalies$timestamp <- as.POSIXct(anomalies$timestamp)
-class(anomalies$timestamp)
-```
-```{r}
-head(anomalies)
+```{r, eval=FALSE, include=TRUE}
+# Import ECG train and test data into the H2O cluster
+train_ecg <- h2o.importFile(
+ path = "http://h2o-public-test-data.s3.amazonaws.com/smalldata/anomaly/ecg_discord_train.csv", 
+ header = FALSE, 
+ sep = ",")
+test_ecg <- h2o.importFile(
+ path = "http://h2o-public-test-data.s3.amazonaws.com/smalldata/anomaly/ecg_discord_test.csv", 
+ header = FALSE, 
+ sep = ",")
 ```
 
+Personally I like to know what is in the data and how it look like!!! I will just use this link and put it into the browser. This will download the files with raw data. If I open this dataset it would not tell me much! I will plot this data in excel...
 
-```{r}
-# visualize only anomalies
-plot(anomalies)
-```
+**Train data set**
+![Train Data][id1]
 
-Interesting that quite a lot of anomalies is there detected...
-
-#### Your turn... 
-
-Try to filter out another parameter for another machine...
-
-```{r}
-# extract data for one machine and one sub-process
-DF_M2_Tub_Res <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #2") %>% 
-  select(StartDate, AnalogVal) %>% 
-  arrange(StartDate)
-
-dim(DF_M2_Tub_Res) # 97493 rows
-
-```
-```{r}
-head(DF_M2_Tub_Res)
-```
-
-Now repeat for this machine...
-
-```{r}
-# applied to our data
-res2 = AnomalyDetectionTs(DF_M2_Tub_Res, max_anoms=0.02, direction='both', plot=TRUE)
-# getting out plot
-res2$plot
-```
+**Test data set**
+![Test Data][id2]
 
 
+Now, once we know how our data looks like we can start to do our Anomaly Model
+
+```{r, eval=FALSE, include=TRUE}
 
 
-It would be interesting now to output this anomaly `label` to our original dataframe then to use it in our ShinyApp or for other Machine Learning Experiments...
+# Train deep autoencoder learning model on "normal" 
+# training data, y ignored 
+anomaly_model <- h2o.deeplearning(
+ x = names(train_ecg), 
+ training_frame = train_ecg, 
+ activation = "Tanh", 
+ autoencoder = TRUE, 
+ hidden = c(50,20,50), 
+ sparse = TRUE,
+ l1 = 1e-4, 
+ epochs = 100)
+# Compute reconstruction error with the Anomaly 
+# detection app (MSE between output and input layers)
+recon_error <- h2o.anomaly(anomaly_model, test_ecg)
 
-##### Change time series data class
-
-
-
-Now we can join data back
-
-```{r}
-DF_M3_Tub_Res_Anom <- DF_M3_Tub_Res %>% 
-  # joining by time frames
-  left_join(anomalies, by = c("StartDate" = "timestamp"))
-plot(DF_M3_Tub_Res_Anom$anoms)
+# Pull reconstruction error data into R and 
+# plot to find outliers (last 3 heartbeats)
+recon_error <- as.data.frame(recon_error)
+recon_error
+plot.ts(recon_error)
+# Note: Testing = Reconstructing the test dataset
+test_recon <- h2o.predict(anomaly_model, test_ecg) 
+head(test_recon)
+h2o.saveModel(anomaly_model, "/Users/avkashchauhan/learn/tmp/anomaly_model.bin")
+h2o.download_pojo(anomaly_model, "/Users/avkashchauhan/learn/tmp/", get_jar = TRUE)
+h2o.shutdown(prompt= FALSE)
 
 ```
 
 
+##### Extra
 
-```{r}
-# extract data for one machine and one sub-process
-DF_M1_Tub_Res <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #1") %>% 
-  select(StartDate, AnalogVal) %>% 
-  arrange(StartDate)
-
-dim(DF_M1_Tub_Res) # 344084 rows
-
-```
-
-```{r}
-# applied to our data
-res3 <- DF_M1_Tub_Res %>% 
-  head(50000) %>% 
-  AnomalyDetectionTs(max_anoms=0.02, direction='both', plot=TRUE)
-# getting out plot
-res3$plot
-```
-
-I also found out that it's sensitive to the data quality... for example, this portion of data will not be digested...
-
-```{r}
-# applied to our data
-res3.1 <- DF_M1_Tub_Res %>% 
-  #head(50999) %>%
-  AnomalyDetectionTs(max_anoms=0.02, direction='both', plot=TRUE, longterm = TRUE, only_last = 'day')
-# getting out plot
-res3.1$plot
-```
-
-```{r}
-DF_M1_Tub_Res %>% 
-  head(60000) %>% plot()
-```
-
-
-
-
-```{r}
-# applied to our data
-res5 <- DF_M1_Tub_Res %>% 
-  tail(150000) %>% 
-  AnomalyDetectionTs(max_anoms=0.05, direction='both', plot=TRUE)
-# getting out plot
-res5$plot
-```
-Hmm package is not at so much robust... :()
-
-
-It seems that we are discovering really something interesting!!!
-
-Before we go into implementing that in our ShinyApp let's play with parameters a bit
-
-##### direction 'pos' or 'neg'
-
-This parameter will allow us to detect only anomalies that are more 'positive' from the mean. This might be quite relevant for example in cases when you know the nature of the data you are looking into...
-
-```{r}
-# applied to our data
-res4 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='pos', plot=TRUE)
-# getting out plot
-res4$plot
-```
-
-##### only_last
-
-If you are looking to only report anomalies in the last day or hour this parameter can be set up
-
-```{r}
-# applied to our data
-res5 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='pos', only_last = 'day', plot=TRUE)
-# getting out plot
-res5$plot
-```
-
-##### piecewise_median_period_weeks
-
-Function learns to detect anomaly taking into account some period of data. By default it is 2 weeks. For that function will not work if we will supply data that is less than that
-
-```{r}
-# get less rows to run function
-DF_M3_Tub_Res_5000 <- DF_M3_Tub_Res %>% head(5000)
-```
-
-Error will be given
-
-```{r}
-# applied to our data
-res5.1 = AnomalyDetectionTs(DF_M3_Tub_Res_5000, max_anoms=0.02, direction='pos', 
-                          y_log = TRUE, plot=TRUE)
-# getting out plot
-res5.1$plot
-```
-
-##### longterm_period
-
-For long time series we can increase detection eficacy
-
-```{r}
-# applied to our data
-res5.3 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='pos',longterm = T, 
-                            plot=TRUE)
-# getting out plot
-res5.3$plot
-```
-
-
-##### y_log
-
-We can benefit from log scaling, in our case we don't really have large positive anomalies...
-
-```{r}
-# applied to our data
-res6 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='pos', 
-                          y_log = TRUE, plot=TRUE)
-# getting out plot
-res6$plot
-```
-
-#### Implementation in Shiny...
-
-In order to implement that in Shiny we will need to take into account several facts:
-
-* longer time to run function
-* must use larger dataset in order to allow function to run properly
-
-For that the idea will be to use the larger dataset and to limit number of rows for each machine/ process to be maximum 50000
-
-We will only keep new functionality for the App
+[id1]: train.PNG "Train"
+[id2]: test.PNG "Test"
