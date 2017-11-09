@@ -7,8 +7,6 @@ output:
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
-http://www.rubiksplace.com/speedcubing/F2L-algorithms/
-
 
 ### Lecture 25 - Your project. Deep Learning
 
@@ -173,15 +171,29 @@ h2o.download_pojo(anomaly_model, "C:/Users/fxtrams/Downloads/tmp", get_jar = TRU
 ```
 
 And let's not forget to switch off our cluster!
-```{r}
+```{r, eval=FALSE, include=TRUE}
 h2o.shutdown(prompt= FALSE)
 
 ```
 
+#### Conclusion
 
-##### Next step
+In this example the Anomaly Detection model was able to output the anomaly in rows 21-23. 
 
-our next step will be to repeat the procedure but on our machine data. Once we can have our model ready next step will be implementation in our ShinyApp...
+It learned on the pattern of many vectors and was able to distinguish the anomaly coming on new dataset
+
+Practical use of this model can be to us function **h2o.anomaly**. In case the MSE value will be high - the anomaly is detected!
+
+#### Next step
+
+our next step will be to repeat the procedure but on our machine data. 
+
+* arranging data to many vectors
+* learning the models
+* testing the models
+* saving models
+
+Once we can have our model ready next step will be implementation in our ShinyApp...
 
 [id1]: train.PNG "Train"
 [id2]: test.PNG "Test"
