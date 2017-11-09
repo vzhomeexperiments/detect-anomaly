@@ -7,6 +7,9 @@ output:
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
+http://www.rubiksplace.com/speedcubing/F2L-algorithms/
+
+
 ### Lecture 25 - Your project. Deep Learning
 
 Deep Learning... In this lecture I would like to esplore with you the DeepLearning we can do with H2O package in R...
@@ -92,11 +95,20 @@ Personally I like to know what is in the data and how it look like!!! I will jus
 **Test data set**
 ![Test Data][id2]
 
+Or, I can also pull the data from h2o with 
+
+```{r, eval=FALSE, include=TRUE}
+# data frame for training dataset
+df_train <- as.data.frame(train_ecg)
+# data frame for test dataset
+df_test <- as.data.frame(test_ecg)
+```
+
+from there we can see that the difference between both are in the three new rows 21-23
 
 Now, once we know how our data looks like we can start to do our Anomaly Model
 
 ```{r, eval=FALSE, include=TRUE}
-
 
 # Train deep autoencoder learning model on "normal" 
 # training data, y ignored 
@@ -109,26 +121,68 @@ anomaly_model <- h2o.deeplearning(
  sparse = TRUE,
  l1 = 1e-4, 
  epochs = 100)
+```
+
+Once our model is made, we can use it to detect anomalies in our **test** dataset
+
+
+```{r, eval=FALSE, include=TRUE}
 # Compute reconstruction error with the Anomaly 
 # detection app (MSE between output and input layers)
 recon_error <- h2o.anomaly(anomaly_model, test_ecg)
 
 # Pull reconstruction error data into R and 
 # plot to find outliers (last 3 heartbeats)
-recon_error <- as.data.frame(recon_error)
-recon_error
-plot.ts(recon_error)
+df_recon_error <- as.data.frame(recon_error)
+df_recon_error
+```
+
+We can plot this as well
+```{r, eval=FALSE, include=TRUE}
+plot.ts(df_recon_error)
+```
+
+What it is telling us is that based on the new data we have anomaly in elements 21, 22, 23
+
+Now we can obtain predictions, or physical values using our model. We should provide the model and test dataset
+
+```{r, eval=FALSE, include=TRUE}
 # Note: Testing = Reconstructing the test dataset
 test_recon <- h2o.predict(anomaly_model, test_ecg) 
+```
+
+```{r, eval=FALSE, include=TRUE}
 head(test_recon)
+```
+
+In order to make things visible. Once again I ask excel to help... Here I simply write teh dataframe to csv and create graph in excel
+
+```{r, eval=FALSE, include=TRUE}
+predicted <- as.data.frame(test_recon)
+write.csv(predicted, "test_predicted.csv")
+```
+
+**Predicted data set**
+![Predicted Data][id3]
+
+To use our model in our ShinyApp we will save it...
+
+```{r, eval=FALSE, include=TRUE}
 h2o.saveModel(anomaly_model, "C:/Users/fxtrams/Downloads/tmp/anomaly_model.bin")
 h2o.download_pojo(anomaly_model, "C:/Users/fxtrams/Downloads/tmp", get_jar = TRUE)
+```
+
+And let's not forget to switch off our cluster!
+```{r}
 h2o.shutdown(prompt= FALSE)
 
 ```
 
 
-##### Extra
+##### Next step
+
+our next step will be to repeat the procedure but on our machine data. Once we can have our model ready next step will be implementation in our ShinyApp...
 
 [id1]: train.PNG "Train"
 [id2]: test.PNG "Test"
+[id3]: predicted.PNG "Predicted"
