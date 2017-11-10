@@ -120,6 +120,22 @@ anomaly_model <- h2o.deeplearning(
  l1 = 1e-4, 
  epochs = 100)
 ```
+Let's use this model on our training dataset...
+
+```{r, eval=FALSE, include=TRUE}
+# computer error of the model
+mod_error <- h2o.anomaly(anomaly_model, train_ecg)
+```
+
+get it as a plot and see that the value is very low
+
+```{r, eval=FALSE, include=TRUE}
+# visually see it
+library(tidyverse)
+h2o.anomaly(anomaly_model, train_ecg) %>% 
+  as.data.frame() %>% plot.ts(ylim = c(0, 2))
+```
+
 
 Once our model is made, we can use it to detect anomalies in our **test** dataset
 
@@ -156,8 +172,9 @@ head(test_recon)
 In order to make things visible. Once again I ask excel to help... Here I simply write teh dataframe to csv and create graph in excel
 
 ```{r, eval=FALSE, include=TRUE}
-predicted <- as.data.frame(test_recon)
-write.csv(predicted, "test_predicted.csv")
+# write to csv to use it in excel
+test_recon %>% as.data.frame() %>% 
+write.csv("test_predicted.csv")
 ```
 
 **Predicted data set**
