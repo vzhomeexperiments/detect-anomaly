@@ -1,9 +1,9 @@
 ---
 title: "Lecture 25 - Into Deep Learning"
 output:
-  html_document: default
-  html_notebook: default
   pdf_document: default
+  html_notebook: default
+  html_document: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
