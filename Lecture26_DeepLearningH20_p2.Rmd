@@ -61,45 +61,26 @@ Looking on the chart above I can see that machine #1 seems to be the best. I wil
 
 ```{r}
 # extracting only one machine
-
+DF_M1 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #3") %>% 
+  select(StartDate, AnalogVal) %>% 
+  head(50)
 ```
 
+#### Transposing the data
 
+Now we need to **transpose** our data from long to wide structure!
 
-#### Installing from R and starting it up
-
-
-These instructions I got from: (http://h2o.ai/download/)[http://h2o.ai/download/]. Simply use 'Install from R' option
-
-```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
-# The following two commands will remove any previously installed H2O packages for R.
-if ("package:h2o" %in% search()) { detach("package:h2o", unload=TRUE) }
-if ("h2o" %in% rownames(installed.packages())) { remove.packages("h2o") }
-
-# Next, we download packages that H2O depends on.
-pkgs <- c("statmod","RCurl","jsonlite")
-for (pkg in pkgs) {
-if (! (pkg %in% rownames(installed.packages()))) { install.packages(pkg) }
-}
-
-# Now we download, install and initialize the H2O package for R.
-install.packages("h2o", type="source", repos="http://h2o-release.s3.amazonaws.com/h2o/rel-weierstrass/7/R")
-
-# Finally, let's load H2O and start up an H2O cluster
-library(h2o)
-h2o.init()
+```{r}
+# transposing our dataframe
+DF_t <- as.data.frame(t(as.matrix(DF_M1)))
+head(DF_t)
 ```
 
-As you see this will actually start the 'cluster' on our machine! We will now can look on `Localhost:54321` to see the 'interface' of our cluster...
+Now, we can actually 'forget' the StartDate values and simply parse the values into matrix of dimension say 200 columns and 20 rows...
 
-As a trial let's learn how to shut down the machine...
 
-```{r, eval=FALSE, include=TRUE}
-# we can shut down the 'machine' like this...
-h2o.shutdown(prompt= FALSE)
-```
-
-In this case I have installed H2O Machine Learning Platform on my PC, but in the real world you may install it on more powerfull computer.
 
 #### Explore the 'thing' on example
 
@@ -137,11 +118,7 @@ test_ecg <- h2o.importFile(
 
 Personally I like to know what is in the data and how it look like!!! I will just use this link and put it into the browser. This will download the files with raw data. If I open this dataset it would not tell me much! I will plot this data in excel...
 
-**Train data set**
-![Train Data][id1]
 
-**Test data set**
-![Test Data][id2]
 
 Or, I can also pull the data from h2o into R and make some 3D visualizations...
 
@@ -162,7 +139,6 @@ plot_ly(z = matrix_train, type = "surface")
 
 ```
 
-![Train Dataset with plotly][id4]
 
 ```{r, eval=FALSE, include=TRUE}
 # using library plotly to plot 3D surface
@@ -170,7 +146,6 @@ plot_ly(z = matrix_test, type = "surface")
 
 ```
 
-![Test Dataset with plotly][id5]
 
 #### Building Deep Learning model with autoencoder
 
@@ -248,8 +223,6 @@ test_recon %>% as.data.frame() %>%
 write.csv("test_predicted.csv")
 ```
 
-**Predicted data set**
-![Predicted Data][id3]
 
 #### Visualize as 3D
 
@@ -262,7 +235,7 @@ recon_matrix <- test_recon %>% as.data.frame() %>% as.matrix.data.frame()
 plot_ly(z = recon_matrix, type = "surface")
 ```
 
-![Predicted Dataset with plotly][id6]
+
 
 #### Saving Deep Learning Model for the future use
 
@@ -310,9 +283,3 @@ In this lecture we would explore the 'technology' on the sample and try to do th
 
 
 
-[id1]: train.PNG "Train"
-[id2]: test.PNG "Test"
-[id3]: predicted.PNG "Predicted"
-[id4]: h2o_datasets/train.png "Train"
-[id5]: h2o_datasets/test.png "Test"
-[id6]: h2o_datasets/predict.png "Predicted"
