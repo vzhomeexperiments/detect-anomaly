@@ -1,5 +1,5 @@
 ---
-title: "Lecture 25 - Into Deep Learning"
+title: "Lecture 26 - Into Deep Learning P2"
 output:
   pdf_document: default
   html_notebook: default
@@ -9,23 +9,62 @@ output:
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 
-### Lecture 25 - Your project. Deep Learning with H2O. P.1 Install and explore by example
+### Lecture 26 - Your project. Deep Learning with H2O. P.2 Implement on our example
 
-Deep Learning... In this lecture I would like to esplore with you the DeepLearning we can do with H2O package in R...
+Deep Learning... This lecture is dedicated to the implementation of Deep Learning models into R and in particular **ShinyApp**
 
-#### Learning to do Deep Learning
+#### Work overview (from previous lecture)
 
-Used example from: (https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o)[https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o]
+* re-arranging data as matrix
+* fitting deep learning models
+* testing the models
+* saving models
+* implementation in our ShinyApp...
 
-More reading: (https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true)[https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true]
+The idea will be to use one particular feature e.g. **Tubing Process, Impedance** to play with
 
-And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiring.github.io/machine_learning/2017/05/01/fraud]
+#### Re-arranging data as a matrix
 
-In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
+Let's get our time - series data as a dataframe first...
 
-#### Understanding architecture
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
 
-The 'Thing' will be working on your computer. In fact you will install another 'computer' inside your 'computer'...
+# ============= READ DATA =================
+# Read our small data ... 
+DF_Data_Recent <- readRDS("DF_Data_Process_Recent.data") 
+
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
+
+# Data manipulation and saving to the DF_TEMP
+DF_TEMP <- DF_Data_Recent %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDate, Name, AnalogVal, EventText)
+```
+
+Then I will plot my data for all 4 machines as just to remember how it looks like...
+
+```{r}
+# creating human readable data and visualize them
+DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+```
+
+Looking on the chart above I can see that machine #1 seems to be the best. I will take that one as a reference to build my Deep Learning Model. I will be extracting this dataset with a **filter()** function
+
+```{r}
+# extracting only one machine
+
+```
+
+
 
 #### Installing from R and starting it up
 
@@ -257,6 +296,19 @@ our next step will be to repeat the procedure but on our machine data.
 * testing the models
 * saving models
 * implementation in our ShinyApp...
+
+#### used references
+
+example from: (https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o)[https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o]
+
+More reading: (https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true)[https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true]
+
+And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiring.github.io/machine_learning/2017/05/01/fraud]
+
+paper: (https://arxiv.org/abs/1701.01887)[https://arxiv.org/abs/1701.01887]
+In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
+
+
 
 [id1]: train.PNG "Train"
 [id2]: test.PNG "Test"
