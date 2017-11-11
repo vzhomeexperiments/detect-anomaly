@@ -1,9 +1,9 @@
 ---
 title: "Lecture 25 - Into Deep Learning"
 output:
-  pdf_document: default
-  html_notebook: default
   html_document: default
+  html_notebook: default
+  pdf_document: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
@@ -187,7 +187,8 @@ tail(df_recon_error, 9)
 
 We can plot this as well
 ```{r, eval=TRUE, include=TRUE}
-plot.ts(df_recon_error)
+plot.ts(df_recon_error, type = "p", pch=20)
+abline(h = 2, col = "red")
 ```
 
 What it is telling us is that based on the new data we have anomaly in elements 21, 22, 23
