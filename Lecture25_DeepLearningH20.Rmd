@@ -1,8 +1,8 @@
 ---
 title: "Lecture 25 - Into Deep Learning"
 output:
-  html_document: default
   html_notebook: default
+  html_document: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
@@ -63,7 +63,7 @@ h2o.shutdown(prompt= FALSE)
 
 We will now run the demo from H2O. First thing we will launch the machine again...
 
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
 # to load the library
 library(h2o)
 
