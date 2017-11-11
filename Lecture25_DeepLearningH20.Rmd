@@ -3,6 +3,7 @@ title: "Lecture 25 - Into Deep Learning"
 output:
   html_document: default
   html_notebook: default
+  pdf_document: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
@@ -22,16 +23,16 @@ And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiri
 
 In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
 
-##### Understanding architecture
+#### Understanding architecture
 
 The 'Thing' will be working on your computer. In fact you will install another 'computer' inside your 'computer'...
 
-##### Installing from R and starting it up
+#### Installing from R and starting it up
 
 
 These instructions I got from: (http://h2o.ai/download/)[http://h2o.ai/download/]. Simply use 'Install from R' option
 
-```{r, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
 # The following two commands will remove any previously installed H2O packages for R.
 if ("package:h2o" %in% search()) { detach("package:h2o", unload=TRUE) }
 if ("h2o" %in% rownames(installed.packages())) { remove.packages("h2o") }
@@ -65,11 +66,11 @@ In this case I have installed H2O Machine Learning Platform on my PC, but in the
 
 We will now run the demo from H2O. Our goal will be to teach system what is `normal` by using ECG dataset. After that we will use another dataset that will contain `anomaly` and use our Deep Learning model to detect that
 
-##### Start Virtual Machine h2o
+#### Start Virtual Machine h2o
 
 First thing we will launch the machine again...
 
-```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
+```{r, eval=TRUE, message=FALSE, warning=FALSE, include=TRUE}
 # to load the library
 library(h2o)
 
@@ -77,11 +78,11 @@ library(h2o)
 h2o.init()
 ```
 
-##### Load datasets from H2O
+#### Load datasets from H2O
 
 Then we will download the datasets from h2o.
 
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 # Import ECG train and test data into the H2O cluster
 train_ecg <- h2o.importFile(
  path = "http://h2o-public-test-data.s3.amazonaws.com/smalldata/anomaly/ecg_discord_train.csv", 
@@ -93,7 +94,7 @@ test_ecg <- h2o.importFile(
  sep = ",")
 ```
 
-##### Understanding dataset
+#### Understanding dataset
 
 Personally I like to know what is in the data and how it look like!!! I will just use this link and put it into the browser. This will download the files with raw data. If I open this dataset it would not tell me much! I will plot this data in excel...
 
@@ -105,7 +106,7 @@ Personally I like to know what is in the data and how it look like!!! I will jus
 
 Or, I can also pull the data from h2o into R and make some 3D visualizations...
 
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 library(tidyverse)
 # data frame matrix for training dataset
 matrix_train <- train_ecg %>% as.data.frame() %>% as.matrix.data.frame()
@@ -132,11 +133,11 @@ plot_ly(z = matrix_test, type = "surface")
 
 ![Test Dataset with plotly][id5]
 
-##### Building Deep Learning model with autoencoder
+#### Building Deep Learning model with autoencoder
 
 Now, once we know how our data looks like we can start to do our Anomaly Model
 
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 
 # Train deep autoencoder learning model on "normal" 
 # training data, y ignored 
@@ -151,29 +152,29 @@ anomaly_model <- h2o.deeplearning(
  epochs = 100)
 ```
 
-##### Calculate MSE from the train dataset
+#### Calculate MSE from the train dataset
 
 Let's use this model on our training dataset...
 
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 # computer error of the model
 mod_error <- h2o.anomaly(anomaly_model, train_ecg)
 ```
 
 get it as a plot and see that the value is very low
 
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 # visually see it
 h2o.anomaly(anomaly_model, train_ecg) %>% 
   as.data.frame() %>% plot.ts(ylim = c(0, 2))
 ```
 
-##### Detect Anomaly using MSE value
+#### Detect Anomaly using MSE value
 
 Once our model is made, we can use it to detect anomalies in our **test** dataset
 
 
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 # Compute reconstruction error with the Anomaly 
 # detection app (MSE between output and input layers)
 recon_error <- h2o.anomaly(anomaly_model, test_ecg)
@@ -185,23 +186,19 @@ tail(df_recon_error, 9)
 ```
 
 We can plot this as well
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 plot.ts(df_recon_error)
 ```
 
 What it is telling us is that based on the new data we have anomaly in elements 21, 22, 23
 
-##### Use Anomaly model to reconstruct Test Dataset
+#### Use Anomaly model to reconstruct Test Dataset
 
 Now we can obtain predictions, or physical values using our model. We should provide the model and test dataset
 
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 # Note: Testing = Reconstructing the test dataset
 test_recon <- h2o.predict(anomaly_model, test_ecg) 
-```
-
-```{r, eval=FALSE, include=TRUE}
-head(test_recon)
 ```
 
 In order to make things visible. Once again I ask excel to help... Here I simply write teh dataframe to csv and create graph in excel
@@ -215,10 +212,10 @@ write.csv("test_predicted.csv")
 **Predicted data set**
 ![Predicted Data][id3]
 
-##### Visualize as 3D
+#### Visualize as 3D
 
 Or we can visualize in 3D directly in R
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=F, include=TRUE}
 # making a matrix dataframe
 recon_matrix <- test_recon %>% as.data.frame() %>% as.matrix.data.frame()
 
@@ -238,7 +235,7 @@ h2o.download_pojo(anomaly_model, "C:/Users/fxtrams/Downloads/tmp", get_jar = TRU
 ```
 
 And let's not forget to switch off our cluster!
-```{r, eval=FALSE, include=TRUE}
+```{r, eval=TRUE, include=TRUE}
 h2o.shutdown(prompt= FALSE)
 
 ```
