@@ -96,8 +96,35 @@ DF_M4 <- DF_TEMP %>%
   t() %>%  # this brings us a matrix
   as.vector() %>% # let's make it a vector
   head(2850) %>% # only making fixed amount of rows
-  matrix(nrow = 19, ncol = 150) # transforming that into matrix size 25x200
+  matrix(nrow = 19, ncol = 150) %>% # transforming that into matrix size 25x200
+  t() # transpose matrix to be able to detect anomalies in one row of lenght 150
 ```
+
+```{r}
+#side note - understand convertion to matrix
+DF_s <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #4") %>% 
+  arrange(StartDate) %>% 
+  select(AnalogVal) %>% 
+  t() %>%  # this brings us a matrix
+  as.vector() %>% # let's make it a vector
+  head(30) %>% # only making fixed amount of rows
+  matrix(nrow = 5, ncol = 6)
+
+DF_s1 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #4") %>% 
+  arrange(StartDate) %>% 
+  select(AnalogVal) %>% 
+  t() %>%  # this brings us a matrix
+  as.vector() %>% # let's make it a vector
+  head(30) %>% # only making fixed amount of rows
+  matrix(nrow = 5, ncol = 6) %>% 
+  t()
+```
+
+
 
 Before prediction we can visualize what we have got
 
@@ -152,8 +179,36 @@ This brings us to the point where we have rows indices that were classified as a
 
 ```{r}
 # subset rows with matrices that shows the anomalies
+matr_anomals <- DF_M4[rows_anomals, ]
+matr_anomalT <- DF_M4_DT[rows_anomals, ] #corresponding time date index
 
+# subset rows with matrices that does not show the anomalies
+matr_normals <- DF_M4[rows_normals, ] 
+matr_normalT <- DF_M4_DT[rows_normals, ] #corresponding time date index
 ```
+
+Just out of curiosity I will plot the anomalies values as 3D plot
+
+```{r, eval=FALSE, include=TRUE}
+plot_ly(z = matr_anomals, type = "surface")
+```
+
+And alsow those without
+
+```{r, eval=FALSE, include=TRUE}
+plot_ly(z = matr_normals, type = "surface")
+```
+
+This is wonderful! High anomalous spikes were detected!
+
+Final sprint - bring original dataframe with anomaly labels
+
+
+
+
+
+
+
 
 
 #### Calculate MSE from the train dataset
