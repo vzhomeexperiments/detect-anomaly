@@ -29,6 +29,7 @@ Let's get our time - series data as a dataframe first...
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(plotly)
 
 # ============= READ DATA =================
 # Read our small data ... 
@@ -229,6 +230,9 @@ h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(
 ```{r, eval=TRUE, include=TRUE}
 # visually see it
 test_recon_M1 <- h2o.predict(normality_model, train_M1) %>% as.matrix()
+```
+
+```{r, eval=TRUE, include=TRUE}
 plot_ly(z = test_recon_M1, type = "surface")
 ```
 
@@ -318,7 +322,7 @@ At the bottom of the document:
 [id1]: plots/M1_train.png "Data used to Train the model"
 [id2]: plots/M2_test.png "Data used to Test the model - Machine 2"
 [id3]: plots/M3_test.png "Data used to Test the model - Machine 3"
-[id4]: plots/M3_test.png "Data used to Test the model - Machine 4"
+[id4]: plots/M4_test.png "Data used to Test the model - Machine 4"
 [id5]: plots/M1_pred.png "What AI see on Train Data"
 
 
