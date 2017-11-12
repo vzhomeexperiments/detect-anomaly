@@ -13,13 +13,20 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 Deep Learning... This lecture is dedicated to the implementation of Deep Learning models into for our Data
 
-#### Work overview (from previous lecture)
+#### Work overview (from previous lectures)
 
 * re-arranging data as matrix - DONE
 * fitting deep learning models - DONE
 * testing the models - DONE
 * saving models - DONE
-* implementation in our ShinyApp...
+* implementation in our ShinyApp... - to be covered in this lecture
+
+In order to achieve this goal we will have to perform some steps:
+
+1. Learn how to use saved model in R to make predictions
+2. Develop and implement app usage strategy
+
+#### Using saved h2o model in R
 
 Finally we have our Deep Learning Model stored in the www folder:
 
@@ -27,10 +34,11 @@ Finally we have our Deep Learning Model stored in the www folder:
 #files with model
 file.info("www/tmp/normality_model.bin/DeepLearning_model_R_1510476990600_1")
 ```
-
-Goal of this lecture will be to see how to use this model in R and ShinyApp to output results to the users
+One of the Goals of this lecture will be to see how to use this model in R to make predictions
 
 From: (R h2o load a saved model from disk in MOJO or POJO format)[https://stackoverflow.com/questions/45335697/r-h2o-load-a-saved-model-from-disk-in-mojo-or-pojo-format]
+
+We know that two types of strategy are possible
 
 #### Using Binary Model to make predictions
 
