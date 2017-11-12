@@ -232,7 +232,7 @@ h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(
 test_recon_M1 <- h2o.predict(normality_model, train_M1) %>% as.matrix()
 ```
 
-```{r, eval=TRUE, include=TRUE}
+```{r, eval=FALSE, include=TRUE}
 plot_ly(z = test_recon_M1, type = "surface")
 ```
 
@@ -240,7 +240,7 @@ plot_ly(z = test_recon_M1, type = "surface")
 
 #### Detect Anomaly using MSE value
 
-Now we will try to use test datasets from machine 2
+Now we will try to use test datasets from **machine 2**
 
 ```{r, eval=TRUE, include=TRUE}
 # Compute reconstruction error with the Anomaly 
@@ -248,13 +248,15 @@ Now we will try to use test datasets from machine 2
 h2o.anomaly(normality_model, test_M2) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
 ```
 
-And for machine 3
+And for **machine 3**
 
 ```{r, eval=TRUE, include=TRUE}
 h2o.anomaly(normality_model, test_M3) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
 ```
 
 It is now telling us that behaviour of Machine 2 is much different from machine 1. And on Machine 3 we have a clearly peaks that are distinguishable to recover anomaly!
+
+**Note:** You may try to practice with Machine 4!
 
 
 #### Use Anomaly model to reconstruct Test Dataset
