@@ -40,6 +40,10 @@ From: (R h2o load a saved model from disk in MOJO or POJO format)[https://stacko
 
 We know that two types of strategy are possible
 
+1. use a binary model 
+2. export a model to MOJO (or POJO) form
+
+
 #### Using Binary Model to make predictions
 
 ```{r, message=FALSE, warning=FALSE}
@@ -48,20 +52,18 @@ library(tidyverse)
 library(plotly)
 ```
 
-We have previously saved our model 
+Initializing H2O and loading the model
 
-```{r}
+```{r, eval=TRUE, message=FALSE, warning=FALSE, include=TRUE}
 # initialize h2o
 h2o.init()
 # load model
 normality_model <- h2o.loadModel("www/tmp/normality_model.bin/DeepLearning_model_R_1510476990600_1") 
-#and make predictions using 
-# predict(model, test).
 ```
 
+We will also need to quickly construct the dataset we can predict the result
 
-
-```{r}
+```{r, message=FALSE, warning=FALSE}
 
 # ============= READ DATA =================
 # Read our small data ... 
@@ -81,91 +83,15 @@ DF_TEMP <- DF_Data_Recent %>%
   select(StartDate, Name, AnalogVal, EventText)
 ```
 
-Then I will plot my data for all 4 machines as just to remember how it looks like...
 
-```{r}
-# creating human readable data and visualize them
-DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
-```
-
-Looking on the chart above I can see that machine #1 seems to be the best. I will take that one as a reference to build my Deep Learning Model. I will be extracting this dataset with a **filter()** function
+Will be using Machine #4 for that
 
 ```{r}
 # extracting only one machine
-DF_M1 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #3") %>% 
-  select(StartDate, AnalogVal) %>% 
-  head(50)
-```
-
-#### Transposing the data
-
-Now we need to **transpose** our data from long to wide structure! We will 'forget' the StartDate values and simply parse the values into matrix of dimension say 150 columns and 20 rows... Of course one need to recover some basic R skills for that :) if not use stackoverflow... (How to turn a vector into a matrix in R?)[https://stackoverflow.com/questions/14614946/how-to-turn-a-vector-into-a-matrix-in-r]
-
-```{r}
-DF_M1 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #1") %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(3000) %>% # only making fixed amount of rows
-  matrix(nrow = 20, ncol = 150) # transforming that into matrix size 25x200
-```
-
-Wonderful, let's try to see! our new object as an image!!!
-
-#### Explore the matrix as a surface!
-
-Let's use `plotly` 3D graph to explore what we have got!
-
-```{r, eval=FALSE, include=TRUE}
-library(plotly)
-plot_ly(z = DF_M1, type = "surface")
-
-```
-
-![Values from Machine 1 used for Training][id1]
-
-
-
-This should be good enough to fit our deep learning model, but before we will do so I will 'prepare' my test datasets
-
-A. For machine 2:
-
-```{r}
-DF_M2 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #2") %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(1500) %>% # only making fixed amount of rows
-  matrix(nrow = 10, ncol = 150) # transforming that into matrix size 25x200
-```
-
-B. For machine 3:
-
-```{r}
-DF_M3 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #3") %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(3000) %>% # only making fixed amount of rows
-  matrix(nrow = 20, ncol = 150) # transforming that into matrix size 25x200
-```
-
-C. For machine 4:
-
-```{r}
 DF_M4 <- DF_TEMP %>% 
   filter(EventText == "Tubing Process, resistance Ohm") %>% 
   filter(Name == "Machine #4") %>% 
+  arrange(StartDate) %>% 
   select(AnalogVal) %>% 
   t() %>%  # this brings us a matrix
   as.vector() %>% # let's make it a vector
@@ -173,47 +99,29 @@ DF_M4 <- DF_TEMP %>%
   matrix(nrow = 19, ncol = 150) # transforming that into matrix size 25x200
 ```
 
-And we can also visualize that to confront:
-
-For Machine 2
-
-```{r, eval=FALSE, include=TRUE}
-plot_ly(z = DF_M2, type = "surface")
-```
-
-![Values from Machine 2 used for Test][id2]
-
-For Machine 3
-
-```{r, eval=FALSE, include=TRUE}
-plot_ly(z = DF_M3, type = "surface")
-```
-
-![Values from Machine 3 used for Test][id3]
-
-For Machine 4
+Before prediction we can visualize what we have got
 
 ```{r, eval=FALSE, include=TRUE}
 plot_ly(z = DF_M4, type = "surface")
 ```
 
-![Values from Machine 4 used for Test][id4]
+#### Predicting anomaly on Machine 4
 
-#### Fitting the Deep Learning Model
+In order to predict on `DF_M4` dataset we need to make it H2OFrame class. We need to load this object into H2O environment
 
-Launch the machine again...
-
-```{r, eval=TRUE, message=FALSE, warning=FALSE, include=TRUE}
-# to load the library
-library(h2o)
-
-# to initialize the 'machine'
-localH2O = h2o.init()
+```{r}
+# load dataset into H2O environment
+test_M4  <- as.h2o(x = DF_M4, destination_frame = "test_M3")
 ```
 
-#### Load datasets to H2O
 
-Then we will download the datasets into h2o. Remember H2O is just operated from R but it's a computer besides!
+```{r}
+h2o.anomaly(normality_model, test_M4) %>% as.data.frame() %>% plot.ts(type = "p")
+```
+
+This brings us to the point of identifying anomaly on rows 6, 7, 12, 14. But we need to think yet how to interpret these points for the user. So far these points have no meaning. Hence we shall return to original times and parameters of when the eventual anomaly/problem occurred.
+
+For that I will return back and construct the same matrix with a references for the dates
 
 
 ```{r, eval=TRUE, include=TRUE}
@@ -222,31 +130,13 @@ train_M1 <- as.h2o(x = DF_M1, destination_frame = "train_M1")
 
 # Also import our test datasets for Machines 2 and 3...
 test_M2  <- as.h2o(x = DF_M2, destination_frame = "test_M2")
-test_M3  <- as.h2o(x = DF_M3, destination_frame = "test_M3")
+
 
 # Make your own research usign DF_M4!
 
 ```
 
 
-#### Building Deep Learning model with autoencoder
-
-Now, once we know how our data looks like we can start to do our Anomaly Model
-
-```{r, eval=TRUE, include=TRUE}
-
-# Train deep autoencoder learning model on "normal" 
-# training data, y ignored 
-normality_model <- h2o.deeplearning(
- x = names(train_M1), 
- training_frame = train_M1, 
- activation = "Tanh", 
- autoencoder = TRUE, 
- hidden = c(50,20,50), 
- sparse = TRUE,
- l1 = 1e-4, 
- epochs = 100)
-```
 
 #### Calculate MSE from the train dataset
 
@@ -345,6 +235,8 @@ our next step will be to repeat the procedure but on our machine data.
 example from: (https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o)[https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o]
 
 More reading: (https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true)[https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true]
+
+The phylosophy that was already explained in the course (I discovered that later...:) : (https://dzone.com/articles/dive-deep-into-deep-learning-using-h2o-1)[https://dzone.com/articles/dive-deep-into-deep-learning-using-h2o-1]
 
 And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiring.github.io/machine_learning/2017/05/01/fraud]
 
