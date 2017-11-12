@@ -58,30 +58,66 @@ DF_TEMP %>%
   ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
 ```
 
-Looking on the chart above I can see that machine #1 seems to be the best. I will take that one as a reference to build my Deep Learning Model. I will be extracting this dataset with a **filter()** function
+Looking on the chart above I can see that machine #1 seems to be the best. I will take that one as a reference to build my Deep Learning Model. I will be extracting this dataset with a **filter()** function. 
 
 ```{r}
 # extracting only one machine
 DF_M1 <- DF_TEMP %>% 
   filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #3") %>% 
+  filter(Name == "Machine #1") %>% 
   select(StartDate, AnalogVal) %>% 
-  head(50)
+  arrange(StartDate) 
+head(DF_M1)
 ```
 
 #### Transposing the data
 
-Now we need to **transpose** our data from long to wide structure! We will 'forget' the StartDate values and simply parse the values into matrix of dimension say 150 columns and 20 rows... Of course one need to recover some basic R skills for that :) if not use stackoverflow... (How to turn a vector into a matrix in R?)[https://stackoverflow.com/questions/14614946/how-to-turn-a-vector-into-a-matrix-in-r]
+Now we need to **transpose** our data from long to wide structure and to fit it to `matrix`! We will 'forget' the StartDate values and simply parse the values into matrix of dimension say 150 columns and 20 rows... Of course one need to recover some basic R skills for that :) if not use stackoverflow... (How to turn a vector into a matrix in R?)[https://stackoverflow.com/questions/14614946/how-to-turn-a-vector-into-a-matrix-in-r]
+
+I will also limit the output to 50 pieces to have more clear understanding on the process we do.
 
 ```{r}
 DF_M1 <- DF_TEMP %>% 
   filter(EventText == "Tubing Process, resistance Ohm") %>% 
   filter(Name == "Machine #1") %>% 
+  arrange(StartDate) %>% 
   select(AnalogVal) %>% 
+  head(50) %>% 
   t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(3000) %>% # only making fixed amount of rows
-  matrix(nrow = 20, ncol = 150) # transforming that into matrix size 25x200
+  matrix(nrow = 10, ncol = 5) # transforming that into matrix size 5x10
+DF_M1
+```
+
+Notice how this matrix is populated - it first complet column one than goes to column 2, etc
+
+We want to keep different behaviour -> we need to populate by rows from left to right
+
+```{r}
+DF_M1 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #1") %>% 
+  arrange(StartDate) %>% 
+  select(AnalogVal) %>% 
+  head(50) %>% 
+  t() %>%  # this brings us a matrix
+  matrix(nrow = 10, ncol = 5) %>% # transforming that into matrix size 5x10
+  t() # transpose to get desired structure
+DF_M1
+```
+
+Our data, however is much larger! Let's use the recipe to do a final transformation
+
+```{r}
+DF_M1 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #1") %>% 
+  arrange(StartDate) %>% 
+  select(AnalogVal) %>% 
+  head(3000) %>% 
+  t() %>%  # this brings us a matrix
+  matrix(nrow = 150, ncol = 20) %>% # transforming that into matrix size 20x150
+  t() # transpose to get desired structure
+
 ```
 
 Wonderful, let's try to see! our new object as an image!!!
@@ -100,7 +136,34 @@ plot_ly(z = DF_M1, type = "surface")
 
 
 
-This should be good enough to fit our deep learning model, but before we will do so I will 'prepare' my test datasets
+This should be good enough to fit our deep learning model, but before we will do so I will 'prepare' my test datasets. Just to avoid copy/paste this code snippet may become a function:
+
+```{r}
+# build function converting to matrix
+to_matrix <- function(x, filter_Event, filter_Machine, num_cols) {
+  # get intermediate object and dimension
+  Step1 <- x %>% 
+  filter(EventText == filter_Event) %>% 
+  filter(Name == filter_Machine) %>% 
+  arrange(StartDate) %>% 
+  select(AnalogVal)
+  # find number of rows
+  nrows <- Step1 %>% nrow()/num_cols %>% round() 
+  # extract relevant matrix
+  Step2 <- Step1 %>% 
+  t() %>%  # this brings us a matrix
+  matrix(nrow = num_cols, ncol = nrows) %>% # transforming that into matrix size 20x150
+  t() # transpose to get desired structure
+  return(Step2)
+}
+```
+
+```{r}
+DF_M2 <- to_matrix(DF_TEMP, filter_Event = "Tubing Process, resistance Ohm",
+                   filter_Machine = "Machine #2", num_cols = 150)
+```
+
+
 
 A. For machine 2:
 
