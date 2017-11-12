@@ -78,36 +78,98 @@ DF_t <- as.data.frame(t(as.matrix(DF_M1)))
 head(DF_t)
 ```
 
-Now, we can actually 'forget' the StartDate values and simply parse the values into matrix of dimension say 200 columns and 20 rows...
+Now, we can actually 'forget' the StartDate values and simply parse the values into matrix of dimension say 200 columns and 20 rows... Of course one need to recover some basic R skills for that :) if not use stackoverflow... (How to turn a vector into a matrix in R?)[https://stackoverflow.com/questions/14614946/how-to-turn-a-vector-into-a-matrix-in-r]
+
+```{r}
+DF_M1 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #1") %>% 
+  select(AnalogVal) %>% 
+  t() %>%  # this brings us a matrix
+  as.vector() %>% # let's make it a vector
+  head(3000) %>% # only making fixed amount of rows
+  matrix(nrow = 20, ncol = 150) # transforming that into matrix size 25x200
+```
+
+Wonderful, let's try to see! our new object as an image!!!
+
+#### Explore the matrix as a surface!
+
+Let's use `plotly` 3D graph to explore what we have got!
+
+```{r}
+library(plotly)
+plot_ly(z = DF_M1, type = "surface")
+
+```
+
+This should be good enough to fit our deep learning model, but before we will do so I will 'prepare' my test datasets
+
+A. For machine 2:
+
+```{r}
+DF_M2 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #2") %>% 
+  select(AnalogVal) %>% 
+  t() %>%  # this brings us a matrix
+  as.vector() %>% # let's make it a vector
+  head(1500) %>% # only making fixed amount of rows
+  matrix(nrow = 10, ncol = 150) # transforming that into matrix size 25x200
+```
+
+B. For machine 3:
+
+```{r}
+DF_M3 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #3") %>% 
+  select(AnalogVal) %>% 
+  t() %>%  # this brings us a matrix
+  as.vector() %>% # let's make it a vector
+  head(3000) %>% # only making fixed amount of rows
+  matrix(nrow = 20, ncol = 150) # transforming that into matrix size 25x200
+```
+
+And we can also visualize that to confront:
+
+For Machine 2
+
+```{r}
+plot_ly(z = DF_M2, type = "surface")
+```
+
+For Machine 3
+
+```{r}
+plot_ly(z = DF_M3, type = "surface")
+```
 
 
 
-#### Explore the 'thing' on example
+#### Fitting the Deep Learning Model
 
-We will now run the demo from H2O. Our goal will be to teach system what is `normal` by using ECG dataset. After that we will use another dataset that will contain `anomaly` and use our Deep Learning model to detect that
-
-#### Start Virtual Machine h2o
-
-First thing we will launch the machine again...
+Launch the machine again...
 
 ```{r, eval=TRUE, message=FALSE, warning=FALSE, include=TRUE}
 # to load the library
 library(h2o)
 
 # to initialize the 'machine'
-h2o.init()
+localH2O = h2o.init()
 ```
 
-#### Load datasets from H2O
+#### Load datasets to H2O
 
-Then we will download the datasets from h2o.
+Then we will download the datasets into h2o. Remember H2O is just operated from R but it's a computer besides!
+see this: (Load an R matrix into H2O without csv)[https://stackoverflow.com/questions/28301125/load-an-r-matrix-into-h2o-without-csv]
 
 ```{r, eval=TRUE, include=TRUE}
-# Import ECG train and test data into the H2O cluster
-train_ecg <- h2o.importFile(
- path = "http://h2o-public-test-data.s3.amazonaws.com/smalldata/anomaly/ecg_discord_train.csv", 
- header = FALSE, 
- sep = ",")
+# Import train data into the H2O cluster
+train_M1 <- as.h2o(
+ client = localH2O, 
+ object = DF_M1)
+
 test_ecg <- h2o.importFile(
  path = "http://h2o-public-test-data.s3.amazonaws.com/smalldata/anomaly/ecg_discord_test.csv", 
  header = FALSE, 
