@@ -140,27 +140,38 @@ This should be good enough to fit our deep learning model, but before we will do
 
 ```{r}
 # build function converting to matrix
-to_matrix <- function(x, filter_Event, filter_Machine, num_cols) {
+to_matrix <- function(x, filter_Event, filter_Machine, n_cols) {
   # get intermediate object and dimension
+  #filter_Event <- "Tubing Process, resistance Ohm"
+  #filter_Machine <- "Machine #1"
+  #x <- DF_TEMP
+  #n_cols <- 150
   Step1 <- x %>% 
   filter(EventText == filter_Event) %>% 
   filter(Name == filter_Machine) %>% 
   arrange(StartDate) %>% 
   select(AnalogVal)
   # find number of rows
-  nrows <- Step1 %>% nrow()/num_cols %>% round() 
+  nrows <- Step1 %>% nrow()
+  WN <- nrows/n_cols
+  if(round(WN)-WN > 0.5){WN <- round(WN)} else {WN <- round(WN - 1)}
+  # find number of rows to extract data
+  n <- n_cols * WN
   # extract relevant matrix
   Step2 <- Step1 %>% 
+    head(n) %>% #only use whole number
   t() %>%  # this brings us a matrix
-  matrix(nrow = num_cols, ncol = nrows) %>% # transforming that into matrix size 20x150
+  matrix(nrow = n_cols, ncol = WN) %>% # transforming that into matrix size 20x150
   t() # transpose to get desired structure
   return(Step2)
 }
 ```
 
 ```{r}
-DF_M2 <- to_matrix(DF_TEMP, filter_Event = "Tubing Process, resistance Ohm",
-                   filter_Machine = "Machine #2", num_cols = 150)
+DF_M2 <- to_matrix(DF_TEMP, 
+                   filter_Event = "Tubing Process, resistance Ohm",
+                   filter_Machine = "Machine #1", 
+                   n_cols = 150)
 ```
 
 
