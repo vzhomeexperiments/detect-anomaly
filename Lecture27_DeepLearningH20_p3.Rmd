@@ -1,5 +1,5 @@
 ---
-title: "Lecture 26 - Into Deep Learning P2"
+title: "Lecture 27 - Into Deep Learning P3"
 output:
   html_document: default
   html_notebook: default
@@ -9,27 +9,51 @@ output:
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 
-### Lecture 26 - Your project. Deep Learning with H2O. P.2 Build Deep Learning Model for our example
+### Lecture 27 - Your project. Deep Learning with H2O. P.2 Implement Deep Learning Model to ShinyApp
 
 Deep Learning... This lecture is dedicated to the implementation of Deep Learning models into for our Data
 
 #### Work overview (from previous lecture)
 
-* re-arranging data as matrix
-* fitting deep learning models
-* testing the models
-* saving models
+* re-arranging data as matrix - DONE
+* fitting deep learning models - DONE
+* testing the models - DONE
+* saving models - DONE
 * implementation in our ShinyApp...
 
-The idea will be to use one particular feature e.g. **Tubing Process, Impedance** to play with. We will not yet implement this in Shiny but rather focus to prepare our data, fit and test the model
+Finally we have our Deep Learning Model stored in the www folder:
 
-#### Re-arranging data as a matrix
+```{r}
+#files with model
+file.info("www/tmp/normality_model.bin/DeepLearning_model_R_1510476990600_1")
+```
 
-Let's get our time - series data as a dataframe first...
+Goal of this lecture will be to see how to use this model in R and ShinyApp to output results to the users
+
+From: (R h2o load a saved model from disk in MOJO or POJO format)[https://stackoverflow.com/questions/45335697/r-h2o-load-a-saved-model-from-disk-in-mojo-or-pojo-format]
+
+#### Using Binary Model to make predictions
 
 ```{r, message=FALSE, warning=FALSE}
+library(h2o)
 library(tidyverse)
 library(plotly)
+```
+
+We have previously saved our model 
+
+```{r}
+# initialize h2o
+h2o.init()
+# load model
+normality_model <- h2o.loadModel("www/tmp/normality_model.bin/DeepLearning_model_R_1510476990600_1") 
+#and make predictions using 
+# predict(model, test).
+```
+
+
+
+```{r}
 
 # ============= READ DATA =================
 # Read our small data ... 
