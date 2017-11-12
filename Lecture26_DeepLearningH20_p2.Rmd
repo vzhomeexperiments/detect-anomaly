@@ -162,49 +162,15 @@ localH2O = h2o.init()
 #### Load datasets to H2O
 
 Then we will download the datasets into h2o. Remember H2O is just operated from R but it's a computer besides!
-see this: (Load an R matrix into H2O without csv)[https://stackoverflow.com/questions/28301125/load-an-r-matrix-into-h2o-without-csv]
+
 
 ```{r, eval=TRUE, include=TRUE}
 # Import train data into the H2O cluster
-train_M1 <- as.h2o(
- client = localH2O, 
- object = DF_M1)
+train_M1 <- as.h2o(x = DF_M1, destination_frame = "train_M1")
 
-test_ecg <- h2o.importFile(
- path = "http://h2o-public-test-data.s3.amazonaws.com/smalldata/anomaly/ecg_discord_test.csv", 
- header = FALSE, 
- sep = ",")
-```
-
-#### Understanding dataset
-
-Personally I like to know what is in the data and how it look like!!! I will just use this link and put it into the browser. This will download the files with raw data. If I open this dataset it would not tell me much! I will plot this data in excel...
-
-
-
-Or, I can also pull the data from h2o into R and make some 3D visualizations...
-
-```{r, eval=TRUE, include=TRUE}
-library(tidyverse)
-# data frame matrix for training dataset
-matrix_train <- train_ecg %>% as.data.frame() %>% as.matrix.data.frame()
-# data frame matrix for test dataset
-matrix_test <- test_ecg %>% as.data.frame() %>% as.matrix.data.frame()
-```
-
-from there we can see that the difference between both are in the three new rows 21-23
-
-```{r, eval=FALSE, include=TRUE}
-# using library plotly to plot 3D surface
-library(plotly)
-plot_ly(z = matrix_train, type = "surface")
-
-```
-
-
-```{r, eval=FALSE, include=TRUE}
-# using library plotly to plot 3D surface
-plot_ly(z = matrix_test, type = "surface")
+# Also import our test datasets for Machines 2 and 3...
+test_M2  <- as.h2o(x = DF_M2, destination_frame = "test_M2")
+test_M3  <- as.h2o(x = DF_M3, destination_frame = "test_M3")
 
 ```
 
