@@ -183,9 +183,9 @@ Now, once we know how our data looks like we can start to do our Anomaly Model
 
 # Train deep autoencoder learning model on "normal" 
 # training data, y ignored 
-anomaly_model <- h2o.deeplearning(
- x = names(train_ecg), 
- training_frame = train_ecg, 
+normality_model <- h2o.deeplearning(
+ x = names(train_M1), 
+ training_frame = train_M1, 
  activation = "Tanh", 
  autoencoder = TRUE, 
  hidden = c(50,20,50), 
@@ -200,10 +200,10 @@ Let's use this model on our training dataset...
 
 ```{r, eval=TRUE, include=TRUE}
 # computer error of the model
-mod_error <- h2o.anomaly(anomaly_model, train_ecg)
+h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(0, 2))
 ```
 
-get it as a plot and see that the value is very low
+#### Getting to know what AI see:
 
 ```{r, eval=TRUE, include=TRUE}
 # visually see it
