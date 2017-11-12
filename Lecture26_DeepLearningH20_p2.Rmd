@@ -143,7 +143,7 @@ This should be good enough to fit our deep learning model, but before we will do
 to_matrix <- function(x, filter_Event, filter_Machine, n_cols) {
   # get intermediate object and dimension
   #filter_Event <- "Tubing Process, resistance Ohm"
-  #filter_Machine <- "Machine #1"
+  #filter_Machine <- "Machine #4"
   #x <- DF_TEMP
   #n_cols <- 150
   Step1 <- x %>% 
@@ -151,10 +151,12 @@ to_matrix <- function(x, filter_Event, filter_Machine, n_cols) {
   filter(Name == filter_Machine) %>% 
   arrange(StartDate) %>% 
   select(AnalogVal)
-  # find number of rows
+  # find number of rows of data frame
   nrows <- Step1 %>% nrow()
+  # find the number of row in a matrix
   WN <- nrows/n_cols
-  if(round(WN)-WN > 0.5){WN <- round(WN)} else {WN <- round(WN - 1)}
+  # extract the whole number
+  if((WN - round(WN)) < 0){WN <- round(WN) - 1} else {WN <- round(WN)}
   # find number of rows to extract data
   n <- n_cols * WN
   # extract relevant matrix
@@ -167,10 +169,13 @@ to_matrix <- function(x, filter_Event, filter_Machine, n_cols) {
 }
 ```
 
+
+
 ```{r}
+# set for Machine 2
 DF_M2 <- to_matrix(DF_TEMP, 
                    filter_Event = "Tubing Process, resistance Ohm",
-                   filter_Machine = "Machine #1", 
+                   filter_Machine = "Machine #2", 
                    n_cols = 150)
 ```
 
@@ -179,40 +184,28 @@ DF_M2 <- to_matrix(DF_TEMP,
 A. For machine 2:
 
 ```{r}
-DF_M2 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #2") %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(1500) %>% # only making fixed amount of rows
-  matrix(nrow = 10, ncol = 150) # transforming that into matrix size 25x200
+DF_M2 <- to_matrix(DF_TEMP, 
+                   filter_Event = "Tubing Process, resistance Ohm",
+                   filter_Machine = "Machine #2", 
+                   n_cols = 150)
 ```
 
 B. For machine 3:
 
 ```{r}
-DF_M3 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #3") %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(3000) %>% # only making fixed amount of rows
-  matrix(nrow = 20, ncol = 150) # transforming that into matrix size 25x200
+DF_M3 <- to_matrix(DF_TEMP, 
+                   filter_Event = "Tubing Process, resistance Ohm",
+                   filter_Machine = "Machine #3", 
+                   n_cols = 150)
 ```
 
 C. For machine 4:
 
 ```{r}
-DF_M4 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #4") %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(2850) %>% # only making fixed amount of rows
-  matrix(nrow = 19, ncol = 150) # transforming that into matrix size 25x200
+DF_M4 <- to_matrix(DF_TEMP, 
+                   filter_Event = "Tubing Process, resistance Ohm",
+                   filter_Machine = "Machine #4", 
+                   n_cols = 150)
 ```
 
 And we can also visualize that to confront:
@@ -296,7 +289,7 @@ Let's use this model on our training dataset...
 
 ```{r, eval=TRUE, include=TRUE}
 # computer error of the model
-h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(0, 2))
+h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(0, 2), type = "p")
 ```
 
 #### Getting to know what AI see:
@@ -310,7 +303,6 @@ test_recon_M1 <- h2o.predict(normality_model, train_M1) %>% as.matrix()
 plot_ly(z = test_recon_M1, type = "surface")
 ```
 
-![Predicted on Train Dataset][id5]
 
 #### Detect Anomaly using MSE value
 
@@ -331,19 +323,6 @@ h2o.anomaly(normality_model, test_M3) %>%  as.data.frame() %>% plot.ts(ylim = c(
 It is now telling us that behaviour of Machine 2 is much different from machine 1. And on Machine 3 we have a clearly peaks that are distinguishable to recover anomaly!
 
 **Note:** You may try to practice with Machine 4!
-
-
-#### Use Anomaly model to reconstruct Test Dataset
-
-Now we can obtain predictions, or physical values using our model. We should provide the model and test dataset
-
-```{r, eval=TRUE, include=TRUE}
-# Note: Testing = Reconstructing the test dataset
-test_recon_M3 <- h2o.predict(normality_model, test_M3) %>% as.matrix()
-plot_ly(z = test_recon_M3, type = "surface")
-```
-
-we can not definitely see those peaks as clear now however let us be satisfied with the model result and think how to implement our Deep Learning Model in ShinyApp
 
 
 #### Saving Deep Learning Model for the future use
@@ -393,13 +372,10 @@ And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiri
 paper: (https://arxiv.org/abs/1701.01887)[https://arxiv.org/abs/1701.01887]
 In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
 
-At the bottom of the document:
+
 
 [id1]: plots/M1_train.png "Data used to Train the model"
 [id2]: plots/M2_test.png "Data used to Test the model - Machine 2"
 [id3]: plots/M3_test.png "Data used to Test the model - Machine 3"
 [id4]: plots/M4_test.png "Data used to Test the model - Machine 4"
-[id5]: plots/M1_pred.png "What AI see on Train Data"
-
-
 
