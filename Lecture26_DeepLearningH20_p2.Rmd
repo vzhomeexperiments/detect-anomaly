@@ -1,17 +1,17 @@
 ---
 title: "Lecture 26 - Into Deep Learning P2"
 output:
-  pdf_document: default
-  html_notebook: default
   html_document: default
+  html_notebook: default
+  pdf_document: default
 ---
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 
-### Lecture 26 - Your project. Deep Learning with H2O. P.2 Implement on our example
+### Lecture 26 - Your project. Deep Learning with H2O. P.2 Build Deep Learning Model for our example
 
-Deep Learning... This lecture is dedicated to the implementation of Deep Learning models into R and in particular **ShinyApp**
+Deep Learning... This lecture is dedicated to the implementation of Deep Learning models into for our Data
 
 #### Work overview (from previous lecture)
 
@@ -21,7 +21,7 @@ Deep Learning... This lecture is dedicated to the implementation of Deep Learnin
 * saving models
 * implementation in our ShinyApp...
 
-The idea will be to use one particular feature e.g. **Tubing Process, Impedance** to play with
+The idea will be to use one particular feature e.g. **Tubing Process, Impedance** to play with. We will not yet implement this in Shiny but rather focus to prepare our data, fit and test the model
 
 #### Re-arranging data as a matrix
 
@@ -70,15 +70,7 @@ DF_M1 <- DF_TEMP %>%
 
 #### Transposing the data
 
-Now we need to **transpose** our data from long to wide structure!
-
-```{r}
-# transposing our dataframe
-DF_t <- as.data.frame(t(as.matrix(DF_M1)))
-head(DF_t)
-```
-
-Now, we can actually 'forget' the StartDate values and simply parse the values into matrix of dimension say 200 columns and 20 rows... Of course one need to recover some basic R skills for that :) if not use stackoverflow... (How to turn a vector into a matrix in R?)[https://stackoverflow.com/questions/14614946/how-to-turn-a-vector-into-a-matrix-in-r]
+Now we need to **transpose** our data from long to wide structure! We will 'forget' the StartDate values and simply parse the values into matrix of dimension say 150 columns and 20 rows... Of course one need to recover some basic R skills for that :) if not use stackoverflow... (How to turn a vector into a matrix in R?)[https://stackoverflow.com/questions/14614946/how-to-turn-a-vector-into-a-matrix-in-r]
 
 ```{r}
 DF_M1 <- DF_TEMP %>% 
@@ -97,11 +89,15 @@ Wonderful, let's try to see! our new object as an image!!!
 
 Let's use `plotly` 3D graph to explore what we have got!
 
-```{r}
+```{r, eval=FALSE, include=TRUE}
 library(plotly)
 plot_ly(z = DF_M1, type = "surface")
 
 ```
+
+![Values from Machine 1 used for Training][id1]
+
+
 
 This should be good enough to fit our deep learning model, but before we will do so I will 'prepare' my test datasets
 
@@ -131,21 +127,44 @@ DF_M3 <- DF_TEMP %>%
   matrix(nrow = 20, ncol = 150) # transforming that into matrix size 25x200
 ```
 
+C. For machine 4:
+
+```{r}
+DF_M4 <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #4") %>% 
+  select(AnalogVal) %>% 
+  t() %>%  # this brings us a matrix
+  as.vector() %>% # let's make it a vector
+  head(2850) %>% # only making fixed amount of rows
+  matrix(nrow = 19, ncol = 150) # transforming that into matrix size 25x200
+```
+
 And we can also visualize that to confront:
 
 For Machine 2
 
-```{r}
+```{r, eval=FALSE, include=TRUE}
 plot_ly(z = DF_M2, type = "surface")
 ```
 
+![Values from Machine 2 used for Test][id2]
+
 For Machine 3
 
-```{r}
+```{r, eval=FALSE, include=TRUE}
 plot_ly(z = DF_M3, type = "surface")
 ```
 
+![Values from Machine 3 used for Test][id3]
 
+For Machine 4
+
+```{r, eval=FALSE, include=TRUE}
+plot_ly(z = DF_M4, type = "surface")
+```
+
+![Values from Machine 4 used for Test][id4]
 
 #### Fitting the Deep Learning Model
 
@@ -171,6 +190,8 @@ train_M1 <- as.h2o(x = DF_M1, destination_frame = "train_M1")
 # Also import our test datasets for Machines 2 and 3...
 test_M2  <- as.h2o(x = DF_M2, destination_frame = "test_M2")
 test_M3  <- as.h2o(x = DF_M3, destination_frame = "test_M3")
+
+# Make your own research usign DF_M4!
 
 ```
 
@@ -207,32 +228,30 @@ h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(
 
 ```{r, eval=TRUE, include=TRUE}
 # visually see it
-h2o.anomaly(anomaly_model, train_ecg) %>% 
-  as.data.frame() %>% plot.ts(ylim = c(0, 2))
+test_recon_M1 <- h2o.predict(normality_model, train_M1) %>% as.matrix()
+plot_ly(z = test_recon_M1, type = "surface")
 ```
+
+![Predicted on Train Dataset][id5]
 
 #### Detect Anomaly using MSE value
 
-Once our model is made, we can use it to detect anomalies in our **test** dataset
-
+Now we will try to use test datasets from machine 2
 
 ```{r, eval=TRUE, include=TRUE}
 # Compute reconstruction error with the Anomaly 
 # detection app (MSE between output and input layers)
-recon_error <- h2o.anomaly(anomaly_model, test_ecg)
-
-# Pull reconstruction error data into R and 
-# plot to find outliers (last 3 heartbeats)
-df_recon_error <- as.data.frame(recon_error)
-tail(df_recon_error, 9)
+h2o.anomaly(normality_model, test_M2) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
 ```
 
-We can plot this as well
+And for machine 3
+
 ```{r, eval=TRUE, include=TRUE}
-plot.ts(df_recon_error)
+h2o.anomaly(normality_model, test_M3) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
 ```
 
-What it is telling us is that based on the new data we have anomaly in elements 21, 22, 23
+It is now telling us that behaviour of Machine 2 is much different from machine 1. And on Machine 3 we have a clearly peaks that are distinguishable to recover anomaly!
+
 
 #### Use Anomaly model to reconstruct Test Dataset
 
@@ -240,29 +259,11 @@ Now we can obtain predictions, or physical values using our model. We should pro
 
 ```{r, eval=TRUE, include=TRUE}
 # Note: Testing = Reconstructing the test dataset
-test_recon <- h2o.predict(anomaly_model, test_ecg) 
+test_recon_M3 <- h2o.predict(normality_model, test_M3) %>% as.matrix()
+plot_ly(z = test_recon_M3, type = "surface")
 ```
 
-In order to make things visible. Once again I ask excel to help... Here I simply write teh dataframe to csv and create graph in excel
-
-```{r, eval=FALSE, include=TRUE}
-# write to csv to use it in excel
-test_recon %>% as.data.frame() %>% 
-write.csv("test_predicted.csv")
-```
-
-
-#### Visualize as 3D
-
-Or we can visualize in 3D directly in R
-```{r, eval=F, include=TRUE}
-# making a matrix dataframe
-recon_matrix <- test_recon %>% as.data.frame() %>% as.matrix.data.frame()
-
-# make 3D plot
-plot_ly(z = recon_matrix, type = "surface")
-```
-
+we can not definitely see those peaks as clear now however let us be satisfied with the model result and think how to implement our Deep Learning Model in ShinyApp
 
 
 #### Saving Deep Learning Model for the future use
@@ -270,8 +271,11 @@ plot_ly(z = recon_matrix, type = "surface")
 To use our model in our ShinyApp we will save it...
 
 ```{r, eval=FALSE, include=TRUE}
-h2o.saveModel(anomaly_model, "C:/Users/fxtrams/Downloads/tmp/anomaly_model.bin")
-h2o.download_pojo(anomaly_model, "C:/Users/fxtrams/Downloads/tmp", get_jar = TRUE)
+
+if(!file.exists("www/tmp/normality_model.bin")){
+h2o.saveModel(normality_model, "www/tmp/normality_model.bin")
+h2o.download_pojo(normality_model, "www/tmp", get_jar = TRUE)
+}
 ```
 
 And let's not forget to switch off our cluster!
@@ -308,6 +312,14 @@ And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiri
 
 paper: (https://arxiv.org/abs/1701.01887)[https://arxiv.org/abs/1701.01887]
 In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
+
+At the bottom of the document:
+
+[id1]: plots/M1_train.png "Data used to Train the model"
+[id2]: plots/M2_test.png "Data used to Test the model - Machine 2"
+[id3]: plots/M3_test.png "Data used to Test the model - Machine 3"
+[id4]: plots/M3_test.png "Data used to Test the model - Machine 4"
+[id5]: plots/M1_pred.png "What AI see on Train Data"
 
 
 
