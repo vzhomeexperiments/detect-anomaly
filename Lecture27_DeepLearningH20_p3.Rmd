@@ -116,6 +116,7 @@ test_M4  <- as.h2o(x = DF_M4, destination_frame = "test_M3")
 
 
 ```{r}
+# plot the anomalies
 h2o.anomaly(normality_model, test_M4) %>% as.data.frame() %>% plot.ts(type = "p")
 ```
 
@@ -125,17 +126,34 @@ For that I will return back and construct the same matrix with a references for 
 
 
 ```{r, eval=TRUE, include=TRUE}
-# Import train data into the H2O cluster
-train_M1 <- as.h2o(x = DF_M1, destination_frame = "train_M1")
-
-# Also import our test datasets for Machines 2 and 3...
-test_M2  <- as.h2o(x = DF_M2, destination_frame = "test_M2")
-
-
-# Make your own research usign DF_M4!
-
+# generating time-series matrix corresponding to anomalies
+DF_M4_DT <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #4") %>% 
+  arrange(StartDate) %>% 
+  select(StartDate) %>% 
+  t() %>%  # this brings us a matrix
+  as.vector() %>% # let's make it a vector
+  head(2850) %>% # only making fixed amount of rows
+  matrix(nrow = 19, ncol = 150) # transforming that into matrix size 25x200
 ```
 
+Now, another time we must go out of comfort zone. Time to construct our dataframe which will contain values identified as anomalous!
+
+```{r}
+# save MSE values
+mse_out <- h2o.anomaly(normality_model, test_M4) %>% as.data.frame()
+# filter anomalies
+rows_anomals <- which(mse_out > 0.3)
+rows_normals <- which(mse_out <= 0.3)
+```
+
+This brings us to the point where we have rows indices that were classified as anomaly and other rows that were not.
+
+```{r}
+# subset rows with matrices that shows the anomalies
+
+```
 
 
 #### Calculate MSE from the train dataset
