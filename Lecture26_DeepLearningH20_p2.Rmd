@@ -163,8 +163,7 @@ to_matrix <- function(x, filter_Event, filter_Machine, n_cols) {
 }
 ```
 
-This function can definitely be easily reused for our ShinyApp. 
-
+This function can definitely be easily reused for our ShinyApp. It can be used to generate dataset for any other machine event. Code snippets below will use this function to generate 'Test' datasets.
 
 A. For machine 2:
 
@@ -203,7 +202,7 @@ plot_ly(z = DF_M2, type = "surface")
 
 ![Values from Machine 2 used for Test][id2]
 
-For Machine 3
+For Machine 3 - our candidate for anomaly detection!
 
 ```{r, eval=FALSE, include=TRUE}
 plot_ly(z = DF_M3, type = "surface")
@@ -211,7 +210,7 @@ plot_ly(z = DF_M3, type = "surface")
 
 ![Values from Machine 3 used for Test][id3]
 
-For Machine 4
+For Machine 4 - Another candidate for anomaly detection!
 
 ```{r, eval=FALSE, include=TRUE}
 plot_ly(z = DF_M4, type = "surface")
@@ -221,7 +220,7 @@ plot_ly(z = DF_M4, type = "surface")
 
 #### Fitting the Deep Learning Model
 
-Launch the machine again...
+Launch the deep learning machine again...
 
 ```{r, eval=TRUE, message=FALSE, warning=FALSE, include=TRUE}
 # to load the library
@@ -243,15 +242,14 @@ train_M1 <- as.h2o(x = DF_M1, destination_frame = "train_M1")
 # Also import our test datasets for Machines 2 and 3...
 test_M2  <- as.h2o(x = DF_M2, destination_frame = "test_M2")
 test_M3  <- as.h2o(x = DF_M3, destination_frame = "test_M3")
-
-# Make your own research usign DF_M4!
+test_M4  <- as.h2o(x = DF_M4, destination_frame = "test_M4")
 
 ```
 
 
 #### Building Deep Learning model with autoencoder
 
-Now, once we know how our data looks like we can start to do our Anomaly Model
+Now, once we know how our data looks like we can start to do our Anomaly Model.
 
 ```{r, eval=TRUE, include=TRUE}
 
@@ -274,7 +272,7 @@ Let's use this model on our training dataset...
 
 ```{r, eval=TRUE, include=TRUE}
 # computer error of the model
-h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(0, 2), type = "p")
+h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
 ```
 
 #### Getting to know what AI see:
@@ -291,7 +289,7 @@ plot_ly(z = test_recon_M1, type = "surface")
 
 #### Detect Anomaly using MSE value
 
-Now we will try to use test datasets from **machine 2**
+Now we will try to use test datasets from **machine 2**.
 
 ```{r, eval=TRUE, include=TRUE}
 # Compute reconstruction error with the Anomaly 
@@ -299,16 +297,23 @@ Now we will try to use test datasets from **machine 2**
 h2o.anomaly(normality_model, test_M2) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
 ```
 
-And for **machine 3**
+What a mess you would say - all observations are anomalous?? Yes! In fact this is correct. Indeed, sometimes AI lead to such a discoveries... In reality we observe that Machine #2 is completely different from Machine #1...
+
+And for **Machine 3**
 
 ```{r, eval=TRUE, include=TRUE}
 h2o.anomaly(normality_model, test_M3) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
 ```
 
-It is now telling us that behaviour of Machine 2 is much different from machine 1. And on Machine 3 we have a clearly peaks that are distinguishable to recover anomaly!
+Machine 3 has only anomalies at certain periods. There are general good performance while at approximately 10% of time we have a periods of anomalous behaviour...
 
-**Note:** You may try to practice with Machine 4!
+**Machine 4** You may try to practice with Machine 4!
 
+```{r, eval=TRUE, include=TRUE}
+h2o.anomaly(normality_model, test_M4) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
+```
+
+Machine 4 shows anomalies only at periods 5 and 8. Then the behavious stabilizes...
 
 #### Saving Deep Learning Model for the future use
 
@@ -330,11 +335,12 @@ h2o.shutdown(prompt= FALSE)
 
 #### Conclusion
 
-In this example the Anomaly Detection model was able to output the anomaly in rows 21-23. 
+in this lecture we have performed:
 
-It learned on the pattern of many vectors and was able to distinguish the anomaly coming on new dataset
-
-Practical use of this model can be to us function **h2o.anomaly**. In case the MSE value will be high - the anomaly is detected!
+* Time-Series data transformation from DataFrame to Matrix
+* Trained Autoencoder model on 'best' performing machine
+* Model was tested on a 'worse' performing machine
+* Model was saved in several formats for the further use
 
 #### Next step
 
