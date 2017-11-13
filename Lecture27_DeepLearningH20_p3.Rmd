@@ -232,92 +232,43 @@ Of course these manipulations with vectors and matrixes are possible. We can pac
 This will be less cumbersome and will give operators of the process possibility to have more clear understanding for interpretation...
 
 ```{r}
-# mse_out is a dataframe containing MSE error for each row of the matrix
-DF_M4c <- DF_M4
-for(i in 1:nrow(mse_out)) {
-  # we have objects DF_M4DT and DF_M4
-  for(j in 1:150){ DF_M4c[i, j] <- mse_out[i] }
+# mse_out is a dataframe containing MSE error for each row of the matrix, we replicate this... 150 times...
+DF_M4mse <- do.call(cbind, replicate(150, as.matrix(mse_out), simplify=FALSE))
+
+# going to combine this result with our objects DF_M4 and DF_M4DT
+DF_V <- DF_M4 %>% t() %>% c() %>% as.data.frame() 
+colnames(DF_V) <- "AnalogVal"
+DF_T <- DF_M4DT %>% t() %>% c() %>% as.POSIXct() %>%  as.data.frame() 
+colnames(DF_T) <- "StartDate"
+DF_A <- DF_M4mse %>% t() %>% c() %>% as.data.frame() 
+colnames(DF_A) <- "AnomalyRating"
+
+DF_F <- DF_V %>% bind_cols(DF_T, DF_A)
+
+library(RColorBrewer)
+mypalette<-brewer.pal(3,"Paired")
+
+myspecial <- c("#91cf60", "#ffffbf", "#fc8d59")
+
+ggplot(DF_F, aes(x = StartDate, y = AnalogVal, colour = AnomalyRating)) + geom_line() + scale_colour_gradientn(colours=myspecial)
+
+```
+
+
+```{r}
+ggplot(DF_F, aes(x = StartDate, y = AnalogVal, colour = AnomalyRating)) + geom_line() + 
+  geom_linerange(data=DF_F,aes(ymin=AnalogVal, ymax=AnalogVal + AnomalyRating*50))
   
 
-}
-
-VC <- mse_out 
-
-
 
 ```
 
+#### Time to Shiny?
 
+sasdfasfasfasfasdfasdfasf
+asdfasfasdfasdfasdfasdfasdf
+asdfasdfasdfasdfasfasdfasdf
 
-
-
-#### Calculate MSE from the train dataset
-
-Let's use this model on our training dataset...
-
-```{r, eval=TRUE, include=TRUE}
-# computer error of the model
-h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(0, 2))
-```
-
-#### Getting to know what AI see:
-
-```{r, eval=TRUE, include=TRUE}
-# visually see it
-test_recon_M1 <- h2o.predict(normality_model, train_M1) %>% as.matrix()
-```
-
-```{r, eval=FALSE, include=TRUE}
-plot_ly(z = test_recon_M1, type = "surface")
-```
-
-
-
-#### Detect Anomaly using MSE value
-
-Now we will try to use test datasets from **machine 2**
-
-```{r, eval=TRUE, include=TRUE}
-# Compute reconstruction error with the Anomaly 
-# detection app (MSE between output and input layers)
-h2o.anomaly(normality_model, test_M2) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
-```
-
-And for **machine 3**
-
-```{r, eval=TRUE, include=TRUE}
-h2o.anomaly(normality_model, test_M3) %>%  as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
-```
-
-It is now telling us that behaviour of Machine 2 is much different from machine 1. And on Machine 3 we have a clearly peaks that are distinguishable to recover anomaly!
-
-**Note:** You may try to practice with Machine 4!
-
-
-#### Use Anomaly model to reconstruct Test Dataset
-
-Now we can obtain predictions, or physical values using our model. We should provide the model and test dataset
-
-```{r, eval=TRUE, include=TRUE}
-# Note: Testing = Reconstructing the test dataset
-test_recon_M3 <- h2o.predict(normality_model, test_M3) %>% as.matrix()
-plot_ly(z = test_recon_M3, type = "surface")
-```
-
-we can not definitely see those peaks as clear now however let us be satisfied with the model result and think how to implement our Deep Learning Model in ShinyApp
-
-
-#### Saving Deep Learning Model for the future use
-
-To use our model in our ShinyApp we will save it...
-
-```{r, eval=FALSE, include=TRUE}
-
-if(!file.exists("www/tmp/normality_model.bin")){
-h2o.saveModel(normality_model, "www/tmp/normality_model.bin")
-h2o.download_pojo(normality_model, "www/tmp", get_jar = TRUE)
-}
-```
 
 And let's not forget to switch off our cluster!
 ```{r, eval=TRUE, include=TRUE}
@@ -327,21 +278,13 @@ h2o.shutdown(prompt= FALSE)
 
 #### Conclusion
 
-In this example the Anomaly Detection model was able to output the anomaly in rows 21-23. 
 
-It learned on the pattern of many vectors and was able to distinguish the anomaly coming on new dataset
 
-Practical use of this model can be to us function **h2o.anomaly**. In case the MSE value will be high - the anomaly is detected!
 
 #### Next step
 
-our next step will be to repeat the procedure but on our machine data. 
+...
 
-* re-arranging data as matrix
-* fitting deep learning models
-* testing the models
-* saving models
-* implementation in our ShinyApp...
 
 #### used references
 
