@@ -25,10 +25,11 @@ In order to achieve this goal we will have to perform some steps:
 
 1. Learn how to use saved model in R to make predictions
 2. Develop and implement app usage strategy
+3. Return to our time series to identify time of anomaly
 
 #### Using saved h2o model in R
 
-Finally we have our Deep Learning Model stored in the www folder:
+In the prevous lecture we have saved our Deep Learning Model in the www folder:
 
 ```{r}
 #files with model
