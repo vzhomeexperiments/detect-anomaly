@@ -195,30 +195,57 @@ matr_normalT <- DF_M4DT[rows_normals, ] #corresponding time date index
 Convert to vectors, join and mutate
 
 ```{r}
-DF_4V <- matr_anomals %>% t() %>% c() %>% as.data.frame() %>% colnames()
+# For anomalies
+DF_4V <- matr_anomals %>% t() %>% c() %>% as.data.frame() 
 colnames(DF_4V) <- "AnalogVal"
-DF_4T <- matr_anomalT %>% t() %>% c() %>% as.data.frame.vector()
+DF_4T <- matr_anomalT %>% t() %>% c() %>% as.POSIXct() %>%  as.data.frame() 
+colnames(DF_4T) <- "StartDate"
+DF_A <- DF_4T %>% bind_cols(DF_4V) %>% mutate(Anomaly = "Yes")
 
-DF_A <- DF_4T %>% bind_cols(DF_4V) 
+# For normalities
+DF_4V <- matr_normals %>% t() %>% c() %>% as.data.frame() 
+colnames(DF_4V) <- "AnalogVal"
+DF_4T <- matr_normalT %>% t() %>% c() %>% as.POSIXct() %>% as.data.frame()
+colnames(DF_4T) <- "StartDate"
+DF_N <- DF_4T %>% bind_cols(DF_4V) %>% mutate(Anomaly = "No")
+
+# join DF_A and DF_N...
+DF_M4L <- DF_A %>% bind_rows(DF_N) %>% arrange(StartDate)
+
+
 ```
 
+Let's plot this
+
+```{r}
+ggplot(DF_M4L, aes(x = StartDate, y = AnalogVal, col = as.factor(Anomaly))) + geom_line()
+```
+
+Indeed it make sense! This is what we want for our shinyapp...
+
+Still some steps to do: 
+
+#### try to merge the MSE and interpret as anomaly level
+
+Of course these manipulations with vectors and matrixes are possible. We can pack them to functions and so on. Before implementation, what about to simply convert the obtained result to another column that we can plot in parallel as a level of probability to have an anomaly in the data...
+
+This will be less cumbersome and will give operators of the process possibility to have more clear understanding for interpretation...
+
+```{r}
+# mse_out is a dataframe containing MSE error for each row of the matrix
+DF_M4c <- DF_M4
+for(i in 1:nrow(mse_out)) {
+  # we have objects DF_M4DT and DF_M4
+  for(j in 1:150){ DF_M4c[i, j] <- mse_out[i] }
+  
+
+}
+
+VC <- mse_out 
 
 
-Now, another time we must go out of comfort zone. Time to construct our dataframe which will contain values identified as anomalous!
 
-
-
-This brings us to the point where we have rows indices that were classified as anomaly and other rows that were not.
-
-
-
-
-
-Final sprint - bring original dataframe with anomaly labels
-
-
-
-
+```
 
 
 
