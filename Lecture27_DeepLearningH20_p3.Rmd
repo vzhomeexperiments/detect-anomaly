@@ -31,9 +31,9 @@ In order to achieve this goal we will have to perform some steps:
 
 In the prevous lecture we have saved our Deep Learning Model in the www folder:
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 #files with model
-file.info("www/tmp/normality_model.bin/DeepLearning_model_R_1510476990600_1")
+file.info("www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1")
 ```
 One of the Goals of this lecture will be to see how to use this model in R to make predictions
 
@@ -44,8 +44,9 @@ We know that two types of strategy are possible
 1. use a binary model 
 2. export a model to MOJO (or POJO) form
 
-
 #### Using Binary Model to make predictions
+
+We will first use the first option to actually keep H2O on the background to make predictions
 
 ```{r, message=FALSE, warning=FALSE}
 library(h2o)
@@ -59,7 +60,7 @@ Initializing H2O and loading the model
 # initialize h2o
 h2o.init()
 # load model
-normality_model <- h2o.loadModel("www/tmp/normality_model.bin/DeepLearning_model_R_1510476990600_1") 
+normality_model <- h2o.loadModel("www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1") 
 ```
 
 We will also need to quickly construct the dataset we can predict the result
@@ -88,50 +89,14 @@ DF_TEMP <- DF_Data_Recent %>%
 Will be using Machine #4 for that
 
 ```{r}
-# extracting only one machine
+# importing R function from file
+source("to_matrix.R")
+
 DF_M4 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #4") %>% 
-  arrange(StartDate) %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(2850) %>% # only making fixed amount of rows
-  matrix(nrow = 19, ncol = 150) %>% # transforming that into matrix size 25x200
-  t() # transpose matrix to be able to detect anomalies in one row of lenght 150
+  to_matrix(filter_Event = "Tubing Process, resistance Ohm",
+            filter_Machine = "Machine #4",n_cols = 150)
 ```
 
-```{r}
-#side note - understand convertion to matrix
-DF_s <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #4") %>% 
-  arrange(StartDate) %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(30) %>% # only making fixed amount of rows
-  matrix(nrow = 5, ncol = 6)
-
-DF_s1 <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #4") %>% 
-  arrange(StartDate) %>% 
-  select(AnalogVal) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(30) %>% # only making fixed amount of rows
-  matrix(nrow = 5, ncol = 6) %>% 
-  t()
-```
-
-
-
-Before prediction we can visualize what we have got
-
-```{r, eval=FALSE, include=TRUE}
-plot_ly(z = DF_M4, type = "surface")
-```
 
 #### Predicting anomaly on Machine 4
 
@@ -139,7 +104,7 @@ In order to predict on `DF_M4` dataset we need to make it H2OFrame class. We nee
 
 ```{r}
 # load dataset into H2O environment
-test_M4  <- as.h2o(x = DF_M4, destination_frame = "test_M3")
+test_M4  <- as.h2o(x = DF_M4, destination_frame = "test_M4")
 ```
 
 
@@ -148,44 +113,24 @@ test_M4  <- as.h2o(x = DF_M4, destination_frame = "test_M3")
 h2o.anomaly(normality_model, test_M4) %>% as.data.frame() %>% plot.ts(type = "p")
 ```
 
-This brings us to the point of identifying anomaly on rows 6, 7, 12, 14. But we need to think yet how to interpret these points for the user. So far these points have no meaning. Hence we shall return to original times and parameters of when the eventual anomaly/problem occurred.
-
-For that I will return back and construct the same matrix with a references for the dates
-
-
-```{r, eval=TRUE, include=TRUE}
-# generating time-series matrix corresponding to anomalies
-DF_M4_DT <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
-  filter(Name == "Machine #4") %>% 
-  arrange(StartDate) %>% 
-  select(StartDate) %>% 
-  t() %>%  # this brings us a matrix
-  as.vector() %>% # let's make it a vector
-  head(2850) %>% # only making fixed amount of rows
-  matrix(nrow = 19, ncol = 150) # transforming that into matrix size 25x200
-```
-
-Now, another time we must go out of comfort zone. Time to construct our dataframe which will contain values identified as anomalous!
+This brings us to the point of create a 'cutoff' which I will set as 0.25. MSE values scored above this value will be identifyed as anomaly. 
 
 ```{r}
 # save MSE values
 mse_out <- h2o.anomaly(normality_model, test_M4) %>% as.data.frame()
 # filter anomalies
-rows_anomals <- which(mse_out > 0.3)
-rows_normals <- which(mse_out <= 0.3)
+rows_anomals <- which(mse_out > 0.25)
+rows_normals <- which(mse_out <= 0.25)
 ```
 
-This brings us to the point where we have rows indices that were classified as anomaly and other rows that were not.
+Using these rows we can 'label' or subset our anomalous observations
 
 ```{r}
 # subset rows with matrices that shows the anomalies
 matr_anomals <- DF_M4[rows_anomals, ]
-matr_anomalT <- DF_M4_DT[rows_anomals, ] #corresponding time date index
 
 # subset rows with matrices that does not show the anomalies
 matr_normals <- DF_M4[rows_normals, ] 
-matr_normalT <- DF_M4_DT[rows_normals, ] #corresponding time date index
 ```
 
 Just out of curiosity I will plot the anomalies values as 3D plot
@@ -193,14 +138,81 @@ Just out of curiosity I will plot the anomalies values as 3D plot
 ```{r, eval=FALSE, include=TRUE}
 plot_ly(z = matr_anomals, type = "surface")
 ```
+![Extracted observations with anomaly][id1]
 
-And alsow those without
+This is wonderful! High anomalous spikes were detected!
+
+And also those without
 
 ```{r, eval=FALSE, include=TRUE}
 plot_ly(z = matr_normals, type = "surface")
 ```
 
-This is wonderful! High anomalous spikes were detected!
+There is no spikes! 
+
+![Data points without anomaly][id2]
+
+#### Catching corresponding dates & time
+
+Once we learned to process our data through the model, split 'faulty' observations we will need to come back to reference our faulty observations over time. Perhaps there are ways to solve this problem in a more efficient way, but I will attempt to:
+
+* extract corresponding date time
+* extract matrixes with faults for both values and time
+* convert matrices to vectors
+* join faulty observations with corresponding time, add new column with label "1"
+* join 'good' observations with corresponding time, add new column with label "0"
+* construct the dataframes and arrange them back
+
+To extract the time... I have modified our function that extracts `AnalogVal` variable and saved that to the R script `to_matrixDT.R`
+
+```{r}
+# importing R function from file
+source("to_matrixDT.R")
+```
+
+Let's use this function to extract corresponding Date and Time...
+
+```{r, eval=TRUE, include=TRUE}
+# prepared matrix containing date and time elements
+DF_M4DT <- to_matrixDT(DF_TEMP, 
+                   filter_Event = "Tubing Process, resistance Ohm",
+                   filter_Machine = "Machine #4", 
+                   n_cols = 150)
+```
+
+now I can extract corresponding matrixes
+
+```{r}
+# subset rows with matrices that shows the anomalies
+matr_anomals <- DF_M4[rows_anomals, ]
+matr_anomalT <- DF_M4DT[rows_anomals, ] #corresponding time date index
+
+# subset rows with matrices that does not show the anomalies
+matr_normals <- DF_M4[rows_normals, ] 
+matr_normalT <- DF_M4DT[rows_normals, ] #corresponding time date index
+```
+
+Convert to vectors, join and mutate
+
+```{r}
+DF_4V <- matr_anomals %>% t() %>% c() %>% as.data.frame() %>% colnames()
+colnames(DF_4V) <- "AnalogVal"
+DF_4T <- matr_anomalT %>% t() %>% c() %>% as.data.frame.vector()
+
+DF_A <- DF_4T %>% bind_cols(DF_4V) 
+```
+
+
+
+Now, another time we must go out of comfort zone. Time to construct our dataframe which will contain values identified as anomalous!
+
+
+
+This brings us to the point where we have rows indices that were classified as anomaly and other rows that were not.
+
+
+
+
 
 Final sprint - bring original dataframe with anomaly labels
 
@@ -232,7 +244,7 @@ test_recon_M1 <- h2o.predict(normality_model, train_M1) %>% as.matrix()
 plot_ly(z = test_recon_M1, type = "surface")
 ```
 
-![Predicted on Train Dataset][id5]
+
 
 #### Detect Anomaly using MSE value
 
@@ -317,13 +329,10 @@ And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiri
 paper: (https://arxiv.org/abs/1701.01887)[https://arxiv.org/abs/1701.01887]
 In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
 
-At the bottom of the document:
 
-[id1]: plots/M1_train.png "Data used to Train the model"
-[id2]: plots/M2_test.png "Data used to Test the model - Machine 2"
-[id3]: plots/M3_test.png "Data used to Test the model - Machine 3"
-[id4]: plots/M4_test.png "Data used to Test the model - Machine 4"
-[id5]: plots/M1_pred.png "What AI see on Train Data"
+
+[id1]: plots/M4_anomaly.png "Extracted observations with anomaly"
+[id2]: plots/M4_no_anomaly.png "Observations without anomaly"
 
 
 
