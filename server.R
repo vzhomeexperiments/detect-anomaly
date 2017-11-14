@@ -11,6 +11,7 @@ library(tidyverse)
 library(scales)
 library(plyr)
 library(magrittr)
+library(h2o)
 
 # ================================= 
 # importing data (code will be run once)
@@ -33,8 +34,13 @@ DF_TEMP <- DF_Data %>%
 # ================================= 
 
 # ================================= 
-# scoring using Deep Learning Model
-
+# scoring using Deep Learning Model - perform scoring before app loading!
+Machines <- c("Machine #1", "Machine #2")
+DF_TEMP_MSE <- anomalyscore_machines(x = DF_TEMP,
+                                     Machines = Machines,
+                                     path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1",
+                                     event_name = "Tubing Process, resistance Ohm",
+                                     n_cols = 150)
 
 
 
