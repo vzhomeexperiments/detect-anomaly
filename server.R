@@ -12,6 +12,7 @@ library(scales)
 library(plyr)
 library(magrittr)
 library(h2o)
+library(RColorBrewer)
 
 # ================================= 
 # importing data (code will be run once)
@@ -35,15 +36,13 @@ DF_TEMP <- DF_Data %>%
 
 # ================================= 
 # scoring using Deep Learning Model - perform scoring before app loading!
-Machines <- c("Machine #1", "Machine #2")
-DF_TEMP_MSE <- anomalyscore_machines(x = DF_TEMP,
-                                     Machines = Machines,
-                                     path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1",
-                                     event_name = "Tubing Process, resistance Ohm",
-                                     n_cols = 150)
+Machines <- c("Machine #1", "Machine #2", "Machine #3", "Machine #4")
 
-
-
+DF_TEMP_MSE <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  anomalyscore_machines(Machines = Machines,
+                        path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1",
+                        n_cols = 150)
 
 
 # ================================= 
@@ -64,6 +63,11 @@ shinyServer(function(input, output, session) {
   
 # =================================  
 
+  
+  
+  
+  
+  
 # =================================
     # save as data frame data used for statistics in other render functions
   DF_SUM <- reactive({
@@ -174,6 +178,18 @@ shinyServer(function(input, output, session) {
               subtitle = "Different colors may highlight potential anomaly") 
 
   }
+  
+  # Function to draw Anomaly plot neural network
+  nnPlot <- function(){
+    
+    mypalette <- c("#91cf60", "#fc8d59", "#fc8d60") 
+    
+    DF_TEMP_MSE %>% 
+        ggplot(aes(x = StartDate, y = AnalogVal, colour = AnomalyRating)) + 
+      geom_line() + facet_wrap(~Name) +
+      scale_colour_gradientn(colours=mypalette)
+    
+  }
 # =================================  
 # OUTPUTS
 # =================================  
@@ -196,6 +212,12 @@ shinyServer(function(input, output, session) {
   output$Plot3 <- renderPlot({ 
     ggsave("plot.png", plot = deviationPlot(), device = "png")
     deviationPlot() }, height = "auto", width = 650)
+  
+  # ================================= 
+  ### Render function to create plot Anomaly:
+  output$Plot4 <- renderPlot({ 
+    ggsave("plot.png", plot = nnPlot(), device = "png")
+    nnPlot() }, height = "auto", width = 650)
   
   # ================================= 
   ### download plot:
