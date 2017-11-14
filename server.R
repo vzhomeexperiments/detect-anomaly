@@ -32,6 +32,17 @@ DF_TEMP <- DF_Data %>%
   select(StartDate, Name, AnalogVal, EventText)
 # ================================= 
 
+# ================================= 
+# scoring using Deep Learning Model
+
+
+
+
+
+
+# ================================= 
+
+
 shinyServer(function(input, output, session) {
 
 # =================================  

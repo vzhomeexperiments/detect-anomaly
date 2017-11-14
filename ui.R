@@ -51,7 +51,8 @@ dashboardPage(
                                    column(4, numericInput(inputId = "numClasses", label = "Select Number of Classes", 
                                                           value = 2, min = 1, max = 4, step = 1)),
                                    column(4, checkboxInput(inputId = "scaled", label = "Scale Data?", value = FALSE)), hr(),
-                                   plotOutput(outputId = "Plot3"))
+                                   plotOutput(outputId = "Plot3")),
+        tabPanel("Plot - Anomaly NN", plotOutput(outputId = "Plot4"))
       )  
     )
   )
