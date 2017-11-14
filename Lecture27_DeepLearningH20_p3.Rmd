@@ -19,8 +19,8 @@ Deep Learning... This lecture is dedicated to the implementation of Deep Learnin
 * fitting deep learning models - DONE
 * testing the models - DONE
 * saving models - DONE
-* use model to make predictions and create meaningful ouputs - to be covered in this lecture
-* implementation in our ShinyApp... - next lecture
+* use model to make predictions and create meaningful ouputs 
+* implementation in our ShinyApp... 
 
 In order to achieve this goal  we will have to perform some steps:
 
@@ -28,6 +28,7 @@ In order to achieve this goal  we will have to perform some steps:
 2. Develop and app usage strategy graphical output 
 3. Return to our time series to identify time of anomaly
 4. 'Pack' our code to functions
+5. Add Tab for Anomaly Detection with Shiny
 
 
 #### Using saved h2o model in R
