@@ -228,7 +228,7 @@ Will be using a color pallet to output the result as a continous scale
 
 ```{r}
 library(RColorBrewer)
-mypalette<-brewer.pal(3,"Paired")
+
 
 myspecial <- c("#91cf60", "#fc8d59", "#fc8d60") 
 
