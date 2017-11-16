@@ -218,7 +218,7 @@ DF_A <- DF_M4mse %>% t() %>% c() %>% as.data.frame()
 colnames(DF_A) <- "AnomalyRating"
 
 # return final dataframe:
-DF_F <- DF_V %>% bind_cols(DF_T, DF_A)
+DF_F <- bind_cols(DF_T, DF_V, DF_A)
 head(DF_F)
 ```
 
@@ -228,7 +228,7 @@ Will be using a color pallet to output the result as a continous scale
 
 ```{r}
 library(RColorBrewer)
-
+#http://colorbrewer.org
 
 myspecial <- c("#91cf60", "#fc8d59", "#fc8d60") 
 
