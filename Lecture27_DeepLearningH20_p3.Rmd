@@ -314,12 +314,7 @@ The phylosophy that was already explained in the course (I discovered that later
 And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiring.github.io/machine_learning/2017/05/01/fraud]
 
 paper: (https://arxiv.org/abs/1701.01887)[https://arxiv.org/abs/1701.01887]
-In this lecture we would explore the 'technology' on the sample and try to do this in 10 min lecture!
-
 
 
 [id1]: plots/M4_anomaly.png "Extracted observations with anomaly"
 [id2]: plots/M4_no_anomaly.png "Observations without anomaly"
-
-
-

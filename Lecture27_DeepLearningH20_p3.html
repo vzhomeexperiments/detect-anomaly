@@ -131,8 +131,8 @@ $(document).ready(function () {
 <li>fitting deep learning models - DONE</li>
 <li>testing the models - DONE</li>
 <li>saving models - DONE</li>
-<li>use model to make predictions and create meaningful ouputs - to be covered in this lecture</li>
-<li>implementation in our ShinyApp… - next lecture</li>
+<li>use model to make predictions and create meaningful ouputs</li>
+<li>implementation in our ShinyApp…</li>
 </ul>
 <p>In order to achieve this goal we will have to perform some steps:</p>
 <ol style="list-style-type: decimal">
@@ -140,6 +140,7 @@ $(document).ready(function () {
 <li>Develop and app usage strategy graphical output</li>
 <li>Return to our time series to identify time of anomaly</li>
 <li>‘Pack’ our code to functions</li>
+<li>Add Tab for Anomaly Detection with Shiny</li>
 </ol>
 </div>
 <div id="using-saved-h2o-model-in-r" class="section level4">
@@ -154,11 +155,11 @@ file.info(&quot;www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1
 ##                                                                  mode
 ## www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1  666
 ##                                                                                mtime
-## www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1 2017-11-13 20:04:33
+## www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1 2017-11-16 21:28:35
 ##                                                                                ctime
-## www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1 2017-11-13 20:04:46
+## www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1 2017-11-16 21:28:35
 ##                                                                                atime
-## www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1 2017-11-13 20:04:46
+## www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1 2017-11-16 21:28:35
 ##                                                                  exe
 ## www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1  no</code></pre>
 <p>One of the Goals of this lecture will be to see how to use this model in R to make predictions</p>
@@ -182,17 +183,17 @@ h2o.init()</code></pre>
 ## H2O is not running yet, starting it now...
 ## 
 ## Note:  In case of errors look at the following log files:
-##     C:\Users\fxtrams\AppData\Local\Temp\Rtmp082nlA/h2o_fxtrams_started_from_r.out
-##     C:\Users\fxtrams\AppData\Local\Temp\Rtmp082nlA/h2o_fxtrams_started_from_r.err
+##     C:\Users\fxtrams\AppData\Local\Temp\RtmpMdqq6x/h2o_fxtrams_started_from_r.out
+##     C:\Users\fxtrams\AppData\Local\Temp\RtmpMdqq6x/h2o_fxtrams_started_from_r.err
 ## 
 ## 
 ## Starting H2O JVM and connecting: . Connection successful!
 ## 
 ## R is connected to the H2O cluster: 
-##     H2O cluster uptime:         2 seconds 125 milliseconds 
+##     H2O cluster uptime:         2 seconds 56 milliseconds 
 ##     H2O cluster version:        3.14.0.7 
-##     H2O cluster version age:    24 days  
-##     H2O cluster name:           H2O_started_from_R_fxtrams_vps013 
+##     H2O cluster version age:    27 days  
+##     H2O cluster name:           H2O_started_from_R_fxtrams_kkj531 
 ##     H2O cluster total nodes:    1 
 ##     H2O cluster total memory:   1.77 GB 
 ##     H2O cluster total cores:    4 
@@ -314,21 +315,21 @@ DF_A &lt;- DF_M4mse %&gt;% t() %&gt;% c() %&gt;% as.data.frame()
 colnames(DF_A) &lt;- &quot;AnomalyRating&quot;
 
 # return final dataframe:
-DF_F &lt;- DF_V %&gt;% bind_cols(DF_T, DF_A)
+DF_F &lt;- bind_cols(DF_T, DF_V, DF_A)
 head(DF_F)</code></pre>
-<pre><code>##   AnalogVal           StartDate AnomalyRating
-## 1        45 2017-09-03 17:44:53      0.107516
-## 2        45 2017-09-03 17:49:53      0.107516
-## 3        53 2017-09-03 17:54:07      0.107516
-## 4        46 2017-09-03 17:54:13      0.107516
-## 5        46 2017-09-03 17:54:53      0.107516
-## 6        46 2017-09-03 17:59:53      0.107516</code></pre>
+<pre><code>##             StartDate AnalogVal AnomalyRating
+## 1 2017-09-03 17:44:53        45      0.107516
+## 2 2017-09-03 17:49:53        45      0.107516
+## 3 2017-09-03 17:54:07        53      0.107516
+## 4 2017-09-03 17:54:13        46      0.107516
+## 5 2017-09-03 17:54:53        46      0.107516
+## 6 2017-09-03 17:59:53        46      0.107516</code></pre>
 </div>
 <div id="visualize-the-result" class="section level4">
 <h4>Visualize the result</h4>
 <p>Will be using a color pallet to output the result as a continous scale</p>
 <pre class="r"><code>library(RColorBrewer)
-mypalette&lt;-brewer.pal(3,&quot;Paired&quot;)
+#http://colorbrewer.org
 
 myspecial &lt;- c(&quot;#91cf60&quot;, &quot;#fc8d59&quot;, &quot;#fc8d60&quot;) 
 
@@ -396,7 +397,7 @@ DF_M4_Ready &lt;- from_matrix(mse_out, DF_M4, DF_M4DT)</code></pre>
 <p>More reading: (<a href="https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true" class="uri">https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true</a>)[<a href="https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true" class="uri">https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true</a>]</p>
 <p>The phylosophy that was already explained in the course (I discovered that later…:) : (<a href="https://dzone.com/articles/dive-deep-into-deep-learning-using-h2o-1" class="uri">https://dzone.com/articles/dive-deep-into-deep-learning-using-h2o-1</a>)[<a href="https://dzone.com/articles/dive-deep-into-deep-learning-using-h2o-1" class="uri">https://dzone.com/articles/dive-deep-into-deep-learning-using-h2o-1</a>]</p>
 <p>And: (<a href="https://shiring.github.io/machine_learning/2017/05/01/fraud" class="uri">https://shiring.github.io/machine_learning/2017/05/01/fraud</a>)[<a href="https://shiring.github.io/machine_learning/2017/05/01/fraud" class="uri">https://shiring.github.io/machine_learning/2017/05/01/fraud</a>]</p>
-<p>paper: (<a href="https://arxiv.org/abs/1701.01887" class="uri">https://arxiv.org/abs/1701.01887</a>)[<a href="https://arxiv.org/abs/1701.01887" class="uri">https://arxiv.org/abs/1701.01887</a>] In this lecture we would explore the ‘technology’ on the sample and try to do this in 10 min lecture!</p>
+<p>paper: (<a href="https://arxiv.org/abs/1701.01887" class="uri">https://arxiv.org/abs/1701.01887</a>)[<a href="https://arxiv.org/abs/1701.01887" class="uri">https://arxiv.org/abs/1701.01887</a>]</p>
 </div>
 </div>
 
