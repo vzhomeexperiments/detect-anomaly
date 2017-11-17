@@ -38,11 +38,13 @@ DF_TEMP <- DF_Data %>%
 # scoring using Deep Learning Model - perform scoring before app loading!
 Machines <- c("Machine #1", "Machine #2", "Machine #3", "Machine #4")
 
+# Dataset generated for Anomaly detection with Deep Learning Algorithm
 DF_TEMP_MSE <- DF_TEMP %>% 
   filter(EventText == "Tubing Process, resistance Ohm") %>% 
   anomalyscore_machines(Machines = Machines,
                         path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1",
                         n_cols = 150)
+
 
 
 # ================================= 
