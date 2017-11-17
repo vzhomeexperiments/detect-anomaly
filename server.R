@@ -64,10 +64,6 @@ shinyServer(function(input, output, session) {
 # =================================  
 
   
-  
-  
-  
-  
 # =================================
     # save as data frame data used for statistics in other render functions
   DF_SUM <- reactive({
@@ -128,7 +124,18 @@ shinyServer(function(input, output, session) {
     
   })
   
+  # =================================  
+  # Filter data with anomaly detection
+  DF_SUM_NN <- reactive({
+    
+    # filter data by date
+    DF_TEMP_MSE %>% 
+      filter(StartDate > StartDate()) %>% 
+      filter(StartDate < EndDate())
+    
+  })
   
+    
 # =================================  
 # FUNCTIONS
 # =================================  
@@ -184,7 +191,7 @@ shinyServer(function(input, output, session) {
     
     mypalette <- c("#91cf60", "#fc8d59", "#fc8d60") 
     
-    DF_TEMP_MSE %>% 
+    DF_SUM_NN() %>% 
         ggplot(aes(x = StartDate, y = AnalogVal, colour = AnomalyRating)) + 
       geom_line() + facet_wrap(~Name) +
       scale_colour_gradientn(colours=mypalette)
