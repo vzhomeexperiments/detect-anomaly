@@ -190,11 +190,12 @@ shinyServer(function(input, output, session) {
   
   # Function to draw Anomaly plot neural network
   nnPlot <- function(){
-    
+    # define color palette
     mypalette <- c("#91cf60", "#fc8d59", "#fc8d60") 
     
+    # create simple chart with color layer
     DF_SUM_NN() %>% 
-        ggplot(aes(x = StartDate, y = AnalogVal, colour = AnomalyRating)) + 
+      ggplot(aes(x = StartDate, y = AnalogVal, colour = AnomalyRating)) + 
       geom_line() + facet_wrap(~Name) +
       scale_colour_gradientn(colours=mypalette)
     
