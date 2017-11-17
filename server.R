@@ -56,6 +56,7 @@ shinyServer(function(input, output, session) {
   EndDate <- reactive( {as.POSIXct(input$DateEnd)} )
   StatErr <- reactive( {input$cboxSE} )
   Classes <- reactive({input$numClasses})
+  MachInp <- reactive({input$machInp})
   # # uncomment for debugging...
   # StartDate <- "2017-04-20 00:10:20"
   # EndDate <- "2017-08-20 00:10:20"
@@ -130,6 +131,7 @@ shinyServer(function(input, output, session) {
     
     # filter data by date
     DF_TEMP_MSE %>% 
+      filter(Name %in% MachInp()) %>% 
       filter(StartDate > StartDate()) %>% 
       filter(StartDate < EndDate())
     

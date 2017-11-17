@@ -16,6 +16,7 @@ library(tidyverse)
 
 # Define choices for selectInput function (it is containing steps the user can filter)
 stepsChoices <- read_csv("DF_EvCodeDataProject.csv") %$% sort(EventText)
+Machines <- c("Machine #1", "Machine #2", "Machine #3", "Machine #4")
 
 # Shiny User Interface 
 dashboardPage(
@@ -52,7 +53,10 @@ dashboardPage(
                                                           value = 2, min = 1, max = 4, step = 1)),
                                    column(4, checkboxInput(inputId = "scaled", label = "Scale Data?", value = FALSE)), hr(),
                                    plotOutput(outputId = "Plot3")),
-        tabPanel("Plot - Anomaly NN", plotOutput(outputId = "Plot4"))
+        tabPanel("Plot - Anomaly NN", checkboxGroupInput(inputId = "machInp", label = "Select Machines", choices = Machines,
+                                                         selected = Machines, inline = TRUE, width = NULL, 
+                                                         choiceNames = NULL, choiceValues = NULL),
+                 plotOutput(outputId = "Plot4"))
       )  
     )
   )
