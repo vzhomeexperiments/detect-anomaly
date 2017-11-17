@@ -9,9 +9,7 @@ anomalyscore_machines <- function(x, Machines, path_to_model, n_cols = 150){
   # x - dataframe containing DF_TEMP data structure
   # path to model - location of the Model stored as a .bin object
   # Machines - vector containing machine names
-  # initialize h2o
-  #h2o.init()
-  
+
   for(i in 1:length(Machines)){
     # extract one machine, all events
     DF_A <- x %>% 
@@ -33,8 +31,7 @@ anomalyscore_machines <- function(x, Machines, path_to_model, n_cols = 150){
     }  
     
   }
-  # shutdown h2o
-  #h2o.shutdown(prompt = FALSE)
+
   return(DF_SUM)
 }
 
