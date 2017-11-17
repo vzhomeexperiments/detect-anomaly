@@ -38,13 +38,29 @@ DF_TEMP <- DF_Data %>%
 # scoring using Deep Learning Model - perform scoring before app loading!
 Machines <- c("Machine #1", "Machine #2", "Machine #3", "Machine #4")
 
-# Dataset generated for Anomaly detection with Deep Learning Algorithm
-DF_TEMP_MSE <- DF_TEMP %>% 
+# =========== DEEP LEARNING ========== #
+h2o.init()
+# Datasets generated for Anomaly detection with Deep Learning Algorithm
+# "Tubing Process, resistance Ohm"
+DF_TEMP_TPR <- DF_TEMP %>% 
   filter(EventText == "Tubing Process, resistance Ohm") %>% 
   anomalyscore_machines(Machines = Machines,
                         path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1",
                         n_cols = 150)
 
+# "Tubing Process, Phase"
+DF_TEMP_TPA <- DF_TEMP %>%
+  filter(EventText == "Tubing Process, phase angle") %>%
+  anomalyscore_machines(Machines = Machines,
+                        path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510950315727_1",
+                        n_cols = 150)
+
+
+h2o.shutdown(prompt = F)
+# bind results
+DF_TEMP_MSE <- bind_rows(DF_TEMP_TPR, DF_TEMP_TPA)
+
+# =========== DEEP LEARNING ========== #
 
 
 # ================================= 
@@ -197,6 +213,7 @@ shinyServer(function(input, output, session) {
     
     # create simple chart with color layer
     DF_SUM_NN() %>% 
+      filter(EventText == input$selInput) %>% 
       ggplot(aes(x = StartDate, y = AnalogVal, colour = AnomalyRating)) + 
       geom_line() + facet_wrap(~Name) +
       scale_colour_gradientn(colours=mypalette)

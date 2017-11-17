@@ -1,5 +1,5 @@
 ---
-title: "Lecture 27 - Into Deep Learning P3"
+title: "Lecture 28 - Into Deep Learning P4"
 output:
   html_document: default
   html_notebook: default
@@ -9,29 +9,18 @@ output:
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 
-### Lecture 27 - Your project. Deep Learning with H2O. P.2 Implement Deep Learning Model to ShinyApp
+### Lecture 28 - Your project. Deep Learning with H2O. P.4 Implement Deep Learning Model to ShinyApp
 
 Deep Learning... This lecture is dedicated to the implementation of Deep Learning models into for our Data
 
 #### Work overview (from previous lectures)
 
-* re-arranging data as matrix - DONE
-* fitting deep learning models - DONE
-* testing the models - DONE
-* saving models - DONE
-* use model to make predictions and create meaningful ouputs 
-* implementation in our ShinyApp... 
-
-In order to achieve this goal  we will have to perform some steps:
-
-1. Learn how to use saved model in R to make predictions
-2. Develop and app usage strategy graphical output 
-3. Return to our time series to identify time of anomaly
-4. 'Pack' our code to functions
-5. Add Tab for Anomaly Detection with Shiny
+* Review App
+* Reverse Engineer
+* Recommendations
 
 
-#### Using saved h2o model in R
+#### 
 
 In the prevous lecture we have saved our Deep Learning Model in the www folder:
 
@@ -303,17 +292,79 @@ Below are the things we did in this lecture:
 With that we are now ready to implement our Anomaly Detection with Deep Learning in ShinyApp
 
 
-#### used references
+#### Train Models
 
-example from: (https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o)[https://dzone.com/articles/anomaly-detection-with-deep-learning-in-r-with-h2o]
+```{r}
+# ============= READ DATA =================
+# Read our small data ... 
+DF_Data_Recent <- readRDS("DF_Data_Process_Recent.data") 
 
-More reading: (https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true)[https://dzone.com/articles/the-basics-of-deep-learning-how-to-apply-it-to-pre?fromrel=true]
+DF_Equipm <- read_csv("DF_EquipmData.csv")
+# data frame containing Event Names
+DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
 
-The phylosophy that was already explained in the course (I discovered that later...:) : (https://dzone.com/articles/dive-deep-into-deep-learning-using-h2o-1)[https://dzone.com/articles/dive-deep-into-deep-learning-using-h2o-1]
+# Data manipulation and saving to the DF_TEMP
+DF_TEMP <- DF_Data_Recent %>% 
+  # join to decode equipment serial number
+  inner_join(DF_Equipm, by = "IDEquipment") %>% 
+  # join to decode Event Code meaning
+  inner_join(DF_EvCode, by = "EventCode") %>% 
+  # select only column needed
+  select(StartDate, Name, AnalogVal, EventText)
 
-And: (https://shiring.github.io/machine_learning/2017/05/01/fraud)[https://shiring.github.io/machine_learning/2017/05/01/fraud]
+# Visualize
+DF_TEMP %>% 
+  filter(EventText == "Tubing Process, phase angle") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
 
-paper: (https://arxiv.org/abs/1701.01887)[https://arxiv.org/abs/1701.01887]
+```
+
+```{r}
+# Choose best machine to train model - Machine 1 (Domain Knowldege), extract data
+# "Tubing Process, Phase"
+DF_TEMP_TPA <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, phase angle") %>% 
+  filter(Name == "Machine #1") %>% 
+  select(StartDate, AnalogVal) %>% 
+  arrange(StartDate)
+
+# transform to 2 matrixes
+source("to_matrix.R")
+source("to_matrixDT.R")
+
+DF_M1 <- to_m(DF_TEMP_TPA, 150)
+DF_M1t<- to_mDT(DF_TEMP_TPA, 150)
+
+```
+
+```{r}
+library(h2o)
+
+# to initialize the 'machine'
+localH2O = h2o.init()
+
+train_M1 <- as.h2o(x = DF_M1, destination_frame = "train_M1")
+
+normality_model <- h2o.deeplearning(
+ x = names(train_M1), 
+ training_frame = train_M1, 
+ activation = "Tanh", 
+ autoencoder = TRUE, 
+ hidden = c(50,20,50), 
+ sparse = TRUE,
+ l1 = 1e-4, 
+ epochs = 100)
+
+# computer error of the model
+h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
+
+# save model
+h2o.saveModel(normality_model, "www/tmp/normality_model.bin")
+
+# shutdown
+h2o.shutdown(prompt = F)
+```
+
 
 
 [id1]: plots/M4_anomaly.png "Extracted observations with anomaly"
