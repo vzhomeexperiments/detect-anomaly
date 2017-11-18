@@ -18,283 +18,34 @@ Deep Learning... This lecture is dedicated to the implementation of Deep Learnin
 * Review App
 * Reverse Engineer
 * Recommendations
+* Template to train NN models
+
+#### Review the App
+
+Open Scripts ui.R, server.R and global.R. Run the App...
+
+#### Reverse Engineer
+
+Follow the R scripts and below diagram to find elements of the ShinyApp
+
+![Architecture][id1]
+
+#### AI Project recommendations
+
+Below are some of my personal recommendations:
+
+* Learn Deep Learning model by starting from provided template. Increase/decrease complexity of the model and monitor MSE score. Choose the one that less complex with reasonably low MSE score
+* Start simple and small having greater idea in mind. Provide useful tool which can allow you to collect information for more complex AI project, then deliver even greater value for business
+* Always be ready to present your work. You need to prove your value for business at any time. 
 
 
-#### 
 
-In the prevous lecture we have saved our Deep Learning Model in the www folder:
+#### General Template to Train Models
 
-```{r, message=FALSE, warning=FALSE}
-#files with model
-file.info("www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1")
-```
-One of the Goals of this lecture will be to see how to use this model in R to make predictions
-
-From: (R h2o load a saved model from disk in MOJO or POJO format)[https://stackoverflow.com/questions/45335697/r-h2o-load-a-saved-model-from-disk-in-mojo-or-pojo-format]
-
-We know that two types of strategy are possible
-
-1. use a binary model 
-2. export a model to MOJO (or POJO) form
-
-#### Using Binary Model to make predictions
-
-We will first use the first option to actually keep H2O on the background to make predictions
-
-```{r, message=FALSE, warning=FALSE}
-library(h2o)
+```{r, eval=FALSE, include=TRUE}
 library(tidyverse)
 library(plotly)
-```
-
-Initializing H2O and loading the model
-
-```{r, eval=TRUE, message=FALSE, warning=FALSE, include=TRUE}
-# initialize h2o
-h2o.init()
-# load model
-normality_model <- h2o.loadModel("www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1") 
-```
-
-#### Datasets needed for predictions
-
-We will also need to quickly construct the dataset we can predict the result
-
-```{r, message=FALSE, warning=FALSE}
-
-# ============= READ DATA =================
-# Read our small data ... 
-DF_Data_Recent <- readRDS("DF_Data_Process_Recent.data") 
-
-DF_Equipm <- read_csv("DF_EquipmData.csv")
-# data frame containing Event Names
-DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
-
-# Data manipulation and saving to the DF_TEMP
-DF_TEMP <- DF_Data_Recent %>% 
-  # join to decode equipment serial number
-  inner_join(DF_Equipm, by = "IDEquipment") %>% 
-  # join to decode Event Code meaning
-  inner_join(DF_EvCode, by = "EventCode") %>% 
-  # select only column needed
-  select(StartDate, Name, AnalogVal, EventText)
-
-remove(DF_Data_Recent, DF_Equipm, DF_EvCode)
-```
-
-
-Will be using Machine #4 for that
-
-```{r}
-# importing R function from file
-source("to_matrix.R")
-
-DF_M4 <- DF_TEMP %>% 
-  to_matrix(filter_Event = "Tubing Process, resistance Ohm",
-            filter_Machine = "Machine #4",n_cols = 150)
-
-
-```
-#### Catching corresponding dates & time
-
-To extract the time... I have modified our function that extracts `AnalogVal` variable and saved that to the R script `to_matrixDT.R`
-
-```{r}
-# importing R function from file
-source("to_matrixDT.R")
-```
-
-Let's use this function to extract corresponding Date and Time...
-
-```{r, eval=TRUE, include=TRUE}
-# prepared matrix containing date and time elements
-DF_M4DT <- to_matrixDT(DF_TEMP, 
-                   filter_Event = "Tubing Process, resistance Ohm",
-                   filter_Machine = "Machine #4", 
-                   n_cols = 150)
-```
-
-
-#### Detecting anomaly on Machine 4
-
-In order to use data on `DF_M4` dataset we need to make it H2OFrame class. We need to load this object into H2O environment
-
-```{r}
-# load dataset into H2O environment
-test_M4  <- as.h2o(x = DF_M4, destination_frame = "test_M4")
-```
-
-
-```{r}
-# use MSE output to detect the anomalies
-h2o.anomaly(normality_model, test_M4) %>% as.data.frame() %>% plot.ts(type = "p")
-```
-
-#### Anomaly detection: GUI strategy
-
-Once we are capable to detect anomaly, if any, we need to define the way we should 'surprise' our users with our predictions. There are probably several ways to do this:
-
-A. Split results by groups on a condition: GOOD/BAD or PASS/FAIL, etc
-B. Output 'Analogue' value or 'Rating'
-C. Use both or combination
-
-For the example of the course I would be using variant B - Output 'AnomalyRating' value or all observations. Additionally I would still keep the optional part A where we can 'cutoff' the observations to split classes
-
-#### A Split the results by groups
-
-We will save prediction to the dataframe first:
-
-```{r}
-# save MSE values
-mse_out <- h2o.anomaly(normality_model, test_M4) %>% as.data.frame()
-```
-
-This brings us to the point of create a 'cutoff' which I will set as 0.25. MSE values scored above this value will be identifyed as anomaly. 
-
-```{r}
-
-# filter anomalies
-rows_anomals <- which(mse_out > 0.25)
-rows_normals <- which(mse_out <= 0.25)
-```
-
-Using these rows we can subset our anomalous observations
-
-```{r}
-# subset rows with matrices that shows the anomalies
-matr_anomals <- DF_M4[rows_anomals, ]
-
-# subset rows with matrices that does not show the anomalies
-matr_normals <- DF_M4[rows_normals, ] 
-```
-
-Just out of curiosity I will plot the anomalies values as 3D plot
-
-```{r, eval=FALSE, include=TRUE}
-plot_ly(z = matr_anomals, type = "surface")
-```
-![Extracted observations with anomaly][id1]
-
-This is wonderful! High anomalous spikes were detected!
-
-And also those without
-
-```{r, eval=FALSE, include=TRUE}
-plot_ly(z = matr_normals, type = "surface")
-```
-
-There is no spikes! 
-
-![Data points without anomaly][id2]
-
-
-#### Merge the MSE and values to interpret as anomaly level
-
-Goal of further data manipulations will be to get back both columns Date/Time and Analog Value and add one new column with Model MSE output. This will be less cumbersome and will give operators of the process possibility to have more clear understanding for interpretation of the process
-
-Furthe code below will do the job:
-
-```{r}
-# mse_out is a dataframe containing MSE error for each row of the matrix, we replicate this... 150 times...
-DF_M4mse <- do.call(cbind, replicate(150, as.matrix(mse_out), simplify=FALSE))
-
-# going to combine this result with our objects DF_M4 and DF_M4DT
-DF_V <- DF_M4 %>% t() %>% c() %>% as.data.frame() 
-colnames(DF_V) <- "AnalogVal"
-DF_T <- DF_M4DT %>% t() %>% c() %>% as.POSIXct() %>%  as.data.frame() 
-colnames(DF_T) <- "StartDate"
-DF_A <- DF_M4mse %>% t() %>% c() %>% as.data.frame() 
-colnames(DF_A) <- "AnomalyRating"
-
-# return final dataframe:
-DF_F <- bind_cols(DF_T, DF_V, DF_A)
-head(DF_F)
-```
-
-#### Visualize the result
-
-Will be using a color pallet to output the result as a continous scale
-
-```{r}
-library(RColorBrewer)
-#http://colorbrewer.org
-
-myspecial <- c("#91cf60", "#fc8d59", "#fc8d60") 
-
-ggplot(DF_F, aes(x = StartDate, y = AnalogVal, colour = AnomalyRating)) + geom_line() + scale_colour_gradientn(colours=myspecial)
-
-```
-
-#### Generalize function
-
-Before we move to the implementation in Shiny it would be necessary to have generalized function just to have this job of data transformation
-
-```{r}
-# function from_matrix
-# PURPOSE: output original time-series dataframe with attached column for Mean Square Error of the model
-# USAGE: function will replicate the MSE error result and parse it back to corresponding rows of matrix
-#        then it will convert matrix to vectors and construct the dataframe
-from_matrix <- function(x_mse, x_Val, x_DT) {
-  # x_mse - dataframe with model scoring results
-  # x_Val - original matrix with Analog values
-  # x_DT  - original matrix with corresponding Date Time values
-  #x_Val <- DF_M4
-  #x_DT  <- DF_M4DT
-  # find the number of rows to replicate
-  n_cols <- dim(x_Val)[2]
-  # check for dimension of supplied matrixes
-    # Add stopifnot() to check dimensions of both matrixes
-    stopifnot(dim(x_Val) == dim(x_DT))
-  # mse_out is a dataframe containing MSE error for each row of the matrix, we replicate this... 150 times...
-  DF_M4mse <- do.call(cbind, replicate(n_cols, as.matrix(x_mse), simplify=FALSE))
-  
-  # going to combine this result with our objects DF_M4 and DF_M4DT
-  DF_V <- x_Val %>% t() %>% c() %>% as.data.frame() 
-  colnames(DF_V) <- "AnalogVal"
-  DF_T <- x_DT %>% t() %>% c() %>% as.POSIXct() %>%  as.data.frame() 
-  colnames(DF_T) <- "StartDate"
-  DF_A <- DF_M4mse %>% t() %>% c() %>% as.data.frame() 
-  colnames(DF_A) <- "AnomalyRating"
-  
-  # return final dataframe:
-  DF_F <- DF_V %>% bind_cols(DF_T, DF_A)
-  return(DF_F)
-}
-```
-
-Try this out:
-
-```{r}
-# using a function to return dataframe
-DF_M4_Ready <- from_matrix(mse_out, DF_M4, DF_M4DT)
-```
-
-
-#### Time to Shiny?
-
-Yes in the next lecture we will look into implementation of this code in Shiny!
-
-And let's not forget to switch off our cluster!
-```{r, eval=TRUE, include=TRUE}
-h2o.shutdown(prompt= FALSE)
-
-```
-
-#### Conclusion
-
-Below are the things we did in this lecture:
-
-1. Learn how to use saved model in R to make predictions
-2. Develop and app usage strategy graphical output 
-3. Return to our time series to identify time of anomaly
-4. 'Pack' our code to functions
-
-With that we are now ready to implement our Anomaly Detection with Deep Learning in ShinyApp
-
-
-#### Train Models
-
-```{r}
+library(h2o)
 # ============= READ DATA =================
 # Read our small data ... 
 DF_Data_Recent <- readRDS("DF_Data_Process_Recent.data") 
@@ -319,7 +70,7 @@ DF_TEMP %>%
 
 ```
 
-```{r}
+```{r, eval=FALSE, include=TRUE}
 # Choose best machine to train model - Machine 1 (Domain Knowldege), extract data
 # "Tubing Process, Phase"
 DF_TEMP_TPA <- DF_TEMP %>% 
@@ -337,9 +88,7 @@ DF_M1t<- to_mDT(DF_TEMP_TPA, 150)
 
 ```
 
-```{r}
-library(h2o)
-
+```{r, eval=FALSE, include=TRUE}
 # to initialize the 'machine'
 localH2O = h2o.init()
 
@@ -367,5 +116,5 @@ h2o.shutdown(prompt = F)
 
 
 
-[id1]: plots/M4_anomaly.png "Extracted observations with anomaly"
-[id2]: plots/M4_no_anomaly.png "Observations without anomaly"
+[id1]: Architecture.PNG "Defined App Aproach"
+
