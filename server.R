@@ -54,7 +54,16 @@ DF_TEMP_TPA <- DF_TEMP %>%
   anomalyscore_machines(Machines = Machines,
                         path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510950315727_1",
                         n_cols = 150)
+# --------
+#
+# SPACE FOR OTHER RESULTS
 
+
+
+
+
+#
+# --------
 
 h2o.shutdown(prompt = F)
 # bind results
