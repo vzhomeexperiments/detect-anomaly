@@ -119,7 +119,7 @@ from there we can see that the difference between both are in the three new rows
 ```{r, eval=FALSE, include=TRUE}
 # using library plotly to plot 3D surface
 library(plotly)
-plot_ly(z = matrix_train, type = "surface")
+plot_ly(z = matrix_train, type = "surface",color = colorRampPalette(brewer.pal(4,"RdBu")))
 
 ```
 
@@ -127,7 +127,8 @@ plot_ly(z = matrix_train, type = "surface")
 
 ```{r, eval=FALSE, include=TRUE}
 # using library plotly to plot 3D surface
-plot_ly(z = matrix_test, type = "surface")
+library(RColorBrewer)
+plot_ly(z = matrix_test, type = "surface",color = colorRampPalette(brewer.pal(4,"RdBu")))
 
 ```
 
@@ -221,7 +222,7 @@ Or we can visualize in 3D directly in R
 recon_matrix <- test_recon %>% as.data.frame() %>% as.matrix.data.frame()
 
 # make 3D plot
-plot_ly(z = recon_matrix, type = "surface")
+plot_ly(z = recon_matrix, type = "surface") #,color = colorRampPalette(brewer.pal(3,"RdBu")))
 ```
 
 ![Predicted Dataset with plotly][id6]
