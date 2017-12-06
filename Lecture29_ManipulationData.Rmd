@@ -160,63 +160,158 @@ df_J4$Machine <- "Machine 4"
 
 df_All <- bind_rows(df_J1, df_J2, df_J3, df_J4)
 
-ggplot(df_All, aes(x = AnalogVal_mean.y, y = AnalogVal_mean.x, col = Machine)) + geom_point()
+ggplot(df_All, aes(x = AnalogVal_mean.y, y = AnalogVal_mean.x, col = Machine, alpha = 0.6)) + geom_point()
+
+
 
 ```
 
+Let's make the same data graph for cutting process
 
+#### relationship Cutting Process - too tired for the for loop:)
 
-We can visualize this dataset, putting all the points together...
-
-
-
-Almost impossible to gather any insights. It's just too much data in the graph...
-
-#### Join and visualize the data - Your turn
-
-1. Create separate visualizations for all 9 processes (use sample code below to start with).
+We can extract one parameter for machine 1
 
 ```{r}
-# Visualize the data...
-DF_TEMP %>% 
+Cut_P1 <- DF_TEMP %>% 
   filter(EventText == "Cutting Process, phase angle") %>% 
-  ggplot(aes(x = StartDate, y = AnalogVal, col = EventText)) + geom_point()+facet_grid(~Name)
+  filter(Name == "Machine #1") %>% 
+  select(StartDate, AnalogVal)
+
+Cut_R1  <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, resistance Ohm") %>% 
+  filter(Name == "Machine #1")%>% 
+  select(StartDate, AnalogVal)
+
+Cut_P2 <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, phase angle") %>% 
+  filter(Name == "Machine #2") %>% 
+  select(StartDate, AnalogVal)
+
+Cut_R2  <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, resistance Ohm") %>% 
+  filter(Name == "Machine #2")%>% 
+  select(StartDate, AnalogVal)
+
+Cut_P3 <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, phase angle") %>% 
+  filter(Name == "Machine #3") %>% 
+  select(StartDate, AnalogVal)
+
+Cut_R3  <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, resistance Ohm") %>% 
+  filter(Name == "Machine #3")%>% 
+  select(StartDate, AnalogVal)
+
+Cut_P4 <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, phase angle") %>% 
+  filter(Name == "Machine #4") %>% 
+  select(StartDate, AnalogVal)
+
+Cut_R4  <- DF_TEMP %>% 
+  filter(EventText == "Cutting Process, resistance Ohm") %>% 
+  filter(Name == "Machine #4")%>% 
+  select(StartDate, AnalogVal)
+
+df_R1 <- feature_eng_ts(Cut_R1, "mean")
+df_P1 <- feature_eng_ts(Cut_P1, "mean")
+df_R2 <- feature_eng_ts(Cut_R2, "mean")
+df_P2 <- feature_eng_ts(Cut_P2, "mean")
+df_R3 <- feature_eng_ts(Cut_R3, "mean")
+df_P3 <- feature_eng_ts(Cut_P3, "mean")
+df_R4 <- feature_eng_ts(Cut_R4, "mean")
+df_P4 <- feature_eng_ts(Cut_P4, "mean")
+
+df_J1 <- inner_join(df_R1, df_P1, by = "StartDate") 
+df_J1$Machine <- "Machine 1"
+df_J2 <- inner_join(df_R2, df_P2, by = "StartDate")
+df_J2$Machine <- "Machine 2"
+df_J3 <- inner_join(df_R3, df_P3, by = "StartDate") 
+df_J3$Machine <- "Machine 3"
+df_J4 <- inner_join(df_R4, df_P4, by = "StartDate")
+df_J4$Machine <- "Machine 4"
+
+
+df_All_cut <- bind_rows(df_J1, df_J2, df_J3, df_J4)
+
+ggplot(df_All_cut, aes(x = AnalogVal_mean.y, y = AnalogVal_mean.x, col = Machine)) + geom_point()
+
+
+
 ```
 
-Hint: you can copy/paste proposed code, write a `for` loop, etc
+#### relationship Edging Process - too tired for the for loop:)
 
-For your convenience, it's worth to use `for` loop using example as below
+We can extract one parameter for machine 1
 
-```{r, eval=FALSE, message=FALSE, warning=FALSE, include=TRUE}
-# We can for loop those as well
-library(magrittr)
-# save our Event names into the vector 'Events'
-Events <- DF_TEMP %>% select(EventText) %>% unique() %$% EventText
-# make a for loop...
-for(i in 1:length(Events)){
-plots <- '...' %>% 
-  filter(EventText == Events[i]) %>% 
-  ggplot('...') + geom_point()+facet_grid(~Name) 
-# and we will print plots
-print(plots)
-}
+```{r}
+Edg_P1 <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, phase angle") %>% 
+  filter(Name == "Machine #1") %>% 
+  select(StartDate, AnalogVal)
+
+Edg_R1  <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, resistance Ohm") %>% 
+  filter(Name == "Machine #1")%>% 
+  select(StartDate, AnalogVal)
+
+Edg_P2 <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, phase angle") %>% 
+  filter(Name == "Machine #2") %>% 
+  select(StartDate, AnalogVal)
+
+Edg_R2  <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, resistance Ohm") %>% 
+  filter(Name == "Machine #2")%>% 
+  select(StartDate, AnalogVal)
+
+Edg_P3 <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, phase angle") %>% 
+  filter(Name == "Machine #3") %>% 
+  select(StartDate, AnalogVal)
+
+Edg_R3  <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, resistance Ohm") %>% 
+  filter(Name == "Machine #3")%>% 
+  select(StartDate, AnalogVal)
+
+Edg_P4 <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, phase angle") %>% 
+  filter(Name == "Machine #4") %>% 
+  select(StartDate, AnalogVal)
+
+Edg_R4  <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, resistance Ohm") %>% 
+  filter(Name == "Machine #4")%>% 
+  select(StartDate, AnalogVal)
+
+df_R1 <- feature_eng_ts(Edg_R1, "mean")
+df_P1 <- feature_eng_ts(Edg_P1, "mean")
+df_R2 <- feature_eng_ts(Edg_R2, "mean")
+df_P2 <- feature_eng_ts(Edg_P2, "mean")
+df_R3 <- feature_eng_ts(Edg_R3, "mean")
+df_P3 <- feature_eng_ts(Edg_P3, "mean")
+df_R4 <- feature_eng_ts(Edg_R4, "mean")
+df_P4 <- feature_eng_ts(Edg_P4, "mean")
+
+df_J1 <- inner_join(df_R1, df_P1, by = "StartDate") 
+df_J1$Machine <- "Machine 1"
+df_J2 <- inner_join(df_R2, df_P2, by = "StartDate")
+df_J2$Machine <- "Machine 2"
+df_J3 <- inner_join(df_R3, df_P3, by = "StartDate") 
+df_J3$Machine <- "Machine 3"
+df_J4 <- inner_join(df_R4, df_P4, by = "StartDate")
+df_J4$Machine <- "Machine 4"
+
+
+df_All_edg <- bind_rows(df_J1, df_J2, df_J3, df_J4)
+
+ggplot(df_All_edg, aes(x = AnalogVal_mean.y, y = AnalogVal_mean.x, col = Machine)) + geom_point() 
+
+ggplot(df_All_edg, aes(x = StartDate, y = AnalogVal_mean.y, col = Machine))+geom_line()+
+  facet_grid(~Machine)
+ggplot(df_All_edg, aes(x = StartDate, y = AnalogVal_mean.x, col = Machine))+geom_line()+
+  facet_grid(~Machine)
+
 ```
 
-
-2. Can you already observe some differences between the same parameter in different machines? Which ones?
-
-Hint: Pay attention on parameters level, how are those parameters distributed, etc
-
-#### Same for larger dataset
-
-1. Import and join bigger dataset
-
-Hint: Use file `DF_Data_Process.data` to import bigger dataset
-
-2. Create a generalized plot for that dataset
-
-Hint: Use the for loop construct once again... data is quite big so running this code may take a while... also feel free to use `geom_smooth()` instead of `geom_point()`
-
-3. Can you observe some tendencies in the parameters in different machines? Which ones?
-
-Hint: Don't bother too much looking into that data. Answer can be even negative! Sometime human can not sence any tendency - it's normal!!!
