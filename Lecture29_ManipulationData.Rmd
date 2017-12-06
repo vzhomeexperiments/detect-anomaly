@@ -1,5 +1,5 @@
 ---
-title: "Lecture 18 - Homework"
+title: "Lecture 29 - Exploration of data"
 output:
   html_document: default
   html_notebook: default
@@ -7,31 +7,11 @@ output:
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
-### Lecture 18 - Your project. Introducing the new dataset
+### Lecture 29 - Exploring relationships in data
 
-#### Nature of our data
+#### Further ideas
 
-Data we are dealing with in our project coming from `arbutrary manufacturing process`. We are in simplified converting process where we have:
-
-* Four Machines producing Metal Cans
-* Each Machine convert Raw Material into Product
-* Each Converting Process has 3 Sub-Process:
-
-1. Edging
-2. Tubing
-3. Cutting
-
-Each Sub-Process have 3 parameters we can monitor, 2 of them are indicating 'process' parameters. The process is not yet studied very precisely and can vary without creating stoppages of the system.
-
-Our goal will be to identify anomaly in this process without knowing at what level is the anomaly apriori.
-
-At the moment we have a data from the past from 4 machines that are exactly the same. Process parameters should behave similarly for all machines.
-
-#### Business need
-
-As mentioned in the lecture, process parameters may vary quite a lot and it's not possible to set up very precise system that would give alerts and proper indication. For example, we can not set up the 'warning' or 'alarm' levels to this data programmatically. Perhaps this warning level will work for one particular process but will completely fail just on another batch of raw material... At the same time it's important to keep these parameters undercontrol and perhaps even to come up with a strategy to detect deviations before the real problem would occur.
-
-Perhaps the idea can be to 'learn' from bigger dataset and use the new dataset to identify the anomaly? For example, factory can do a weekly review of data and have an overview of the situation.
+At this time we will try to perform some more data manipulations in order to explore more relationships. One possibility is to see how one engineering parameter e.g. Impedance is related to another e.g. phase.
 
 #### Review of available data
 
@@ -46,12 +26,9 @@ DF_Data_Process_All <- readRDS("DF_Data_Process.data")
 dim(DF_Data_Process_All)
 ```
 
-We can use this data to better understand the process and come up with some sort of strategy on how we can detect anomaly.
-
-Apart of that we have also a smaller data set with more 'recent' data. This data is from several days of operation.
 
 ```{r}
-# Read our small data second ... 
+# Read our small data  ... 
 DF_Data_Process_Recent <- readRDS("DF_Data_Process_Recent.data")
 # Dimension of dataset
 dim(DF_Data_Process_Recent)
@@ -64,15 +41,13 @@ We can make some better overview of data starting from 'recent' dataset. We join
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
 # ============= JOIN DATA =================
-# data frame containing information from multiple sensors
-DF_Data <- readRDS("DF_Data_Process_Recent.data")
 # data frame containing equipment information
 DF_Equipm <- read_csv("DF_EquipmData.csv")
 # data frame containing Event Names
 DF_EvCode <- read_csv("DF_EvCodeDataProject.csv")
 
 # Data manipulation and saving to the DF_TEMP
-DF_TEMP <- DF_Data %>% 
+DF_TEMP <- DF_Data_Process_All %>% 
   # join to decode equipment serial number
   inner_join(DF_Equipm, by = "IDEquipment") %>% 
   # join to decode Event Code meaning
@@ -80,6 +55,25 @@ DF_TEMP <- DF_Data %>%
   # select only column needed
   select(StartDate, Name, AnalogVal, EventText)
 ```
+
+#### relationship Tubing Process
+
+We can extract one parameter for machine 1
+
+```{r}
+Tub_PA <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, phase angle") %>% 
+  filter(Name == "Machine #1")
+
+Tub_R  <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  filter(Name == "Machine #1")
+```
+
+Our goal will be to write a function that can join these data to be on x and y axis with corresponding index of time summarized as average by minute
+
+
+
 
 We can visualize this dataset, putting all the points together...
 
