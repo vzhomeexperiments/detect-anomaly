@@ -1,5 +1,5 @@
 ---
-title: "Lecture 23 - Time-Series. Feature Engineering"
+title: "Lecture 22 - Specialized R Packages"
 output:
   html_document: default
   html_notebook: default
@@ -7,19 +7,23 @@ output:
 
 This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
-### Lecture 24 - Your project. Specialized R packages, AnomalyDetection
+### Lecture 22 - Your project. Specialized R packages, AnomalyDetection, Wavelet Analysis
 
-Hello everybody. Welcome back to one another bonus lecture. This one will be dedicated to specialized packages in R that are helping us to detect anomalies. We will see how to use package 'AnomalyDetection' on the example on our data.
+Hello everybody. Welcome back to one another bonus lecture. This one will be dedicated to specialized packages in R that are helping us to detect anomalies. 
 
-As usual, we will get a brief review of the functionalities and see how can we apply that in our ShinyApp
+These packages are using Statistical Methods which are helpful if you know there are seasonality in your data.
 
-#### Package AnomalyDetection
+We will see how to use package 'AnomalyDetection' on the example on our data and also try 'Wavelet Analysis'.
+
+This will be just a brief overview of functionality to get an idea...
+
+### Package AnomalyDetection
 
 This package can be found on github.com: https://github.com/twitter/AnomalyDetection
 
 Main idea is that we provide our data to the function which will attempt to get the anomalies taking assumption that **Anomaly** is "Something different" from usual! Function is using Seasonal Hybrid `ESD` method. Note: `ESD` stands for *Extreme Studentized Deviate*. It is **computationally intensive** method. Intuitevely, it is using statistical methods. Decomposition of time-series, finding `the robust statistical median`, `Median Absolute Deviation`... not a **Deep Learning**... 
 
-Apparently, as described in this paper [https://arxiv.org/pdf/1704.07706.pdf](https://arxiv.org/pdf/1704.07706.pdf), **twitter** is using this to detect traffic anomalies and provision additional computing capacity. This way, everybody can send their tweet even during extraordinary events. For example, there is some news and everybody has to say something all at the same time!!! 
+Apparently, as described in this paper [https://arxiv.org/pdf/1704.07706.pdf](https://arxiv.org/pdf/1704.07706.pdf), **twitter** is using this to detect traffic anomalies and provision additional computing capacity. This way, everybody can send their tweet even during extraordinary events. For example, there is some news and everybody has to say something all at the same time!!!
 
 ##### Extracting data
 
@@ -80,9 +84,9 @@ res = AnomalyDetectionTs(DF_M3_Tub_Res, max_anoms=0.02, direction='both', plot=T
 res$plot
 ```
 
-Things to notice function is quite long to run for a normal CPU. Nevertheless it works. 
+Things to notice function is VERY long to run! Nevertheless it works. 
 
-Intresting to see  that function runs very nice to detect anomalies! 
+Intresting to notice that perhaps all data anomalies were detected...
 
 ##### Getting to know the outputs
 
@@ -95,6 +99,7 @@ anomalies <- res$anoms
 class(anomalies$timestamp)
 
 ```
+
 ```{r}
 # convert to POSICct
 anomalies$timestamp <- as.POSIXct(anomalies$timestamp)
@@ -282,13 +287,29 @@ res6 = AnomalyDetectionTs(DF_M3_Tub_Res_Rec, max_anoms=0.02, direction='pos',
 res6$plot
 ```
 
-#### Implementation in Shiny...
+### Wavelet Analysis
 
-In order to implement that in Shiny we will need to take into account several facts:
+```{r}
+library(dplyr)
+library(lubridate)
+library(waveslim)
+library(dplR)
+```
 
-* longer time to run function
-* must use larger dataset in order to allow function to run properly
 
-For that the idea will be to use the larger dataset and to limit number of rows for each machine/ process to be maximum 50000
+Let's first make the object smaller:
+```{r}
+DF_M3 <- head(DF_M3_Tub_Res, 20000)
+```
+Here is our Wavelet transformation:
 
-We will only keep new functionality for the App
+```{r}
+res.wave <- morlet(y1 = DF_M3$AnalogVal, x1 = as.numeric(DF_M3$StartDate), p2 = 13, dj = 0.1, siglvl = 0.95)
+```
+
+This will be our plot:
+
+```{r}
+wavelet.plot(res.wave, useRaster=NA, add.coi=TRUE)
+```
+
