@@ -13,6 +13,7 @@ library(shinydashboard)
 library(DT)
 library(magrittr)
 library(tidyverse)
+library(shinycssloaders)
 
 # Define choices for selectInput function (it is containing steps the user can filter)
 stepsChoices <- read_csv("DF_EvCodeDataProject.csv") %$% sort(EventText)
@@ -56,7 +57,7 @@ dashboardPage(
         tabPanel("Plot - Anomaly NN", checkboxGroupInput(inputId = "machInp", label = "Select Machines", choices = Machines,
                                                          selected = Machines, inline = TRUE, width = NULL, 
                                                          choiceNames = NULL, choiceValues = NULL),
-                 plotOutput(outputId = "Plot4"))
+                 withSpinner(plotOutput(outputId = "Plot4")))
       )  
     )
   )
