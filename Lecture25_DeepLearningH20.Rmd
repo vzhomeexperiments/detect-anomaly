@@ -83,3 +83,8 @@ plot.ts(mse_anom)
 
 ```
 
+# shutdown JVM
+```{r}
+h2o.shutdown(prompt = F)
+```
+
