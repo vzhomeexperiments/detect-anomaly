@@ -13,5 +13,73 @@ This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook
 
 Deep Learning... In this lecture I would like to esplore with you the DeepLearning we can do with H2O package in R...
 
-#### Learning to do Deep Learning
+#### Data Exploration
+
+```{r}
+# libraries
+library(tidyverse)
+library(plotly)
+
+# data reading
+DF_NORMAL <- read_rds("DATA-normal.rds")
+DF_TEST <- read_rds("DATA-test.rds")
+DF_ANOMALY <- read_rds("DATA-anomaly.rds")
+
+NORM_2016 <- DF_NORMAL %>% select(2:11) %>% as.matrix()
+plot_ly(z = NORM_2016, type = "surface")
+
+TEST_2015 <- DF_TEST %>% select(2:11) %>% as.matrix()
+plot_ly(z = TEST_2015, type = "surface")
+
+TEST_2017 <- DF_ANOMALY %>% select(2:11) %>% as.matrix()
+plot_ly(z = TEST_2017, type = "surface")
+
+
+```
+
+#### Train Deep Learning Model
+
+```{r}
+library(h2o)
+h2o.init(nthreads = 2)
+
+train <- as.h2o(x = NORM_2016, destination_frame = "train")
+test <- as.h2o(x = TEST_2015, destination_frame = "test")
+anomaly <- as.h2o(x = TEST_2017, destination_frame = "anomaly")
+
+normality_model <- h2o.deeplearning(x = names(train), 
+                                     training_frame = train, 
+                                     activation = "Tanh", 
+                                     autoencoder = TRUE, 
+                                     hidden = c(50,20,50), 
+                                     sparse = TRUE,
+                                     l1 = 1e-4, 
+                                     epochs = 100)
+
+
+```
+
+#### reconstruct dataset
+
+```{r}
+# recreate 
+test_recon <- h2o.predict(normality_model, train) %>% as.matrix()
+plot_ly(z = test_recon, type = "surface")
+```
+
+#### Check MSE
+
+
+```{r}
+
+mse <- h2o.anomaly(normality_model, train) %>% as.data.frame()
+mse_test <- h2o.anomaly(normality_model, test) %>% as.data.frame()
+mse_anom <- h2o.anomaly(normality_model, anomaly) %>% as.data.frame()
+
+plot.ts(mse)
+plot.ts(mse_test)
+plot.ts(mse_anom)
+
+
+```
 
