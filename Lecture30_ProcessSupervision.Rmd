@@ -81,6 +81,8 @@ Summary: 3 dataset were selected!
 
 ```{r}
 library(h2o)
+library(tidyverse)
+library(plotly)
 h2o.init(nthreads = 2)
 
 train <- as.h2o(x = NORM_2016, destination_frame = "train")
@@ -90,6 +92,7 @@ anomaly <- as.h2o(x = TEST_2017, destination_frame = "anomaly")
 # ?h2o.deeplearning
 
 normality_model <- h2o.deeplearning(x = names(train), 
+                                     model_id = "DeepLearning_id20180317",
                                      training_frame = train, 
                                      activation = "Tanh", 
                                      autoencoder = TRUE, 
@@ -98,6 +101,8 @@ normality_model <- h2o.deeplearning(x = names(train),
                                      l1 = 1e-4, 
                                      epochs = 100)
 
+# save this model 
+h2o.saveModel(normality_model, getwd())
 
 ```
 
@@ -114,31 +119,32 @@ plot_ly(z = test_recon, type = "surface")
 
 ```{r}
 
-mse <- h2o.anomaly(normality_model, train) %>% as.data.frame()
+mse_norm <- h2o.anomaly(normality_model, train) %>% as.data.frame()
 mse_test <- h2o.anomaly(normality_model, test) %>% as.data.frame()
 mse_anom <- h2o.anomaly(normality_model, anomaly) %>% as.data.frame()
 
-mse$label <- "normal"
+mse_norm$label <- "normal"
 mse_test$label <- "test"
-msejoined <- rbind(mse, mse_test)
+msejoined <- rbind(mse_norm, mse_test)
 msejoined$index <- 1:nrow(msejoined)
-
+# plot_ly(z = TEST_2015, type = "surface")
 ggplot(msejoined, aes(x = index, y = Reconstruction.MSE, col = as.factor(label))) + geom_line()
 
-plot.ts(mse)
+plot.ts(mse_norm)
 plot.ts(mse_test)
 plot.ts(mse_anom)
 
 
 mse_anom$label <- "anomaly"
-mse_all <- rbind(mse,mse_test, mse_anom)
+mse_all <- rbind(mse_norm,mse_test, mse_anom)
 mse_all$index <- 1:nrow(mse_all)
 ggplot(mse_all, aes(x = index, y = Reconstruction.MSE, col = as.factor(label))) + geom_line()
 
 ```
 
-# shutdown JVM
+
 ```{r}
+# shutdown JVM
 h2o.shutdown(prompt = F)
 ```
 
@@ -147,9 +153,21 @@ Homework:
 
 - try different activation function, each time calculate MSE
 - try sparse false parameter, what is changing?
-- try high and veryhigh complexity of the model, calculate MSE, conclude which one is the best
+- try high and very high complexity of the model, calculate MSE, conclude which one is the best
 - try 10:100:10 is it work?
 - try 200:200 will it work? what is the resulting MSE
 - try 5 hidden layers
 - try replicate_training data = False, how much time is different?
 - weights_column this is the observation weight, try to add 1 column with observation weights of importance! see help
+
+
+
+### Ways to productionize the model
+
+```{r}
+library(h2o)
+# load the model
+loaded_model <- h2o.loadModel("DeepLearning_id20180317")
+
+```
+
