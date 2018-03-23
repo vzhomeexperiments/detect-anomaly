@@ -50,50 +50,55 @@ shinyUI(fluidPage(theme = "bootstrap.css",
                   #### ***************************************************************
                   ####        DATA OUTPUT
                   #### ***************************************************************
-                        # arrange content using panels 
-                        tabsetPanel(
-                                            
-                                                tabPanel("Data Table",
-                                                         # Page Row 3 == Last results view as interactive data table ==
-                                                         fluidRow(column(12,  DT::dataTableOutput("responses", width = 400)),
-                                                                  
-                                                                  # add horizontal line
-                                                                  tags$hr(),
-                                                                  
-                                                                  # action button aim: when user click save information to csv file        
-                                                                  fluidRow(column(1, downloadButton('downloadTable', 'Download')))
-                                                         )         
-                                                         ),
-                                                tabPanel("Data Graph", 
-                                                         
-                                                         #### ***************************************************************
-                                                         ####        DASHBOARD
-                                                         #### ***************************************************************
-                                                         navlistPanel(widths = c(2, 8),
-                                                                      tabPanel("1. Parameters Overview", 
-                                                                               wellPanel(
-                                                                                 "press button 'Validate' above to start Anomaly Detection",
-                                                                                 # Adding Plots
-                                                                                 tableOutput("mse"),
-                                                                                 plotOutput("PlotA"), # Plot showing Selected measures
-                                                                                 downloadButton(outputId = "downloadPlotA",label = "Download Plot A"),
-                                                                                 plotOutput("PlotB"), # Plot showing Anomaly over time
-                                                                                 downloadButton(outputId = "downloadPlotB",label = "Download Plot B")
-                                                                               )
-                                                                      ),
-                                                                      tabPanel("2. Info", 
-                                                                               wellPanel(
-                                                                                 # text info
-                                                                                 img(height = 500, width  = 700, src    = "info.png")
-                                                                               )          ),
-                                                                      
-                                                                      tabPanel("3. Contact", 
-                                                                               wellPanel(
-                                                                                 # Adding Product Logo
-                                                                                 titlePanel("Created by:"),
-                                                                                 "(C) 2018 Vladimir Zhbanko",
-                                                                                 "https://www.udemy.com/identify-problems-with-ai-case-study/?couponCode=IDENTIFY-PROBLEM-10"
-                                                         )
-                                                         )
-                                    )
-))))
+                  # arrange content using panels 
+                  tabsetPanel(
+                              tabPanel("Data Graph", 
+                                       #### ***************************************************************
+                                       ####        DASHBOARD
+                                       #### ***************************************************************
+                                       navlistPanel(widths = c(2, 8),
+                                                    tabPanel("1. Parameters Overview", 
+                                                             wellPanel(
+                                                               "press button 'Validate' above to start Anomaly Detection",
+                                                               # Adding Plots
+                                                               plotOutput("PlotA"), # Plot showing Selected measures
+                                                               downloadButton(outputId = "downloadPlotA",label = "Download Plot A")
+                                                             )
+                                                    ),
+                                                    tabPanel("2. Process Time-line", 
+                                                             wellPanel(
+                                                               "press button 'Validate' above to start Anomaly Detection",
+                                                               # Adding Plots
+                                                               tableOutput("mse"),
+                                                               plotOutput("PlotB"), # Plot showing Anomaly over time
+                                                               downloadButton(outputId = "downloadPlotB",label = "Download Plot B")
+                                                             )
+                                                    ),
+                                                    tabPanel("3. Info", 
+                                                             wellPanel(
+                                                               # text info
+                                                               img(height = 500, width  = 700, src    = "info.png")
+                                                             )          ),
+                                                    tabPanel("4. Contact", 
+                                                             wellPanel(
+                                                               # Adding Product Logo
+                                                               titlePanel("Created by:"),
+                                                               "(C) 2018 Vladimir Zhbanko",
+                                                               "https://www.udemy.com/identify-problems-with-ai-case-study/?couponCode=IDENTIFY-PROBLEM-10"
+                                       )
+                                                   )
+                                    )),
+                              tabPanel("Data Table",
+                                                 # Page Row 3 == Last results view as interactive data table ==
+                                                 fluidRow(column(12,  DT::dataTableOutput("responses", width = 400)),
+                                                          # add horizontal line
+                                                          tags$hr(),
+                                                          
+                                                          # action button aim: when user click save information to csv file        
+                                                          fluidRow(column(1, downloadButton('downloadTable', 'Download')))
+                                                 )         
+                                      )
+                                    
+
+
+)))

@@ -30,7 +30,7 @@ Process_NN <- DF_Data %>%
   as.matrix()
 
 # score all data getting the output dataframe with 1 column
-Scored_process <- score_process(Process_NN, "www/tmp/normality_model.bin/DeepLearning_id20180321")
+Scored_process <- score_process(Process_NN, "www/tmp/normality_model.bin/DeepLearning_ProcessDemo")
  
 # add new column to original dataframe
 PROCESS_NN <- bind_cols(DF_Data, Scored_process)
@@ -59,7 +59,7 @@ shinyServer(function(input, output, session) {
   # score the values for anomaly detection by pressing a button 'Validate'
   ScoreNew <- eventReactive(input$submit, {
     ## score this data getting mse
-    DF_MSE <<- DF() %>% select(2:11) %>% score_process("www/tmp/normality_model.bin/DeepLearning_id20180321")
+    DF_MSE <<- DF() %>% select(2:11) %>% score_process("www/tmp/normality_model.bin/DeepLearning_ProcessDemo")
   })
   ## **-------------- **
 
