@@ -187,7 +187,7 @@ normality_model <- h2o.deeplearning(x = names(train),
                                      l1 = 1e-4, 
                                      epochs = 100)
 # save the model
-h2o.saveModel(normality_model, file.path(getwd(), "www/tmp/normality_model.bin"))
+h2o.saveModel(normality_model, file.path(getwd(), "www/tmp/normality_model.bin"), force = TRUE)
 
 # shutdown JVM
 h2o.shutdown(prompt = F)
