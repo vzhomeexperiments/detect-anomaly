@@ -119,7 +119,7 @@ from there we can see that the difference between both are in the three new rows
 ```{r, eval=FALSE, include=TRUE}
 # using library plotly to plot 3D surface
 library(plotly)
-plot_ly(z = matrix_train, type = "surface",color = colorRampPalette(brewer.pal(4,"RdBu")))
+plot_ly(z = matrix_train, type = "surface")
 
 ```
 
@@ -147,10 +147,10 @@ anomaly_model <- h2o.deeplearning(
  training_frame = train_ecg, 
  activation = "Tanh", 
  autoencoder = TRUE, 
- hidden = c(50,20,50), 
+ hidden = c(100,75,100), 
  sparse = TRUE,
  l1 = 1e-4, 
- epochs = 100)
+ epochs = 300)
 ```
 
 #### Calculate MSE from the train dataset
@@ -160,6 +160,16 @@ Let's use this model on our training dataset...
 ```{r, eval=TRUE, include=TRUE}
 # computer error of the model
 mod_error <- h2o.anomaly(anomaly_model, train_ecg)
+
+# Note: Testing = Reconstructing the test dataset
+train_recon <- h2o.predict(anomaly_model, train_ecg) 
+
+# visualize
+# making a matrix dataframe
+recon_matrix <- train_recon %>% as.data.frame() %>% as.matrix.data.frame()
+
+# make 3D plot
+plot_ly(z = recon_matrix, type = "surface") #,color = colorRampPalette(brewer.pal(3,"RdBu")))
 ```
 
 get it as a plot and see that the value is very low
@@ -170,15 +180,25 @@ h2o.anomaly(anomaly_model, train_ecg) %>%
   as.data.frame() %>% plot.ts(ylim = c(0, 2))
 ```
 
+
+
+
+
 #### Detect Anomaly using MSE value
 
 Once our model is made, we can use it to detect anomalies in our **test** dataset
 
 
 ```{r, eval=TRUE, include=TRUE}
+# Note: Testing = Reconstructing the test dataset
+test_recon <- h2o.predict(anomaly_model, test_ecg) 
+
+
 # Compute reconstruction error with the Anomaly 
 # detection app (MSE between output and input layers)
 recon_error <- h2o.anomaly(anomaly_model, test_ecg)
+
+
 
 # Pull reconstruction error data into R and 
 # plot to find outliers (last 3 heartbeats)
