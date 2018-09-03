@@ -45,14 +45,42 @@ h2o.init()
 DF_TEMP_TPR <- DF_TEMP %>% 
   filter(EventText == "Tubing Process, resistance Ohm") %>% 
   anomalyscore_machines(Machines = Machines,
-                        path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510597411656_1",
+                        path_to_model = "www/tmp/normality_model.bin/TubingProcessresistanceOhm",
                         n_cols = 150)
 
 # "Tubing Process, Phase"
 DF_TEMP_TPA <- DF_TEMP %>%
   filter(EventText == "Tubing Process, phase angle") %>%
   anomalyscore_machines(Machines = Machines,
-                        path_to_model = "www/tmp/normality_model.bin/DeepLearning_model_R_1510950315727_1",
+                        path_to_model = "www/tmp/normality_model.bin/TubingProcessphaseangle",
+                        n_cols = 150)
+
+# "EdgingProcessresistanceOhm"
+DF_TEMP_TPR <- DF_TEMP %>% 
+  filter(EventText == "Edging Process, resistance Ohm") %>% 
+  anomalyscore_machines(Machines = Machines,
+                        path_to_model = "www/tmp/normality_model.bin/EdgingProcessresistanceOhm",
+                        n_cols = 150)
+
+# "EdgingProcessphaseangle"
+DF_TEMP_TPA <- DF_TEMP %>%
+  filter(EventText == "Edging Process, phase angle") %>%
+  anomalyscore_machines(Machines = Machines,
+                        path_to_model = "www/tmp/normality_model.bin/EdgingProcessphaseangle",
+                        n_cols = 150)
+
+# "CuttingProcessresistanceOhm"
+DF_TEMP_TPR <- DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  anomalyscore_machines(Machines = Machines,
+                        path_to_model = "www/tmp/normality_model.bin/CuttingProcessresistanceOhm",
+                        n_cols = 150)
+
+# "Cutting Process, Phase"
+DF_TEMP_TPA <- DF_TEMP %>%
+  filter(EventText == "Cutting Process, phase angle") %>%
+  anomalyscore_machines(Machines = Machines,
+                        path_to_model = "www/tmp/normality_model.bin/CuttingProcessphaseangle",
                         n_cols = 150)
 # --------
 #

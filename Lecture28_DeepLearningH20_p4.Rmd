@@ -42,6 +42,10 @@ Below are some of my personal recommendations:
 
 #### General Template to Train Models
 
+This code contains a procedure to train Deep Learning models that will make Shiny App working.
+
+This procedure will have to be repeated anytime when h2o source package is updated!
+
 ```{r, eval=FALSE, include=TRUE}
 library(tidyverse)
 library(plotly)
@@ -63,14 +67,17 @@ DF_TEMP <- DF_Data_Recent %>%
   # select only column needed
   select(StartDate, Name, AnalogVal, EventText)
 
+
+```
+
+## Generate the model for one process
+
+```{r, eval=FALSE, include=TRUE}
 # Visualize
 DF_TEMP %>% 
   filter(EventText == "Tubing Process, phase angle") %>% 
   ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
 
-```
-
-```{r, eval=FALSE, include=TRUE}
 # Choose best machine to train model - Machine 1 (Domain Knowldege), extract data
 # "Tubing Process, Phase"
 DF_TEMP_TPA <- DF_TEMP %>% 
@@ -80,11 +87,11 @@ DF_TEMP_TPA <- DF_TEMP %>%
   arrange(StartDate)
 
 # transform to 2 matrixes
-source("to_matrix.R")
+source("to_m.R")
 source("to_matrixDT.R")
 
 DF_M1 <- to_m(DF_TEMP_TPA, 150)
-DF_M1t<- to_mDT(DF_TEMP_TPA, 150)
+#DF_M1t<- to_mDT(DF_TEMP_TPA, 150)
 
 ```
 
@@ -95,7 +102,8 @@ localH2O = h2o.init()
 train_M1 <- as.h2o(x = DF_M1, destination_frame = "train_M1")
 
 normality_model <- h2o.deeplearning(
- x = names(train_M1), 
+ x = names(train_M1),
+ model_id =  "Tubing Process, phase angle",
  training_frame = train_M1, 
  activation = "Tanh", 
  autoencoder = TRUE, 
@@ -114,6 +122,133 @@ h2o.saveModel(normality_model, "www/tmp/normality_model.bin")
 h2o.shutdown(prompt = F)
 ```
 
+## Create function
+
+For all of our processes we would need to generate separate models. It is obviously better to write a function to avoid copy/paste and mistakes:
+
+```{r}
+train_model <- function(x, event_text, machine_name, num_cols = 150){
+  require(h2o)
+  require(tidyverse)
+  source("to_m.R")
+  # x - dataframe containing prepared data with many events
+  # x <- DF_TEMP
+  # event_text <- "Tubing Process, phase angle"
+  # machine_name <- "Machine #4"
+  # num_cols <- 150
+  DF_TEMP_TPA <- x %>% 
+  filter(EventText == event_text) %>% 
+  filter(Name == machine_name) %>% 
+  select(StartDate, AnalogVal) %>% 
+  arrange(StartDate)
+  
+  DF_M1 <- to_m(DF_TEMP_TPA, num_cols) %>% as.data.frame()
+  
+  train_M1 <- as.h2o(x = DF_M1, destination_frame = "train_M1")
+  
+  # model id must not have any commas or alike!
+  my_mod <- str_remove_all(event_text, ",") %>% str_remove_all(" ")
+  
+  normality_model <- h2o.deeplearning(
+   x = names(train_M1),
+   model_id =  my_mod,
+   training_frame = train_M1, 
+   activation = "Tanh", 
+   autoencoder = TRUE, 
+   hidden = c(50,20,50), 
+   sparse = TRUE,
+   l1 = 1e-4, 
+   epochs = 50)
+  
+  # save model
+  h2o.saveModel(normality_model, "www/tmp/normality_model.bin",force = T)
+  
+}
+```
+
+## Create many models using one function
+
+```{r}
+DF_TEMP %>% select(EventText) %>% unique()
+```
+
+Nota Bene!!! this code may run ~ 5-10 minutes!!!
+
+```{r, eval=FALSE, include=TRUE}
+# to initialize the 'machine'
+h2o.init(nthreads = 2)
+
+## -------------------
+# 1. Process Tubing Process, phase angle
+## -------------------
+# Visualize
+DF_TEMP %>% 
+  filter(EventText == "Tubing Process, phase angle") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+
+# Train the model using defined function
+train_model(x = DF_TEMP, event_text = "Tubing Process, phase angle",machine_name = "Machine #2")
+
+## -------------------
+# 2. Process Edging Process, resistance Ohm
+## -------------------
+# Visualize to choose the best machine (using Domain knowledge)
+DF_TEMP %>% 
+  filter(EventText == "Edging Process, resistance Ohm") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+
+# Train the model using defined function
+train_model(x = DF_TEMP, event_text = "Edging Process, resistance Ohm",machine_name = "Machine #4")
+
+
+## -------------------
+# 3. Process Cutting Process, resistance Ohm
+## -------------------
+# Visualize to choose the best machine (using Domain knowledge)
+DF_TEMP %>% 
+  filter(EventText == "Cutting Process, resistance Ohm") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+
+# Train the model using defined function
+train_model(x = DF_TEMP, event_text = "Cutting Process, resistance Ohm",machine_name = "Machine #4")
+
+## -------------------
+# 4. Process Edging Process, resistance Ohm
+## -------------------
+# Visualize to choose the best machine (using Domain knowledge)
+DF_TEMP %>% 
+  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+
+# Train the model using defined function
+train_model(x = DF_TEMP, event_text = "Tubing Process, resistance Ohm",machine_name = "Machine #1")
+
+## -------------------
+# 5. Process Edging Process, resistance Ohm
+## -------------------
+# Visualize to choose the best machine (using Domain knowledge)
+DF_TEMP %>% 
+  filter(EventText == "Cutting Process, phase angle") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+
+# Train the model using defined function 
+train_model(x = DF_TEMP, event_text = "Cutting Process, phase angle",machine_name = "Machine #2")
+
+## -------------------
+# 6. Process Edging Process, phase angle
+## -------------------
+# Visualize to choose the best machine (using Domain knowledge)
+DF_TEMP %>% 
+  filter(EventText == "Edging Process, phase angle") %>% 
+  ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+
+# Train the model using defined function
+train_model(x = DF_TEMP, event_text = "Edging Process, phase angle",machine_name = "Machine #4")
+
+
+# shutdown
+h2o.shutdown(prompt = F)
+```
 
 
 [id1]: Architecture.PNG "Defined App Aproach"
