@@ -38,46 +38,46 @@ DF_TEMP <- DF_Data %>%
 # scoring using Deep Learning Model - perform scoring before app loading!
 Machines <- c("Machine #1", "Machine #2", "Machine #3", "Machine #4")
 
-# =========== DEEP LEARNING ========== #
-h2o.init()
+# =========== DEEP LEARNING DATA SCORING ========== #
+h2o.init(nthreads = 1)
 # Datasets generated for Anomaly detection with Deep Learning Algorithm
 # "Tubing Process, resistance Ohm"
-DF_TEMP_TPR <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+DF_TEMP_TPA <- DF_TEMP %>%
+  filter(EventText == "Tubing Process, resistance Ohm") %>%
   anomalyscore_machines(Machines = Machines,
                         path_to_model = "www/tmp/normality_model.bin/TubingProcessresistanceOhm",
                         n_cols = 150)
 
 # "Tubing Process, Phase"
-DF_TEMP_TPA <- DF_TEMP %>%
+DF_TEMP_TPB <- DF_TEMP %>%
   filter(EventText == "Tubing Process, phase angle") %>%
   anomalyscore_machines(Machines = Machines,
                         path_to_model = "www/tmp/normality_model.bin/TubingProcessphaseangle",
                         n_cols = 150)
 
-# "EdgingProcessresistanceOhm"
-DF_TEMP_TPR <- DF_TEMP %>% 
-  filter(EventText == "Edging Process, resistance Ohm") %>% 
+# # "EdgingProcessresistanceOhm"
+DF_TEMP_TPC <- DF_TEMP %>%
+  filter(EventText == "Edging Process, resistance Ohm") %>%
   anomalyscore_machines(Machines = Machines,
                         path_to_model = "www/tmp/normality_model.bin/EdgingProcessresistanceOhm",
                         n_cols = 150)
-
-# "EdgingProcessphaseangle"
-DF_TEMP_TPA <- DF_TEMP %>%
+# 
+# # "EdgingProcessphaseangle"
+DF_TEMP_TPD <- DF_TEMP %>%
   filter(EventText == "Edging Process, phase angle") %>%
   anomalyscore_machines(Machines = Machines,
                         path_to_model = "www/tmp/normality_model.bin/EdgingProcessphaseangle",
                         n_cols = 150)
-
+# 
 # "CuttingProcessresistanceOhm"
-DF_TEMP_TPR <- DF_TEMP %>% 
-  filter(EventText == "Tubing Process, resistance Ohm") %>% 
+DF_TEMP_TPE <- DF_TEMP %>%
+  filter(EventText == "Tubing Process, resistance Ohm") %>%
   anomalyscore_machines(Machines = Machines,
-                        path_to_model = "www/tmp/normality_model.bin/CuttingProcessresistanceOhm",
+                        path_to_model = "www/tmp/normality_model.bin/TubingProcessresistanceOhm",
                         n_cols = 150)
 
-# "Cutting Process, Phase"
-DF_TEMP_TPA <- DF_TEMP %>%
+# # "Cutting Process, Phase"
+DF_TEMP_TPF <- DF_TEMP %>%
   filter(EventText == "Cutting Process, phase angle") %>%
   anomalyscore_machines(Machines = Machines,
                         path_to_model = "www/tmp/normality_model.bin/CuttingProcessphaseangle",
@@ -95,7 +95,7 @@ DF_TEMP_TPA <- DF_TEMP %>%
 
 h2o.shutdown(prompt = F)
 # bind results
-DF_TEMP_MSE <- bind_rows(DF_TEMP_TPR, DF_TEMP_TPA)
+DF_TEMP_MSE <- bind_rows(DF_TEMP_TPA, DF_TEMP_TPB, DF_TEMP_TPC, DF_TEMP_TPD,DF_TEMP_TPE, DF_TEMP_TPF)
 
 # =========== DEEP LEARNING ========== #
 

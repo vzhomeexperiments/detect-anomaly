@@ -30,16 +30,6 @@ Follow the R scripts and below diagram to find elements of the ShinyApp
 
 ![Architecture][id1]
 
-#### AI Project recommendations
-
-Below are some of my personal recommendations:
-
-* Learn Deep Learning model by starting from provided template. Increase/decrease complexity of the model and monitor MSE score. Choose the one that less complex with reasonably low MSE score
-* Start simple and small having greater idea in mind. Provide useful tool which can allow you to collect information for more complex AI project, then deliver even greater value for business
-* Always be ready to present your work. You need to prove your value for business at any time. 
-
-
-
 #### General Template to Train Models
 
 This code contains a procedure to train Deep Learning models that will make Shiny App working.
@@ -136,6 +126,7 @@ train_model <- function(x, event_text, machine_name, num_cols = 150){
   # event_text <- "Tubing Process, phase angle"
   # machine_name <- "Machine #4"
   # num_cols <- 150
+  # h2o.init()
   DF_TEMP_TPA <- x %>% 
   filter(EventText == event_text) %>% 
   filter(Name == machine_name) %>% 
@@ -187,7 +178,7 @@ DF_TEMP %>%
   ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
 
 # Train the model using defined function
-train_model(x = DF_TEMP, event_text = "Tubing Process, phase angle",machine_name = "Machine #2")
+train_model(x = DF_TEMP, event_text = "Tubing Process, phase angle",machine_name = "Machine #4")
 
 ## -------------------
 # 2. Process Edging Process, resistance Ohm

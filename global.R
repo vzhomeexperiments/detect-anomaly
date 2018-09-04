@@ -7,11 +7,16 @@ library(h2o)
 anomalyscore_machines <- function(x, Machines, path_to_model, n_cols = 150){
   # apply Neural Network Model for each machine
   # x - dataframe containing DF_TEMP data structure
+  # x <- read_rds("test_data/DF_TEMP_TPR.rds")
   # path to model - location of the Model stored as a .bin object
+  # path_to_model <- "www/tmp/normality_model.bin/TubingProcessphaseangle"
   # Machines - vector containing machine names
+  # Machines <- c("Machine #1", "Machine #2", "Machine #3", "Machine #4")
+  # n_cols <- 150
 
   for(i in 1:length(Machines)){
     # extract one machine, all events
+    # i <- 1
     DF_A <- x %>% 
       filter(Name == Machines[i]) %>% 
       select(StartDate, AnalogVal, EventText)
@@ -40,11 +45,12 @@ anomalyscore_machines <- function(x, Machines, path_to_model, n_cols = 150){
 anomalyscore_nn <- function(x, path_to_model, n_cols){
   #function will convert data frame to image, apply NN and apply score to the original dataframe
   #x = dataframe with columns to perform Anomaly Detection scoring, it must contain data from one specific category, machine
+  # x <- DF_A
   #path_to_model - path to model
-  
+  # h2o.init(nthreads = 1)
   # get matrix for NN
   DF_M4 <- x %>% 
-    to_m(n_cols = n_cols)
+    to_m(n_cols = n_cols) %>% as.data.frame()
   # get corresponding Date Time matrix
   DF_M4DT <- to_mDT(x, n_cols = n_cols)
   
