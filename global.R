@@ -9,11 +9,11 @@ anomalyscore_machines <- function(x, Machines, path_to_model, n_cols = 150){
   # x - dataframe containing DF_TEMP data structure
   # x <- read_rds("test_data/DF_TEMP_TPR.rds")
   # path to model - location of the Model stored as a .bin object
-  # path_to_model <- "www/tmp/normality_model.bin/TubingProcessphaseangle"
+  # path_to_model <- "www/tmp/normality_model.bin/TubingProcessresistanceOhm"
   # Machines - vector containing machine names
   # Machines <- c("Machine #1", "Machine #2", "Machine #3", "Machine #4")
   # n_cols <- 150
-
+  # h2o.init(nthreads = 1)
   for(i in 1:length(Machines)){
     # extract one machine, all events
     # i <- 1
@@ -36,7 +36,7 @@ anomalyscore_machines <- function(x, Machines, path_to_model, n_cols = 150){
     }  
     
   }
-
+   #h2o.shutdown(prompt = F)
   return(DF_SUM)
 }
 
@@ -65,7 +65,7 @@ anomalyscore_nn <- function(x, path_to_model, n_cols){
   
   # retrieve result
   return(DF_M4_Ready)
-  
+  #h2o.shutdown(prompt = F)
 }
 
 

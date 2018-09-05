@@ -30,11 +30,13 @@ Follow the R scripts and below diagram to find elements of the ShinyApp
 
 ![Architecture][id1]
 
-#### General Template to Train Models
+#### General Process to Train Models
 
 This code contains a procedure to train Deep Learning models that will make Shiny App working.
 
-This procedure will have to be repeated anytime when h2o source package is updated!
+This procedure will have to be repeated anytime when h2o source package is updated! Document will contain detailed procefure to select data for one process as well as the code to make a quicker model training.
+
+#### Data preparation
 
 ```{r, eval=FALSE, include=TRUE}
 library(tidyverse)
@@ -60,30 +62,49 @@ DF_TEMP <- DF_Data_Recent %>%
 
 ```
 
-## Generate the model for one process
+#### Step by step model generation for one process
+
+It is necessary to visualize the data from several machines to select the data which is more closer to the specifications. 'Domain' or 'Specialist' knowledge will need to be applied:
 
 ```{r, eval=FALSE, include=TRUE}
 # Visualize
 DF_TEMP %>% 
   filter(EventText == "Tubing Process, phase angle") %>% 
   ggplot(aes(x = StartDate, y = AnalogVal, col = Name)) + geom_point()+facet_grid(~Name)
+```
 
+Then we will choose the data which will be used for modeling:
+
+```{r, eval=FALSE, include=TRUE}
 # Choose best machine to train model - Machine 1 (Domain Knowldege), extract data
 # "Tubing Process, Phase"
 DF_TEMP_TPA <- DF_TEMP %>% 
   filter(EventText == "Tubing Process, phase angle") %>% 
   filter(Name == "Machine #1") %>% 
   select(StartDate, AnalogVal) %>% 
-  arrange(StartDate)
+  arrange(StartDate) %>% 
+  select(AnalogVal)
+```
 
+Data will need to be transformed to the 'image' shape:
+
+```{r, eval=FALSE, include=TRUE}
 # transform to 2 matrixes
 source("to_m.R")
-source("to_matrixDT.R")
 
-DF_M1 <- to_m(DF_TEMP_TPA, 150)
-#DF_M1t<- to_mDT(DF_TEMP_TPA, 150)
+DF_M1 <- to_m(DF_TEMP_TPA, 150) %>% as.data.frame()
 
 ```
+
+We can visualize this shape in 3D
+
+```{r, eval=FALSE, include=TRUE}
+# plotly
+plot_ly(z = as.matrix(DF_M1), type = "surface")
+
+```
+
+We are ready to train the model
 
 ```{r, eval=FALSE, include=TRUE}
 # to initialize the 'machine'
@@ -102,7 +123,7 @@ normality_model <- h2o.deeplearning(
  l1 = 1e-4, 
  epochs = 100)
 
-# computer error of the model
+# compute error of the model
 h2o.anomaly(normality_model, train_M1) %>% as.data.frame() %>% plot.ts(ylim = c(0, 10), type = "p")
 
 # save model
@@ -131,7 +152,8 @@ train_model <- function(x, event_text, machine_name, num_cols = 150){
   filter(EventText == event_text) %>% 
   filter(Name == machine_name) %>% 
   select(StartDate, AnalogVal) %>% 
-  arrange(StartDate)
+  arrange(StartDate) %>% 
+    select(AnalogVal)
   
   DF_M1 <- to_m(DF_TEMP_TPA, num_cols) %>% as.data.frame()
   
